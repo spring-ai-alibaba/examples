@@ -18,7 +18,7 @@
 
 ####  引入依赖
 
-项目中在跟 pom 中提前引入了 `spring-ai-alibaba-bom`，下文中没有列出。
+项目中在根 pom 中提前引入了 `spring-ai-alibaba-bom`，下文中没有列出。
 
 1. spring-ai-alibaba-starter-dashscope： dashscope starter
 2. spring-ai-alibaba-starter-tool-calling-weather：spring ai alibaba 工具 starter

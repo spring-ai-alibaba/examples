@@ -16,6 +16,7 @@
 
 package com.alibaba.cloud.ai.example.graph.openmanus;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.cloud.ai.example.graph.openmanus.tool.Builder;
@@ -79,24 +80,37 @@ public class OpenmanusController {
 
 	public void initGraph() throws GraphStateException {
 
-		OverAllStateFactory stateFactory = () -> {
-			OverAllState state = new OverAllState();
-			state.registerKeyAndStrategy("plan", new ReplaceStrategy());
-			state.registerKeyAndStrategy("step_prompt", new ReplaceStrategy());
-			state.registerKeyAndStrategy("step_output", new ReplaceStrategy());
-			state.registerKeyAndStrategy("final_output", new ReplaceStrategy());
 
-			return state;
+		KeyStrategyFactory keyStrategyFactory = () -> {
+			HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
+			keyStrategyHashMap.put("plan", new ReplaceStrategy());
+			keyStrategyHashMap.put("step_prompt", new ReplaceStrategy());
+			keyStrategyHashMap.put("step_output", new ReplaceStrategy());
+			keyStrategyHashMap.put("final_output", new ReplaceStrategy());
+			return keyStrategyHashMap;
 		};
 
 		SupervisorAgent supervisorAgent = new SupervisorAgent(PlanningTool.INSTANCE);
-		ReactAgent planningAgent = new ReactAgent("planningAgent", planningClient, Builder.getFunctionCallbackList(),
-				10);
+
+		ReactAgent planningAgent = ReactAgent.builder()
+				.chatClient(planningClient)
+				.tools(Builder.getFunctionCallbackList())
+				.maxIterations(10)
+				.name("Planning Agent")
+				.build();
+
 		planningAgent.getAndCompileGraph();
-		ReactAgent stepAgent = new ReactAgent("stepAgent", stepClient, Builder.getManusAgentFunctionCallbacks(), 10);
+
+		ReactAgent stepAgent = ReactAgent.builder()
+				.chatClient(stepClient)
+				.tools(Builder.getManusAgentFunctionCallbacks())
+				.maxIterations(10)
+				.name("Step Agent")
+				.build();
+
 		stepAgent.getAndCompileGraph();
 
-		StateGraph graph = new StateGraph(stateFactory)
+		StateGraph graph = new StateGraph(keyStrategyFactory)
 			.addNode("planning_agent", planningAgent.asAsyncNodeAction("input", "plan"))
 			.addNode("supervisor_agent", node_async(supervisorAgent))
 			.addNode("step_executing_agent", stepAgent.asAsyncNodeAction("step_prompt", "step_output"))

@@ -1,18 +1,16 @@
 package com.example.demo.graph;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.cloud.ai.graph.CompiledGraph;
-import com.alibaba.cloud.ai.graph.GraphRepresentation;
-import com.alibaba.cloud.ai.graph.OverAllState;
-import com.alibaba.cloud.ai.graph.OverAllStateFactory;
-import com.alibaba.cloud.ai.graph.StateGraph;
+import com.alibaba.cloud.ai.graph.*;
 import com.alibaba.cloud.ai.graph.action.AsyncNodeAction;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.alibaba.cloud.ai.graph.node.HttpNode;
 import com.alibaba.cloud.ai.graph.node.QuestionClassifierNode;
 
+import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
@@ -29,20 +27,17 @@ public class GraphBuilder {
     @Bean
     public CompiledGraph buildGraph(ChatModel chatModel) throws GraphStateException {
         ChatClient chatClient = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
-        OverAllStateFactory stateFactory = () -> {
-            OverAllState overAllState = new OverAllState();
-            // build state
-            // overAllState.registerKeyAndStrategy("prompt", (o, o2) -> o2);
-            overAllState.registerKeyAndStrategy("input", (o1, o2) -> o2);
-            overAllState.registerKeyAndStrategy("1711529066687_output", (o1, o2) -> o2);
-            overAllState.registerKeyAndStrategy("17440815773820_output", (o1, o2) -> o2);
-            overAllState.registerKeyAndStrategy("1711529036587_output", (o1, o2) -> o2);
-            overAllState.registerKeyAndStrategy("1711529077513_output", (o1, o2) -> o2);
 
-            return overAllState;
+        KeyStrategyFactory keyStrategyFactory = () -> {
+            HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
+            for (String key : List.of("input", "1711529066687_output", "17440815773820_output", "1711529036587_output", "1711529077513_output")) {
+                keyStrategyHashMap.put(key, new ReplaceStrategy());
+            }
+            return keyStrategyHashMap;
         };
 
-        StateGraph stateGraph = new StateGraph(stateFactory);
+
+        StateGraph stateGraph = new StateGraph(keyStrategyFactory);
         // add nodes
         // —— QuestionClassifierNode [1711529036587] ——
         QuestionClassifierNode questionClassifier1 = QuestionClassifierNode.builder()

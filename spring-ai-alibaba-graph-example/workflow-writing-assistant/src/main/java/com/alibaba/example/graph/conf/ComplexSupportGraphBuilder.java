@@ -16,13 +16,11 @@
 
 package com.alibaba.example.graph.conf;
 
-import com.alibaba.cloud.ai.graph.CompiledGraph;
-import com.alibaba.cloud.ai.graph.OverAllState;
-import com.alibaba.cloud.ai.graph.OverAllStateFactory;
-import com.alibaba.cloud.ai.graph.StateGraph;
+import com.alibaba.cloud.ai.graph.*;
 import com.alibaba.cloud.ai.graph.action.AsyncNodeAction;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.alibaba.cloud.ai.graph.node.*;
+import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
@@ -33,6 +31,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.HttpMethod;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,17 +48,17 @@ public class ComplexSupportGraphBuilder {
 		// ChatClient
 		ChatClient chatClient = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
 
-		OverAllStateFactory stateFactory = () -> {
-			OverAllState state = new OverAllState();
+		KeyStrategyFactory keyStrategyFactory = () -> {
+			HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
 			for (String key : List.of("input", "attachments", "docs", "parameterParsing_output", "classifier_output",
 					"retrieved_docs", "filtered_docs", "http_response", "llm_response", "tool_result", "human_feedback",
 					"answer")) {
-				state.registerKeyAndStrategy(key, (o1, o2) -> o2);
+				keyStrategyHashMap.put(key, new ReplaceStrategy());
 			}
-			return state;
+			return keyStrategyHashMap;
 		};
 
-		StateGraph graph = new StateGraph(stateFactory);
+		StateGraph graph = new StateGraph(keyStrategyFactory);
 
 		// —— 1. Document extraction ——
 		DocumentExtractorNode extractNode = DocumentExtractorNode.builder()

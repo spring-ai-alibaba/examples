@@ -88,7 +88,7 @@ POST /assistant/chat?sessionId=123&userInput=待办：学习TypeScript
 #### 第2轮
 
 ```
-POST /assistant/chat?sessionId=123&userInput=待办：用Ts做一个小demo"
+POST /assistant/chat?sessionId=123&userInput=待办：用Ts做一个小demo
 ```
 
 **返回：**
@@ -106,7 +106,7 @@ POST /assistant/chat?sessionId=123&userInput=待办：用Ts做一个小demo"
 #### 第3轮（普通闲聊）
 
 ```
-POST /assistant/chat?sessionId=123&userInput=简单介绍下Spring Cloud"
+POST /assistant/chat?sessionId=123&userInput=简单介绍下Spring Cloud
 ```
 
 **返回：**

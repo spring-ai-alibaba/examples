@@ -32,7 +32,6 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-graph-core</artifactId>
-            <version>1.0.0.3</version>
         </dependency>
 
     </dependencies>

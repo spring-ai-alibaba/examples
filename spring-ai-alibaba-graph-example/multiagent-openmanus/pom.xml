@@ -36,8 +36,6 @@
         <gson.version>2.10.1</gson.version>
         <maven.deploy.skip>true</maven.deploy.skip>
         <spring-boot.version>3.4.5</spring-boot.version>
-        <spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
-        <spring-ai.version>1.0.0</spring-ai.version>
         <mcp.version>0.10.0</mcp.version>
 
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -212,6 +210,10 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-tool-calling-baidusearch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-graph-core</artifactId>
         </dependency>
 
     </dependencies>
