@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.alibaba.cloud.ai</groupId>
 			<artifactId>spring-ai-alibaba-graph-core</artifactId>
-			<version>1.0.0.3</version>
+			<version>1.0.0.4-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.github.docker-java</groupId>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>com.alibaba.cloud.ai</groupId>
 			<artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
-			<version>1.0.0.3</version>
+			<version>1.0.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

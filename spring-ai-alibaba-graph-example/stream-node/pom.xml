@@ -13,9 +13,6 @@
     <groupId>com.alibaba.cloud.ai.graph</groupId>
     <artifactId>stream-node</artifactId>
 
-    <properties>
-        <spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
-    </properties>
 
     <dependencies>
 

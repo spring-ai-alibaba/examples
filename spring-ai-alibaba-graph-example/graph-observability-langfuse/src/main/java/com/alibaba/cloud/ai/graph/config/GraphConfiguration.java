@@ -23,7 +23,7 @@ import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.checkpoint.config.SaverConfig;
-import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverConstant;
+import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverEnum;
 import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.alibaba.cloud.ai.graph.node.ChatNode;
@@ -233,7 +233,7 @@ public class GraphConfiguration {
 			throws GraphStateException {
 		// 为子图添加 checkpoint saver 配置，确保子图能正确接收输入
 		CompileConfig subgraphCompileConfig = CompileConfig.builder(observationCompileConfig)
-			.saverConfig(SaverConfig.builder().register(SaverConstant.MEMORY, new MemorySaver()).build())
+			.saverConfig(SaverConfig.builder().register(SaverEnum.MEMORY.getValue(), new MemorySaver()).build())
 			.build();
 
 		return observabilityGraph.compile(subgraphCompileConfig);

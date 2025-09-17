@@ -13,7 +13,7 @@ https://help.aliyun.com/zh/model-studio/developer-reference/error-code
 ## 请求演示
 
 ```shell
-$ curl http://localhost:10002/qwq/chat-client/stream/chat
+$ curl http://localhost:10002/client/stream/chat
 
 <think>好的，用户让我</think>
 <think>介绍自己，我之前</think>

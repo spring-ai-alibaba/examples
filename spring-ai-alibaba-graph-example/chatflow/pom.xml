@@ -31,7 +31,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
     </properties>
 
     <dependencies>
@@ -48,7 +47,7 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-graph-core</artifactId>
-            <version>${spring-ai-alibaba.version}</version>
+<!--            <version>${spring-ai-alibaba.version}</version>-->
         </dependency>
 
         <dependency>

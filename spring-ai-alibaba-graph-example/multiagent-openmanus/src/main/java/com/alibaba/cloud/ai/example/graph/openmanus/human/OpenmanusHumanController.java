@@ -16,6 +16,7 @@
 
 package com.alibaba.cloud.ai.example.graph.openmanus.human;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.alibaba.cloud.ai.graph.node.HumanNode;
 import com.alibaba.cloud.ai.graph.state.StateSnapshot;
 
+import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
@@ -79,24 +81,32 @@ public class OpenmanusHumanController {
 
 	@GetMapping("/init")
 	public void initGraph() throws GraphStateException {
-		OverAllStateFactory stateFactory = () -> {
-			OverAllState state = new OverAllState();
-			state.registerKeyAndStrategy("plan", (o1, o2) -> o2);
-			state.registerKeyAndStrategy("step_prompt", (o1, o2) -> o2);
-			state.registerKeyAndStrategy("step_output", (o1, o2) -> o2);
-			state.registerKeyAndStrategy("final_output", (o1, o2) -> o2);
 
-			return state;
+		KeyStrategyFactory keyStrategyFactory = () -> {
+			HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
+			keyStrategyHashMap.put("plan", new ReplaceStrategy());
+			keyStrategyHashMap.put("step_prompt", new ReplaceStrategy());
+			keyStrategyHashMap.put("step_output", new ReplaceStrategy());
+			keyStrategyHashMap.put("final_output", new ReplaceStrategy());
+			return keyStrategyHashMap;
 		};
 
+
+
 		SupervisorAgent supervisorAgent = new SupervisorAgent(planningTool);
-		ReactAgent planningAgent = new ReactAgent("planningAgent", planningClient, resolver, 10);
+
+		ReactAgent planningAgent = ReactAgent.builder()
+				.name("planningAgent").chatClient(planningClient).resolver(resolver).maxIterations(10).build();
+
 		planningAgent.getAndCompileGraph();
-		ReactAgent stepAgent = new ReactAgent("stepAgent", stepClient, resolver, 10);
+
+		ReactAgent stepAgent = ReactAgent.builder()
+				.name("stepAgent").chatClient(stepClient).resolver(resolver).maxIterations(10).build();
+
 		stepAgent.getAndCompileGraph();
 		HumanNode humanNode = new HumanNode();
 
-		StateGraph graph2 = new StateGraph(stateFactory)
+		StateGraph graph2 = new StateGraph(keyStrategyFactory)
 			.addNode("planning_agent", planningAgent.asAsyncNodeAction("input", "plan"))
 			.addNode("human", node_async(humanNode))
 			.addNode("supervisor_agent", node_async(supervisorAgent))

@@ -14,7 +14,7 @@ export AI_DASHSCOPE_API_KEY=xxx
 export SERP_API_KEY=xxx
 ```
 
-> 尽在您想体验 OpenManus 示例时，才需要配置这个选项。
+> 仅在您想体验 OpenManus 示例时，才需要配置这个选项。
 
 ### 启动应用
 
@@ -42,9 +42,9 @@ mvn spring-boot:run
 
 浏览器访问如下示例链接，查看运行效果：
 
-* http://localhost:18080/customer/chat?query=我收到的产品有快递破损，需要退换货？
-* http://localhost:18080/customer/chat?query=我的产品不能正常工作了，要怎么去做维修？
-* http://localhost:18080/customer/chat?query=商品收到了，非常好，下次还会买。
+* http://localhost:18080/manus/chat?query=我收到的产品有快递破损，需要退换货？
+* http://localhost:18080/manus/chat?query=我的产品不能正常工作了，要怎么去做维修？
+* http://localhost:18080/manus/chat?query=商品收到了，非常好，下次还会买。
 
 ## React Agent 示例
 
