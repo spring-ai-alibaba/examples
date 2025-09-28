@@ -28,7 +28,7 @@ public interface ProcurementProjectRepository extends Neo4jRepository<Procuremen
     List<ProcurementProject> findByOrganizationName(String organizationName);
     
     // 根据项目类别查找项目
-    @Query("MATCH (p:ProcurementProject)-[:BELONGS_TO]->(c:ProjectCategory {name: $categoryName}) RETURN p")
+    @Query("MATCH (p:ProcurementProject)-[:BELONGS_TO]->(c:ProcurementProjectCategory {name: $categoryName}) RETURN p")
     List<ProcurementProject> findByCategoryName(String categoryName);
     
     // 查找最近的项目
@@ -46,7 +46,7 @@ public interface ProcurementProjectRepository extends Neo4jRepository<Procuremen
     // 获取项目的完整关系图
     @Query("MATCH (p:ProcurementProject) WHERE p.id = $projectId " +
            "OPTIONAL MATCH (p)-[:PROCURED_BY]->(o:ProcurementOrganization) " +
-           "OPTIONAL MATCH (p)-[:BELONGS_TO]->(c:ProjectCategory) " +
+           "OPTIONAL MATCH (p)-[:BELONGS_TO]->(c:ProcurementProjectCategory) " +
            "OPTIONAL MATCH (p)-[:AWARDED_TO]->(s:Supplier) " +
            "RETURN p, o, c, collect(s)")
     Optional<ProcurementProject> findProjectWithAllRelations(Long projectId);

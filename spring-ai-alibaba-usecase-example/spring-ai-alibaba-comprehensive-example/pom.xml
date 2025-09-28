@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.touhouqing</groupId>
@@ -28,8 +28,8 @@
     </scm>
     <properties>
         <java.version>17</java.version>
-        <spring-ai.version>1.0.0</spring-ai.version>
-        <spring-ai-alibaba.version>1.0.0.2</spring-ai-alibaba.version>
+        <spring-ai.version>1.0.2</spring-ai.version>
+        <spring-ai-alibaba.version>1.0.0.4</spring-ai-alibaba.version>
     </properties>
     <dependencies>
         <dependency>
@@ -42,10 +42,10 @@
             <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
         </dependency>
         <!-- 保留Spring AI的Ollama支持 -->
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-ollama</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-starter-model-ollama</artifactId>-->
+<!--        </dependency>-->
         <!-- 保留Spring AI的向量存储和文档读取器 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>3.5.12</version>
+            <version>3.5.14</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -87,6 +87,11 @@
         <dependency>
             <groupId>org.neo4j.driver</groupId>
             <artifactId>neo4j-java-driver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.19.0</version>
         </dependency>
         <dependency>
             <groupId>us.codecraft</groupId>
