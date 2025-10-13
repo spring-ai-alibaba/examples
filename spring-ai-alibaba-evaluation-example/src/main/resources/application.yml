@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: spring-ai-alibaba-evaluation-example
+
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-v1
+
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor: debug
+    com.alibaba.cloud.ai.example.evaluator.controller: debug
