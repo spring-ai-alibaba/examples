@@ -17,21 +17,20 @@
 package com.alibaba.example.graph.product.conf;
 
 import com.alibaba.cloud.ai.graph.GraphRepresentation;
-import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
+import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
+import com.alibaba.cloud.ai.graph.state.AgentStateFactory;
 import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
 import com.alibaba.example.graph.product.model.Product;
+import com.alibaba.example.graph.product.serializer.ProductStateSerializer;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.alibaba.cloud.ai.graph.StateGraph.END;
@@ -51,6 +50,10 @@ public class ProductGraphConfiguration {
                 .addPatternStrategy("productSpec", new ReplaceStrategy())
                 .addPatternStrategy("finalProduct", new ReplaceStrategy())
                 .build();
+
+        // Create custom serializer to handle Product object serialization
+        AgentStateFactory<OverAllState> stateFactory = OverAllState::new;
+        ProductStateSerializer serializer = new ProductStateSerializer(stateFactory);
 
         NodeAction marketingCopyNode = state -> {
             String productDesc = (String) state.value("productDesc").orElseThrow();
@@ -77,7 +80,7 @@ public class ProductGraphConfiguration {
             return Map.of("finalProduct", finalProduct);
         };
 
-        StateGraph graph = new StateGraph("ProductAnalysisGraph", keyStrategyFactory);
+        StateGraph graph = new StateGraph(keyStrategyFactory, serializer);
         graph.addNode("marketingCopy", node_async(marketingCopyNode))
                 .addNode("specificationExtraction", node_async(specificationExtractionNode))
                 .addNode("merge", node_async(mergeNode))
