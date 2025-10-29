@@ -64,6 +64,7 @@ mvn clean install -DskipTests
 
 **3. 运行项目**
 ```shell
+export AI_DASHSCOPE_API_KEY=your_api_key
 java -jar ./target/app.jar
 ```
 
