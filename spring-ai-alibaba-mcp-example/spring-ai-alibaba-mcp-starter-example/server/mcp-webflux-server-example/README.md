@@ -148,7 +148,8 @@ java -Dspring.ai.mcp.server.stdio=true \
 ```java
 // 配置 WebFlux 客户端
 var transport = new WebFluxSseClientTransport(
-    WebClient.builder().baseUrl("http://localhost:8080")
+    WebClient.builder().baseUrl("http://localhost:8080"),
+    McpJsonMapper.getDefault()
 );
 
 // 创建聊天客户端
@@ -190,7 +191,7 @@ var stdioParams = ServerParameters.builder("java")
           "target/mcp-starter-webflux-server-0.0.1-SNAPSHOT.jar")
     .build();
 
-var transport = new StdioClientTransport(stdioParams);
+var transport = new StdioClientTransport(stdioParams, McpJsonMapper.getDefault());
 new SampleClient(transport).run();
 ```
 
