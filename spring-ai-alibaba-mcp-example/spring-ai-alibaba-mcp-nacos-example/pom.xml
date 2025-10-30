@@ -25,6 +25,8 @@
         <module>server/mcp-nacos-register-example</module>
         <module>server/mcp-nacos-gateway-example</module>
         <module>client/mcp-nacos-discovery-example</module>
+        <module>server/mcp-nacos-register-extensions-example</module>
+        <module>client/mcp-nacos-distributed-extensions-example</module>
     </modules>
     
     <dependencyManagement>

@@ -85,7 +85,7 @@ var stdioParams = ServerParameters.builder("java")
         .args("-jar", "target/mcp-stdio-server-exmaple-0.0.1-SNAPSHOT.jar")
         .build();
 
-var transport = new StdioClientTransport(stdioParams);
+var transport = new StdioClientTransport(stdioParams, McpJsonMapper.getDefault());
 var client = McpClient.sync(transport).build();
 
 client.initialize();

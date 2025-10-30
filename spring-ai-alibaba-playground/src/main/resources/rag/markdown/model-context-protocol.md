@@ -65,7 +65,7 @@ var stdioParams = ServerParameters.builder("npx")
         .addEnvVar("BRAVE_API_KEY", System.getenv("BRAVE_API_KEY"))
         .build();
 
-var mcpClient = McpClient.using(new StdioClientTransport(stdioParams)).sync();
+var mcpClient = McpClient.using(new StdioClientTransport(stdioParams, McpJsonMapper.getDefault())).sync();
 
 var init = mcpClient.initialize();
 
