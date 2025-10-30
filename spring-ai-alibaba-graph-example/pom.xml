@@ -51,6 +51,9 @@
         <module>reflection</module>
         <module>chatflow</module>
         <module>parallel-stream-node</module>
+        <!-- InterruptableAction example - need 1.1.0.0-SNAPSHOT version -->
+        <!-- need to build the main repository before use.: mvn install -pl spring-ai-alibaba-graph-core -am -->
+        <module>interruptable-action-example</module>
     </modules>
 
         <properties>
