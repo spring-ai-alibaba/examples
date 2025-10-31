@@ -17,19 +17,20 @@ package com.alibaba.cloud.ai.graph.interruptable.node;
 
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
+import com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig;
 import com.alibaba.cloud.ai.graph.action.InterruptableAction;
 import com.alibaba.cloud.ai.graph.action.InterruptionMetadata;
-import com.alibaba.cloud.ai.graph.action.NodeAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Libres-coder
  * @since 2025/10/31
  */
-public class SensitiveOperationNode implements NodeAction, InterruptableAction {
+public class SensitiveOperationNode implements AsyncNodeActionWithConfig, InterruptableAction {
 
     private static final Logger logger = LoggerFactory.getLogger(SensitiveOperationNode.class);
     
@@ -76,7 +77,7 @@ public class SensitiveOperationNode implements NodeAction, InterruptableAction {
     }
 
     @Override
-    public Map<String, Object> apply(OverAllState state) {
+    public CompletableFuture<Map<String, Object>> apply(OverAllState state, RunnableConfig config) {
         logger.info("SensitiveOperationNode.apply() executing");
         
         String operation = state.value("operation", "unknown");
@@ -100,7 +101,7 @@ public class SensitiveOperationNode implements NodeAction, InterruptableAction {
             result.put("error", e.getMessage());
         }
         
-        return result;
+        return CompletableFuture.completedFuture(result);
     }
 
     private String buildConfirmMessage(String operation, Map<String, Object> params) {

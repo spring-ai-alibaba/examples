@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static com.alibaba.cloud.ai.graph.action.AsyncNodeAction.node_async;
-
 /**
  * @author Libres-coder
  * @since 2025/10/31
@@ -60,8 +58,8 @@ public class InterruptableGraphConfiguration {
         FinalProcessNode finalProcessNode = new FinalProcessNode();
 
         StateGraph graph = new StateGraph(keyStrategyFactory)
-            .addNode("order_approval", node_async(orderApprovalNode))
-            .addNode("final_process", node_async(finalProcessNode))
+            .addNode("order_approval", orderApprovalNode)
+            .addNode("final_process", finalProcessNode)
             .addEdge(StateGraph.START, "order_approval")
             .addEdge("order_approval", "final_process")
             .addEdge("final_process", StateGraph.END);
@@ -92,8 +90,8 @@ public class InterruptableGraphConfiguration {
         FinalProcessNode finalProcessNode = new FinalProcessNode();
 
         StateGraph graph = new StateGraph(keyStrategyFactory)
-            .addNode("sensitive_operation", node_async(sensitiveOperationNode))
-            .addNode("final_process", node_async(finalProcessNode))
+            .addNode("sensitive_operation", sensitiveOperationNode)
+            .addNode("final_process", finalProcessNode)
             .addEdge(StateGraph.START, "sensitive_operation")
             .addEdge("sensitive_operation", "final_process")
             .addEdge("final_process", StateGraph.END);

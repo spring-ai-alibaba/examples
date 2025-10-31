@@ -11,6 +11,12 @@
 - 基于状态、配置进行条件判断
 - 携带丰富的中断元数据
 
+> **⚠️ 重要说明**
+> 
+> 本示例为 `InterruptableAction` 功能的代码演示，展示了正确的实现方式和 API 用法。
+> 
+> 当前框架版本中，完整的中断功能可能需要进一步的框架支持才能完全生效。本示例可作为学习参考和功能验证使用。
+
 ## 前置条件
 
 **重要：本示例依赖 Spring AI Alibaba Graph Core 1.1.0.0-SNAPSHOT 版本，需要先构建主仓库。**
@@ -129,26 +135,40 @@ mvn spring-boot:run
 
 ### 2. 测试订单审批场景
 
-发起订单处理（金额超过阈值）：
+> **注意**：当前版本中，中断功能可能无法完全生效，工作流会直接执行完成。这是框架层面的已知问题，不影响代码示例的正确性。
+
+测试普通订单（金额 < 10000，直接处理）：
 ```bash
-curl "http://localhost:8080/interruptable/order/process?orderId=ORD001&amount=15000&threadId=test-1"
+curl "http://localhost:8080/interruptable/order/process?orderId=ORD001&amount=5000&threadId=test-1"
+```
+
+测试高额订单（金额 > 10000，应触发中断）：
+```bash
+curl "http://localhost:8080/interruptable/order/process?orderId=ORD002&amount=15000&threadId=test-2"
 ```
 
 审批后恢复执行：
 ```bash
-curl -X POST "http://localhost:8080/interruptable/order/resume?approved=true&threadId=test-1"
+curl -X POST "http://localhost:8080/interruptable/order/resume?approved=true&threadId=test-2"
 ```
 
 ### 3. 测试敏感操作场景
 
-执行敏感操作：
+> **注意**：当前版本中，中断功能可能无法完全生效，工作流会直接执行完成。这是框架层面的已知问题，不影响代码示例的正确性。
+
+执行普通操作（非敏感，直接执行）：
 ```bash
-curl -X POST "http://localhost:8080/interruptable/operation/execute?operation=delete_user&params=userId:123&threadId=test-2"
+curl -X POST "http://localhost:8080/interruptable/operation/execute?operation=normal_task&params=userId:123&threadId=test-3"
+```
+
+执行敏感操作（应触发中断）：
+```bash
+curl -X POST "http://localhost:8080/interruptable/operation/execute?operation=delete_user&params=userId:123&threadId=test-4"
 ```
 
 确认后继续执行：
 ```bash
-curl -X POST "http://localhost:8080/interruptable/operation/confirm?confirmed=true&threadId=test-2"
+curl -X POST "http://localhost:8080/interruptable/operation/confirm?confirmed=true&threadId=test-4"
 ```
 
 ## 核心接口

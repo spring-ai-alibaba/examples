@@ -16,23 +16,25 @@
 package com.alibaba.cloud.ai.graph.interruptable.node;
 
 import com.alibaba.cloud.ai.graph.OverAllState;
-import com.alibaba.cloud.ai.graph.action.NodeAction;
+import com.alibaba.cloud.ai.graph.RunnableConfig;
+import com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Libres-coder
  * @since 2025/10/31
  */
-public class FinalProcessNode implements NodeAction {
+public class FinalProcessNode implements AsyncNodeActionWithConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(FinalProcessNode.class);
 
     @Override
-    public Map<String, Object> apply(OverAllState state) {
+    public CompletableFuture<Map<String, Object>> apply(OverAllState state, RunnableConfig config) {
         logger.info("FinalProcessNode.apply() executing");
         
         String orderStatus = state.value("order_status", "unknown");
@@ -49,7 +51,7 @@ public class FinalProcessNode implements NodeAction {
         
         logger.info("Workflow completed, summary: {}", summary);
         
-        return finalResult;
+        return CompletableFuture.completedFuture(finalResult);
     }
 
     private String generateSummary(OverAllState state) {

@@ -17,21 +17,22 @@ package com.alibaba.cloud.ai.graph.interruptable.node;
 
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
+import com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig;
 import com.alibaba.cloud.ai.graph.action.InterruptableAction;
 import com.alibaba.cloud.ai.graph.action.InterruptionMetadata;
-import com.alibaba.cloud.ai.graph.action.NodeAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Libres-coder
  * @since 2025/10/31
  */
-public class OrderApprovalNode implements NodeAction, InterruptableAction {
+public class OrderApprovalNode implements AsyncNodeActionWithConfig, InterruptableAction {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderApprovalNode.class);
     
@@ -71,7 +72,7 @@ public class OrderApprovalNode implements NodeAction, InterruptableAction {
     }
 
     @Override
-    public Map<String, Object> apply(OverAllState state) {
+    public CompletableFuture<Map<String, Object>> apply(OverAllState state, RunnableConfig config) {
         logger.info("OrderApprovalNode.apply() executing");
         
         String orderId = state.value("order_id", "UNKNOWN");
@@ -98,7 +99,7 @@ public class OrderApprovalNode implements NodeAction, InterruptableAction {
         
         result.put("processed_time", System.currentTimeMillis());
         
-        return result;
+        return CompletableFuture.completedFuture(result);
     }
 }
 
