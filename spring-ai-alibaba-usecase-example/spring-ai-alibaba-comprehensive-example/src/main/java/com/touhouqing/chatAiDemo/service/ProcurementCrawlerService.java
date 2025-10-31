@@ -1,23 +1,7 @@
-/*
- * Copyright 2024-2025 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.touhouqing.chatAiDemo.service;
 
-import com.touhouqing.chatAiDemo.component.GovProcurementPageProcessor;
-import com.touhouqing.chatAiDemo.component.ProcurementDataPipeline;
+import com.touhouqing.chatAiDemo.component.BiddingWebPageProcessor;
+import com.touhouqing.chatAiDemo.component.BiddingDataPipeline;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 public class ProcurementCrawlerService {
-    
-    private final ProcurementDataPipeline dataPipeline;
+
+    private final BiddingDataPipeline dataPipeline;
     
     /**
      * 启动爬虫任务
@@ -40,7 +24,7 @@ public class ProcurementCrawlerService {
             try {
                 log.info("开始爬取政府采购数据，起始URL: {}", startUrl);
                 
-                Spider spider = Spider.create(new GovProcurementPageProcessor())
+                Spider spider = Spider.create(new BiddingWebPageProcessor())
                         .addUrl(startUrl)
                         .addPipeline(dataPipeline)
                         .thread(3); // 使用3个线程
@@ -66,7 +50,7 @@ public class ProcurementCrawlerService {
             try {
                 log.info("开始爬取单个页面: {}", url);
                 
-                Spider spider = Spider.create(new GovProcurementPageProcessor())
+                Spider spider = Spider.create(new BiddingWebPageProcessor())
                         .addUrl(url)
                         .addPipeline(dataPipeline)
                         .thread(1);

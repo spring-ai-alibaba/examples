@@ -1,19 +1,3 @@
-/*
- * Copyright 2024-2025 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.touhouqing.chatAiDemo.config;
 
 import com.touhouqing.chatAiDemo.constants.SystemConstants;
@@ -105,6 +89,23 @@ public class CommonConfiguration {
                                         .build())
                                 .build()
                )
+               .build();
+    }
+
+    /**
+     * 专门用于招标数据解析的ChatClient
+     * 使用适合数据解析的模型配置
+     */
+    @Bean
+    public ChatClient biddingDataChatClient(DashScopeChatModel model) {
+        return ChatClient
+               .builder(model)
+               .defaultOptions(DashScopeChatOptions.builder()
+                       .withModel("qwen-max")  // 使用最强大的模型
+                       .withTemperature(0.3)     // 适中的温度，保持创造性和准确性的平衡
+                       .withIncrementalOutput(false)  // 禁用增量输出
+                       .build())
+               .defaultSystem("你是一个专业的政府采购信息提取专家，擅长从各种格式的HTML网页中准确提取招标、采购相关的结构化信息。你必须仔细分析HTML内容并返回准确的JSON格式数据。")
                .build();
     }
 

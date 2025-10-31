@@ -47,9 +47,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   neo4j:
-    uri: neo4j+s://0b6068b5.databases.neo4j.io
+    uri: ${NEO4J_URI:neo4j+s://cf08d9c9.databases.neo4j.io}
     authentication:
-      username: neo4j
+      username: ${NEO4J_USERNAME:neo4j}
       password: ${NEO4J_PASSWORD}
     pool:
       max-connection-pool-size: 16
@@ -60,3 +60,10 @@ logging:
   level:
     org.springframework.ai: DEBUG
     com.touhouqing.chatAiDemo: DEBUG
+    org.springframework.data.neo4j: DEBUG
+    org.neo4j.driver: DEBUG
+    org.springframework.boot.autoconfigure.neo4j: DEBUG
+
+# CORS 配置
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

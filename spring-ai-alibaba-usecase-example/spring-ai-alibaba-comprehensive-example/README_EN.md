@@ -1,6 +1,6 @@
 # Chat AI Demo - Intelligent Conversation Platform
 
-🌐 **Language**: [English](#english) | [中文](README.md#chinese)
+🌐 **Language**: [English](#english) | [中文](README_CN.md#chinese)
 
 ---
 
@@ -10,20 +10,28 @@ Chat AI Demo is a comprehensive AI-powered chat platform built with Spring AI Al
 
 ## ✨ Key Features
 
+### 🎯 Intelligent Procurement Analysis System (Core Features)
+- **🕷️ Smart Crawling**: Multi-site government procurement data crawling with anti-bot bypass
+- **🤖 AI Parsing**: Qwen large model parsing HTML content into structured data
+- **📊 Graph Database**: Neo4j storing complex enterprise-project-organization networks
+- **🗄️ Vector Database**: Milvus supporting semantic search and similar project recommendations
+- **💰 Budget Calculation**: Automatic calculation of multi-project budget totals (e.g., 19.83 million yuan)
+- **📅 Date Processing**: Intelligent recognition and conversion of various date formats
+- **🔍 Intelligent Q&A**: RAG-based procurement information Q&A system
+- **🎯 Project Recommendation**: Smart matching and recommendation based on requirements
+
+### 🎭 AI Conversation Demo Features
 - **🎯 Multi-Scenario Chat**: Basic chat, game chat, customer service, PDF document chat
 - **🖼️ Multimodal Support**: Text + image input capabilities
 - **🛠️ Function Calling**: Course query and booking functions in customer service scenarios
 - **📚 RAG Knowledge Base**: PDF document upload and intelligent Q&A
 - **🧠 Chat Memory**: Multi-turn conversation context preservation
-- **🗄️ Vector Storage**: Milvus vector database support
-- **🕷️ Web Crawling**: Government procurement data crawling and AI analysis
-- **📊 Graph Database**: Neo4j integration for complex data relationships
 
 ## 🏗️ Tech Stack
 
 **Backend:**
-- Spring Boot 3.5.3
-- Spring AI Alibaba 1.0.0.2
+- Spring Boot 3.5.5
+- Spring AI Alibaba 1.0.0.4
 - Alibaba Cloud DashScope (Qwen)
 - MySQL + MyBatis Plus
 - Neo4j Graph Database
