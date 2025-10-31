@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.alibaba.cloud.ai.application.service;
+package com.alibaba.cloud.ai.application.config;
 
-import com.alibaba.cloud.ai.application.entity.dashscope.ChatResponseDTO;
 import com.alibaba.cloud.ai.application.enums.WebSearchEnum;
-import reactor.core.publisher.Flux;
+import com.alibaba.cloud.ai.application.modulerag.IQSSearchProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
- * @author yuluo
- * @author <a href="mailto:yuluo08290126@gmail.com">yuluo</a>
- * AI 联网搜索服务：提供两种实现
- * 1. 基于 DashScope 的 Web Search；
- * 2. 基于 Spring AI Module RAG 实现。
+ * 联网搜索配置
+ *
+ * @author xuguan
+ * @since 2025/10/31
  */
-
-public interface ISAAWebSearchService {
-
-    WebSearchEnum type();
-
-    Flux<ChatResponseDTO> chat(String prompt);
-
+@ConfigurationProperties(prefix = WebSearchProperties.WEB_SEARCH_PREFIX)
+public record WebSearchProperties(WebSearchEnum type,
+								  @NestedConfigurationProperty IQSSearchProperties iqs) {
+	public static final String WEB_SEARCH_PREFIX = "spring.ai.alibaba.playground.web-search";
 }

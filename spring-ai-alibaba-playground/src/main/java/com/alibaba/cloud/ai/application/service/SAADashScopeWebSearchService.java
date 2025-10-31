@@ -17,6 +17,7 @@
 package com.alibaba.cloud.ai.application.service;
 
 import com.alibaba.cloud.ai.application.entity.dashscope.ChatResponseDTO;
+import com.alibaba.cloud.ai.application.enums.WebSearchEnum;
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import org.springframework.ai.chat.client.ChatClient;
@@ -33,8 +34,8 @@ import reactor.core.publisher.Flux;
  * @author <a href="mailto:yuluo08290126@gmail.com">yuluo</a>
  */
 
-@Service("dashscopeWebSearchServiceImpl")
-public class SAADashScopeWebSearchService implements ISAAWebSearchService{
+@Service
+public class SAADashScopeWebSearchService implements ISAAWebSearchService {
 
     private final ChatClient chatClient;
 
@@ -48,6 +49,11 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService{
         this.chatClient = ChatClient.builder(chatModel)
                 .defaultAdvisors(simpleLoggerAdvisor)
                 .build();
+    }
+
+    @Override
+    public WebSearchEnum type() {
+        return WebSearchEnum.DashScope;
     }
 
     public Flux<ChatResponseDTO> chat(String prompt) {
@@ -71,6 +77,7 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService{
             // Call the chat client and retrieve the chat response
             ChatResponse chatResponse = this.chatClient
                     .prompt(new Prompt(prompt, options))
+                    .advisors(simpleLoggerAdvisor)
                     .call()
                     .chatResponse();
 

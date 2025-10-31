@@ -47,9 +47,11 @@ spring:
 
     alibaba:
       playground:
-        # IQS 数据搜索服务配置
-        iqs:
-          search:
+        # 在线搜索
+        web-search:
+          type: ${WEB_SEARCH_TYPE:DashScope}
+          # IQS 数据搜索服务配置
+          iqs:
             api-key: ${IQS_SEARCH_API_KEY}
 
         # 百炼知识库

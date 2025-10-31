@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.alibaba.cloud.ai.application.modulerag;
+package com.alibaba.cloud.ai.application.enums;
 
 /**
- * iqs search properties
+ * 联网搜索枚举
  *
- * @author yuluo
- * @author <a href="mailto:yuluo08290126@gmail.com">yuluo</a>
+ * @author xuguan
+ * @since 2025/10/31
  */
-public record IQSSearchProperties(String apiKey) {
+public enum WebSearchEnum {
+	DashScope,
+	ModuleRag
 }

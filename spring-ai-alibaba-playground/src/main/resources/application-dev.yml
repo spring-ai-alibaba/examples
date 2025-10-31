@@ -46,26 +46,27 @@ spring:
           enabled: true
 
     alibaba:
-     playground:
+      playground:
+        # 在线搜索
+        web-search:
+          type: ${WEB_SEARCH_TYPE:DashScope}
+          # IQS 数据搜索服务配置
+          iqs:
+            api-key: ${IQS_SEARCH_API_KEY}
 
-       # IQS 数据搜索服务配置
-       iqs:
-         search:
-           api-key: ${IQS_SEARCH_API_KEY}
+        # 百炼知识库
+        bailian:
+          enable: true
+          index-name: "saa-playground-2"
 
-       # 百炼知识库
-       bailian:
-         enable: true
-         index-name: "saa-playground-2"
-
-       # 需要配置相关 tools 的信息
-       tool-calling:
-         baidu:
-           translate:
-             ak: ${BAIDU_TRANSLATE_APP_ID:input-your-baidu-app-id}
-             sk: ${BAIDU_TRANSLATE_SECRET_KEY:input-your-baidu-app-key}
-           map:
-             ak: ${BAIDU_MAP_API_KEY:input-your-baidu-map-key}
+        # 需要配置相关 tools 的信息
+        tool-calling:
+          baidu:
+            translate:
+              ak: ${BAIDU_TRANSLATE_APP_ID:input-your-baidu-app-id}
+              sk: ${BAIDU_TRANSLATE_SECRET_KEY:input-your-baidu-app-key}
+            map:
+              ak: ${BAIDU_MAP_API_KEY:input-your-baidu-map-key}
 
     # openai api 接入通义模型
     openai:

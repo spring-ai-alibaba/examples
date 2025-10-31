@@ -16,11 +16,13 @@
 
 package com.alibaba.cloud.ai.application.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+
+import com.alibaba.cloud.ai.application.config.WebSearchProperties;
 import com.alibaba.cloud.ai.application.entity.dashscope.ChatResponseDTO;
 import com.alibaba.cloud.ai.application.service.ISAAWebSearchService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,11 +45,16 @@ public class SAAWebSearchController {
 	private final ISAAWebSearchService webSearch;
 
 	/**
-	 * 可选注入：@Qualifier("webSearchServiceImpl") or @Qualifier("dashscopeWebSearchServiceImpl")
-	 * @param webSearch
+	 * 可选注入：spring.ai.alibaba.playground.web-search.type
+	 * DashScope: 阿里云百炼大模型联网搜索功能
+	 * ModuleRag: 基于模块化rag的iqs在线搜索
 	 */
-	public SAAWebSearchController(@Qualifier("dashscopeWebSearchServiceImpl") ISAAWebSearchService webSearch) {
-		this.webSearch = webSearch;
+	public SAAWebSearchController(WebSearchProperties webSearchProperties, ObjectProvider<ISAAWebSearchService> webSearchServiceObjectProvider) {
+		this.webSearch = webSearchServiceObjectProvider.stream()
+				.filter(webSearchService -> webSearchService.type() == webSearchProperties.type())
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("No ISAAWebSearchService found"));
+
 	}
 
 	@PostMapping("/search")
