@@ -18,6 +18,7 @@ package com.alibaba.cloud.ai.application.service;
 
 import com.alibaba.cloud.ai.application.advisor.ReasoningContentAdvisor;
 import com.alibaba.cloud.ai.application.entity.dashscope.ChatResponseDTO;
+import com.alibaba.cloud.ai.application.enums.WebSearchEnum;
 import com.alibaba.cloud.ai.application.modulerag.WebSearchRetriever;
 import com.alibaba.cloud.ai.application.modulerag.core.IQSSearchEngine;
 import com.alibaba.cloud.ai.application.modulerag.data.DataClean;
@@ -41,8 +42,8 @@ import reactor.core.publisher.Flux;
  * @author <a href="mailto:yuluo08290126@gmail.com">yuluo</a>
  */
 
-@Service("webSearchServiceImpl")
-public class SAAWebSearchService implements ISAAWebSearchService {
+@Service
+public class SAAModuleRagWebSearchService implements ISAAWebSearchService {
 
     private final DataClean dataCleaner;
 
@@ -60,7 +61,7 @@ public class SAAWebSearchService implements ISAAWebSearchService {
 
     private final ReasoningContentAdvisor reasoningContentAdvisor;
 
-    public SAAWebSearchService(
+    public SAAModuleRagWebSearchService(
             DataClean dataCleaner,
             QueryExpander queryExpander,
             IQSSearchEngine searchEngine,
@@ -97,6 +98,11 @@ public class SAAWebSearchService implements ISAAWebSearchService {
                 .build();
     }
 
+
+    @Override
+    public WebSearchEnum type() {
+        return WebSearchEnum.ModuleRag;
+    }
 
     @Override
     public Flux<ChatResponseDTO> chat(String prompt) {

@@ -16,6 +16,7 @@
 
 package com.alibaba.cloud.ai.application.modulerag.core;
 
+import com.alibaba.cloud.ai.application.config.WebSearchProperties;
 import com.alibaba.cloud.ai.application.entity.iqs.IQSSearchRequest;
 import com.alibaba.cloud.ai.application.entity.iqs.IQSSearchResponse;
 import com.alibaba.cloud.ai.application.exception.SAAAppException;
@@ -42,7 +43,6 @@ import java.util.function.Consumer;
  */
 
 @Component
-@EnableConfigurationProperties(IQSSearchProperties.class)
 public class IQSSearchEngine {
 
 	private final RestClient restClient;
@@ -54,12 +54,12 @@ public class IQSSearchEngine {
 
 	public IQSSearchEngine(
 			RestClient.Builder restClientBuilder,
-			IQSSearchProperties iqsSearchProperties,
+			WebSearchProperties webSearchProperties,
 			ResponseErrorHandler responseErrorHandler
 	) {
 
-		this.iqsSearchProperties = iqsSearchProperties;
-		Assert.hasText(iqsSearchProperties.getApiKey(), "apiKey must not be empty");
+		this.iqsSearchProperties = webSearchProperties.iqs();
+		Assert.hasText(iqsSearchProperties.apiKey(), "apiKey must not be empty");
 		this.restClient = restClientBuilder.baseUrl(BASE_URL)
 				.defaultHeaders(getHeaders())
 				.defaultStatusHandler(responseErrorHandler)
@@ -106,7 +106,7 @@ public class IQSSearchEngine {
 
 			httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 			httpHeaders.set(HttpHeaders.USER_AGENT, userAgent());
-			httpHeaders.setBearerAuth(this.iqsSearchProperties.getApiKey());
+			httpHeaders.setBearerAuth(this.iqsSearchProperties.apiKey());
 		};
 	}
 
