@@ -261,7 +261,7 @@
                 // 记录响应历史
                 let resp = ""
                 for(let i = 0; i < data.length; i++) {
-                    resp += `ToolName: ${data[i].name} <br> ToolArguments: <br> ${data[i].arguments} <br><br>`
+                    resp += `ToolName: ${data[i].name} \r\n ToolArguments: \r\n ${data[i].arguments} \r\n\r\n`
                 }
                 addHistoryEntry('response', resp);
 
@@ -345,11 +345,12 @@
         feedbackItems.forEach((item, index) => {
             const isApproved = document.getElementById(`approve${index}`).checked;
             const feedback = {
-                approved: isApproved,
+                isApproved: isApproved,
                 feedback: isApproved ? '' : document.getElementById(`rejectReason${index}`).value
             };
             feedbacks.push(feedback);
         });
+        console.log(feedbacks)
 
         // 构建请求URL
         const url = `/feedback?threadId=${currentThreadId}`;
