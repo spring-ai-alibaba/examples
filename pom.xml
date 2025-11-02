@@ -79,6 +79,7 @@
 		<module>spring-ai-alibaba-graph-example</module>
 		<module>spring-ai-alibaba-bailian-example</module>
         <module>spring-ai-alibaba-evaluation-example</module>
+        <module>spring-ai-alibaba-agent-example/a2a-example</module>
         <!-- For mem0, this is on saa snapshot version, if use, please install saa in local -->
         <!-- <module>spring-ai-alibaba-mem0-example</module> -->
 	</modules>
