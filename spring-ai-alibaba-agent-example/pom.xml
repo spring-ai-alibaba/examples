@@ -37,7 +37,7 @@
 
 	<modules>
 		<module>playground-flight-booking</module>
-        <module>planner-agent-example</module>
+        <module>react-agent-example</module>
 	</modules>
 
 	<build>
