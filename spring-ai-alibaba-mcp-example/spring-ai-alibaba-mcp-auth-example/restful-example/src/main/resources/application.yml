@@ -1,6 +1,0 @@
-server:
-  port: ${SERVER_PORT:101}  # 默认端口为101，可以通过命令行参数SERVER_PORT覆盖
-
-spring:
-  application:
-    name: restful

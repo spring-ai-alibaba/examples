@@ -1,0 +1,26 @@
+server:
+  port: 19100
+
+spring:
+  application:
+    name: mcp-streamable-client
+  main:
+    web-application-type: none
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}
+      chat:
+        options:
+          model: qwen-max
+    mcp:
+      client:
+        enabled: true
+        name: my-mcp-client
+        version: 1.0.0
+        request-timeout: 600s
+        type: ASYNC  # or ASYNC for reactive applications
+        streamable-http:
+          connections:
+            server1:
+              url: http://localhost:20000
+              endpoint: /mcp
