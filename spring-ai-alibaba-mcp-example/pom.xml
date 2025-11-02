@@ -35,13 +35,6 @@
 	<description>Spring AI Alibaba MCP Example</description>
 	<name>Spring AI Alibaba MCP Examples</name>
 
-	<properties>
-		<!-- Spring AI -->
-		<spring-ai.version>1.1.0-M3</spring-ai.version>
-		<!-- Spring AI Alibaba -->
-		<spring-ai-alibaba.version>1.0.0.4</spring-ai-alibaba.version>
-	</properties>
-
 	<modules>
 		<module>spring-ai-alibaba-mcp-manual-example</module>
 		<module>spring-ai-alibaba-mcp-starter-example</module>
