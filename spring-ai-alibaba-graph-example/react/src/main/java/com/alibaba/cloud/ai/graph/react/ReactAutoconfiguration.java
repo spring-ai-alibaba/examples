@@ -1,12 +1,11 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2024-2025 the original author or authors.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.alibaba.cloud.ai.graph.react;
 
 import java.util.concurrent.TimeUnit;
@@ -61,14 +61,14 @@ public class ReactAutoconfiguration {
 	public CompiledGraph reactAgentGraph(@Qualifier("normalReactAgent") ReactAgent reactAgent)
 			throws GraphStateException {
 
-		GraphRepresentation graphRepresentation = reactAgent.getStateGraph()
-			.getGraph(GraphRepresentation.Type.PLANTUML);
+		CompiledGraph compiledGraph = reactAgent.getAndCompileGraph();
 
+		GraphRepresentation graphRepresentation = compiledGraph.getGraph(GraphRepresentation.Type.PLANTUML);
 		System.out.println("\n\n");
 		System.out.println(graphRepresentation.content());
 		System.out.println("\n\n");
 
-		return reactAgent.getAndCompileGraph();
+		return compiledGraph;
 	}
 
 	@Bean

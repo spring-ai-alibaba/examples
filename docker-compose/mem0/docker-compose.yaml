@@ -1,0 +1,90 @@
+# Copyright 2024-2025 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: mem0-dev
+
+services:
+  mem0:
+    build:
+      context: ..  # Set context to parent directory
+      dockerfile: mem0/dev.Dockerfile
+    ports:
+      - "8888:8000"
+    env_file:
+      - .env
+    networks:
+      - mem0_network
+    volumes:
+      - ./history:/app/history      # History db location. By default, it creates a history.db file on the server folder
+      - .:/app                      # Server code. This allows to reload the app when the server code is updated
+      - ../mem0:/app/packages/mem0  # Mem0 library. This allows to reload the app when the library code is updated
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload  # Enable auto-reload
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1  # Prevents Python from writing .pyc files
+      - PYTHONUNBUFFERED=1  # Ensures Python output is sent straight to terminal
+
+  postgres:
+      image: ankane/pgvector:v0.5.1
+      restart: on-failure
+      shm_size: "128mb" # Increase this if vacuuming fails with a "no space left on device" error
+      networks:
+        - mem0_network
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+      healthcheck:
+        test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+      volumes:
+        - postgres_db:/var/lib/postgresql/data
+      ports:
+        - "8432:5432"
+  neo4j:
+    image: neo4j:5.26.4
+    networks:
+      - mem0_network
+    healthcheck:
+      test: wget bolt://neo4j:8687 || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+    ports:
+      - "8474:7474" # HTTP
+      - "8687:7687" # Bolt
+    volumes:
+      - ./neo4j/data:/data  # 将 Neo4j 数据存储到 mem0 目录
+      - ./neo4j/logs:/logs  # 将 Neo4j 日志存储到 mem0 目录
+      - ./neo4j/import:/var/lib/neo4j/import  # 将 Neo4j 导入目录存储到 mem0 目录
+    environment:
+      - NEO4J_AUTH=neo4j/mem0graph
+      - NEO4J_PLUGINS=["apoc"]  # Add this line to install APOC
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+
+volumes:
+  neo4j_data:
+  postgres_db:
+
+networks:
+  mem0_network:
+    driver: bridge

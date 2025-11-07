@@ -1,4 +1,4 @@
-# Copyright 2024-2026 the original author or authors.
+# Copyright 2024-2025 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@ header:
   license:
     copyright-owner: Spring AI Alibaba Community
     software-name: Spring AI Alibaba
-    copyright-year: '2024-2026'
+    copyright-year: '2024-2025'
 
     content: |
-      Copyright 2024-2026 the original author or authors.
+      Copyright 2024-2025 the original author or authors.
 
       Licensed under the Apache License, Version 2.0 (the "License");
       you may not use this file except in compliance with the License.
@@ -78,7 +78,29 @@ header:
     - '**/*.prettierrc'
     - '**/*.lintstagedrc'
     - '**/*.npmrc'
+    - '**/*.http'
     - '**/*.mts'
+    - '**/*.js'
+    - '**/*.map'
+    - '**/*.mjs'
+    - '**/*.css'
+    - '**/*.ts' 
+    - '**/*.tsx'
+    - '**/*.jsx' 
+    - '**/*.svg'      
+    - '**/*.sql'     
+    - '**/*.lock'
+    - '**/*.vue' 
+    - '**/*mvnw'
+    - '**/*mvnw.cmd'  
+    - '**/*.cnf'    
+    - '**/*.conf'
+    - '**/*.mem'
+    - '**/*.res'
+    - '**/*.wasm'
+    - '**/*.xod'
+    - '**/*.html'
+    - '**/*.patch'
     - 'tools/linter/codespell/.codespell.ignorewords'
     - 'tools/linter/codespell/.codespell.skip'
     - 'community/openmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/FileSaver.java'

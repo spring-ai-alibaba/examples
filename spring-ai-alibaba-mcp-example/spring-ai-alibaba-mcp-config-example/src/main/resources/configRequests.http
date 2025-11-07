@@ -1,0 +1,10 @@
+# MCP配置 请求示例
+
+### 从文件读取：服务列表
+GET http://localhost:8080/file/services
+
+### 从文件读取：特定 MCP 服务（如 weather-service）
+GET http://localhost:8080/query/weather-service
+
+### 从数据库读取：特定 MCP 服务（如 dashscope-chat）
+GET http://localhost:8080/query/dashscope-chat

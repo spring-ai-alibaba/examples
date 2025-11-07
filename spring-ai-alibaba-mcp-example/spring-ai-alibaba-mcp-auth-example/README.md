@@ -1,7 +1,10 @@
-在企业中实际使用MCP过程中，或在调用第三方MCP服务，需要识别Client侧调用者身份
+企业中部署MCP Server服务，需要鉴别MCP Client侧连接过来时用户的身份，本模块基于Web的过滤器机制实现对请求头的鉴权
 
-1. 先启动Restful服务，以101端口对外暴露时间服务
-2. 然后启动MCP Server服务，解析Restful方法，对外提供工具
-3. 最后启动MCP Client服务，传入对应的请求头配置
+```angular2html
+client/mcp-auth-web-client(修改McpSseClientProperties源码，添加请求头属性)
+    - mcp client侧，请求头中添加token-yingzi-1，value为token-yingzi-1
 
-在client侧配置的请求头信息，在触发工具时，可观察到携带请求头信息经过MCP Server最终传递到了restful服务
+server/mcp-auth-web-server
+    - 当mcp client侧建立来的连接请求，有请求头，key为token-yingzi-1，value为token-yingzi-1鉴权放行。否则拒绝连接请求。
+
+```

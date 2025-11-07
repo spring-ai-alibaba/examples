@@ -20,6 +20,7 @@ package com.alibaba.cloud.ai.graph.conf;
 import com.alibaba.cloud.ai.graph.GraphRepresentation;
 import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.AsyncEdgeAction;
@@ -69,18 +70,16 @@ public class SecGraphBuilder {
                                FieldSaveTool toolBack,
                                ToolCallbackResolver toolCallbackResolver
     ) throws GraphStateException {
-        KeyStrategyFactory keyStrategyFactory = () -> {
-            HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
-            keyStrategyHashMap.put("field", new ReplaceStrategy());
-            keyStrategyHashMap.put("is_sensitive", new ReplaceStrategy());
-            keyStrategyHashMap.put("clft_res", new ReplaceStrategy());
-            keyStrategyHashMap.put("save_result", new ReplaceStrategy());
-            keyStrategyHashMap.put("thread_id", new ReplaceStrategy());
-            keyStrategyHashMap.put("feed_back", new ReplaceStrategy());
-            keyStrategyHashMap.put("feedback_reason", new ReplaceStrategy());
-            keyStrategyHashMap.put("human_next_node", new ReplaceStrategy());
-            return keyStrategyHashMap;
-        };
+        KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+                .addPatternStrategy("field", new ReplaceStrategy())
+                .addPatternStrategy("is_sensitive", new ReplaceStrategy())
+                .addPatternStrategy("clft_res", new ReplaceStrategy())
+                .addPatternStrategy("save_result", new ReplaceStrategy())
+                .addPatternStrategy("thread_id", new ReplaceStrategy())
+                .addPatternStrategy("feed_back", new ReplaceStrategy())
+                .addPatternStrategy("feedback_reason", new ReplaceStrategy())
+                .addPatternStrategy("human_next_node", new ReplaceStrategy())
+                .build();
 
         AgentStateFactory<OverAllState> factory = OverAllState::new;
         ObjectMapper mapper = new ObjectMapper();

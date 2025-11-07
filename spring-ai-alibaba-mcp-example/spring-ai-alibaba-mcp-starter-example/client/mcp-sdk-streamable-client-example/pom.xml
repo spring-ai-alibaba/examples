@@ -13,7 +13,7 @@
 	<name>Spring AI - MCP SDK STREAMABLE WEBFLUX Client EXAMPLE</name>
 
     <properties>
-        <mcp.version>0.11.0-SNAPSHOT</mcp.version>
+        <mcp.version>0.11.0</mcp.version>
     </properties>
 
     <dependencies>

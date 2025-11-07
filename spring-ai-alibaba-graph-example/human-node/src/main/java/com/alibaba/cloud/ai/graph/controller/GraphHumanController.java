@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024-2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.alibaba.cloud.ai.graph.controller;
 
 import com.alibaba.cloud.ai.graph.CompileConfig;
@@ -6,9 +22,8 @@ import com.alibaba.cloud.ai.graph.NodeOutput;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.StateGraph;
-import com.alibaba.cloud.ai.graph.async.AsyncGenerator;
 import com.alibaba.cloud.ai.graph.checkpoint.config.SaverConfig;
-import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverConstant;
+import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverEnum;
 import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
 import com.alibaba.cloud.ai.graph.controller.GraphProcess.GraphProcess;
 import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
@@ -44,7 +59,7 @@ public class GraphHumanController {
 
     @Autowired
     public GraphHumanController(@Qualifier("humanGraph") StateGraph stateGraph) throws GraphStateException {
-        SaverConfig saverConfig = SaverConfig.builder().register(SaverConstant.MEMORY, new MemorySaver()).build();
+        SaverConfig saverConfig = SaverConfig.builder().register(SaverEnum.MEMORY.getValue(), new MemorySaver()).build();
         this.compiledGraph = stateGraph
                 .compile(CompileConfig.builder().saverConfig(saverConfig).interruptBefore("human_feedback").build());    }
 
@@ -59,8 +74,8 @@ public class GraphHumanController {
 
         GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
         Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
-        AsyncGenerator<NodeOutput> resultFuture = compiledGraph.stream(objectMap, runnableConfig);
-        graphProcess.processStream(resultFuture, sink);
+        Flux<NodeOutput> nodeOutputFlux = compiledGraph.fluxStream(objectMap, runnableConfig);
+        graphProcess.processStream(nodeOutputFlux, sink);
 
         return sink.asFlux()
                 .doOnCancel(() -> logger.info("Client disconnected from stream"))
@@ -83,7 +98,7 @@ public class GraphHumanController {
         // Create a unicast sink to emit ServerSentEvents
         Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
         GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
-        AsyncGenerator<NodeOutput> resultFuture = compiledGraph.streamFromInitialNode(state, runnableConfig);
+        Flux<NodeOutput> resultFuture = compiledGraph.fluxStreamFromInitialNode(state, runnableConfig);
         graphProcess.processStream(resultFuture, sink);
 
         return sink.asFlux()

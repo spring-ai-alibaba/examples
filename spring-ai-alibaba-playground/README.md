@@ -27,7 +27,7 @@ Playground 作为一个 AI 智能体应用，依赖大模型等在线服务，�
   - 【可选】[阿里云百炼 创建知识库](https://bailian.console.aliyun.com/?tab=app#/knowledge-base)，知识库服务，默认知识库名为saa-playground-2
   - 【可选】[百度翻译 appId 和 secretKey](https://api.fanyi.baidu.com/product/113)，使用 Tool Call 时必须，示例 `export BAIDU_TRANSLATE_APP_ID=xxx`、`export BAIDU_TRANSLATE_SECRET_KEY=xxx`
   - 【可选】[百度地图 api key](https://lbs.baidu.com/faq/api)，使用 Tool Call 必须，示例 `export BAIDU_MAP_API_KEY=xxx`
-  - 【可选】[阿里云 IQS 服务 apikey](https://help.aliyun.com/document_detail/2870227.html?)，使用联网搜索必须，示例 `export IQS_SEARCH_API_KEY=xxx`
+  - 【可选】[阿里云 IQS 服务 apikey](https://help.aliyun.com/document_detail/2870227.html)，使用ModuleRag联网搜索必须，示例 `export WEB_SEARCH_TYPE=ModuleRag`、`export IQS_SEARCH_API_KEY=xxx`
   - 【可选】[阿里云 AnalyticDB 向量数据库](https://help.aliyun.com/zh/analyticdb/analyticdb-for-postgresql/getting-started/instances-with-vector-engine-optimization-enabled/)，使用 RAG 时可开启（默认使用内存向量数据库）。先使用 `export VECTOR_STORE_TYPE=analyticdb` 开启 AnalyticDB，然后配置相关参数
 
 示例 Docker 运行命令：
@@ -64,6 +64,7 @@ mvn clean install -DskipTests
 
 **3. 运行项目**
 ```shell
+export AI_DASHSCOPE_API_KEY=your_api_key
 java -jar ./target/app.jar
 ```
 
@@ -75,19 +76,17 @@ java -jar ./target/app.jar
 
 **1. 前端 UI 打包**
 
-首先，需要运行以下命令将 `ui` 打包到 `classpath` 下。后续如果对 ui 有改动，请注意重新执行此命令才生效。
-
 ```shell
-mvn clean install -DskipTests
+make frontend-build
 ```
 
 **2. 切换 IDE 工作目录**
 
 Playground 作为 `spring-ai-alibaba-examples` 仓库子项目，有以下两种 IDE 导入方式：
-1. 作为独立项目单独导入
-2. 作为整个 spring-ai-alibaba-examples 项目的子 module 导入
+1. 作为独立项目单独导入；
+2. 作为整个 spring-ai-alibaba-examples 项目的子 module 导入。
 
-在使用子 module导入时，需要配置工作目录如下：
+在使用子 module 导入时，需要配置工作目录如下：
 
 <p align="center">
     <img src="./images/run.png" alt="PlayGround" style="max-width: 949px; height: 537px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);" />
@@ -97,12 +96,12 @@ Playground 作为 `spring-ai-alibaba-examples` 仓库子项目，有以下两种
 
 请注意，必须要为 Playground 配置环境变量，配置方法参考 Docker 运行一节中的说明。
 
-如果不使用阿里云百炼创建知识库，那么需要将配置文件中的spring.ai.alibaba.playground.bailian.enable修改为false
+如果不使用阿里云百炼创建知识库，那么需要将配置文件中的 `spring.ai.alibaba.playground.bailian.enable 修改为 false`
 
 **4. 【可选】安装并构建前端资源**
 
 请注意，如果你想不想启动前端页面，可以跳过此步骤！
-如果想启动前端页面，请进入 ui 目录，执行 npm install && npm run build 安装依赖并构建前端页面。
+如果想启动前端页面，执行 `make frontend-dev`
 
 **5. 运行 `SAAPlayGroundApplication`**
 
@@ -110,6 +109,5 @@ Playground 作为 `spring-ai-alibaba-examples` 仓库子项目，有以下两种
 
 ## 常见问题与解决方法
 
-1. 如果项目启动时出现数据库相关错误，需要手动在 resources 目录下的 db 创建 saa.db 文件；
-2. 如果访问接口时，报 9411 端口相关错误，这是 zipkin 服务未启动原因，不影响接口调用；
-3. swagger 接口：http://localhost:8080/doc.html；
+1. 如果访问接口时，报 9411 端口相关错误，这是 zipkin 服务未启动原因，不影响接口调用；
+2. 注意系统启动正常，但个别功能受阻隘时，请检查相应的 AK 是否配置。

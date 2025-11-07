@@ -35,17 +35,16 @@ import static com.alibaba.cloud.ai.graph.action.AsyncNodeAction.node_async;
 
 public class TodoChatFlowFactory {
     public static CompiledGraph build(ChatClient chatClient, CompiledGraph subGraph) throws Exception {
-        KeyStrategyFactory keyStrategyFactory = () -> {
-            HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
-            keyStrategyHashMap.put("session_id", new ReplaceStrategy());
-            keyStrategyHashMap.put("user_input", new ReplaceStrategy());
-            keyStrategyHashMap.put("intent_type", new ReplaceStrategy());
-            keyStrategyHashMap.put("chat_reply", new ReplaceStrategy());
-            keyStrategyHashMap.put("tasks", new ReplaceStrategy());
-            keyStrategyHashMap.put("created_task", new ReplaceStrategy());
-            keyStrategyHashMap.put("answer", new ReplaceStrategy());
-            return keyStrategyHashMap;
-        };
+
+        KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+                .addPatternStrategy("session_id", new ReplaceStrategy())
+                .addPatternStrategy("user_input", new ReplaceStrategy())
+                .addPatternStrategy("intent_type", new ReplaceStrategy())
+                .addPatternStrategy("chat_reply", new ReplaceStrategy())
+                .addPatternStrategy("tasks", new ReplaceStrategy())
+                .addPatternStrategy("created_task", new ReplaceStrategy())
+                .addPatternStrategy("answer", new ReplaceStrategy())
+                .build();
 
         StateGraph mainGraph = new StateGraph("chatFlow-demo", keyStrategyFactory);
 
@@ -107,7 +106,7 @@ public class TodoChatFlowFactory {
 
         // 主流程答复节点
         AnswerNode mainReply = AnswerNode.builder()
-                .answer("你当前待办有：{{tasks}}\n闲聊回复：{{chat_reply}}")
+                .answer("你当前待办有：{tasks}\n闲聊回复：{chat_reply}")
                 .build();
         mainGraph.addNode("mainReply", node_async(mainReply));
 

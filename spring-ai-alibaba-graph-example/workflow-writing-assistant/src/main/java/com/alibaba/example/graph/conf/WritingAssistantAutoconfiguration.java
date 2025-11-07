@@ -21,6 +21,7 @@ package com.alibaba.example.graph.conf;
 import com.alibaba.cloud.ai.graph.GraphRepresentation;
 import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.EdgeAction;
@@ -56,16 +57,13 @@ public class WritingAssistantAutoconfiguration {
 
 		ChatClient chatClient = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
 
-		KeyStrategyFactory keyStrategyFactory = () -> {
-			HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
-
-			keyStrategyHashMap.put("original_text", new ReplaceStrategy());
-			keyStrategyHashMap.put("summary", new ReplaceStrategy());
-			keyStrategyHashMap.put("summary_feedback", new ReplaceStrategy());
-			keyStrategyHashMap.put("reworded", new ReplaceStrategy());
-			keyStrategyHashMap.put("title", new ReplaceStrategy());
-			return keyStrategyHashMap;
-		};
+		KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+				.addPatternStrategy("original_text", new ReplaceStrategy())
+				.addPatternStrategy("summary", new ReplaceStrategy())
+				.addPatternStrategy("summary_feedback", new ReplaceStrategy())
+				.addPatternStrategy("reworded", new ReplaceStrategy())
+				.addPatternStrategy("title", new ReplaceStrategy())
+				.build();
 
 		StateGraph graph = new StateGraph(keyStrategyFactory)
 			.addNode("summarizer", node_async(new SummarizerNode(chatClient)))

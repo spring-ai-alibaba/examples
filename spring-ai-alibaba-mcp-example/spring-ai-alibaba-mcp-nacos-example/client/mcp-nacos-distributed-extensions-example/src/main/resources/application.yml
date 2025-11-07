@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: mcp-nacos-distributed-extensions-example
+  main:
+    web-application-type: none
+  ai:
+    openai:
+      api-key: ${DASHSCOPE_API_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      chat:
+        options:
+          model: qwen-max
+    mcp:
+      client:
+        enabled: true
+        name: my-mcp-client
+        version: 1.0.0
+        request-timeout: 30s
+        type: ASYNC  # or ASYNC for reactive applications
+
+    alibaba:
+      mcp:
+        nacos:
+          namespace: 4ad3108b-4d44-43d0-9634-3c1ac4850c8c
+          server-addr: 127.0.0.1:8848
+          username: nacos
+          password: nacos
+          client:
+            enabled: true
+            sse:
+              connections:
+                server1:
+                  service-name: webflux-mcp-server
+                  version: 1.0.0

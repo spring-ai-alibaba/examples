@@ -1,12 +1,11 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2024-2025 the original author or authors.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.alibaba.cloud.ai.graph.controller.process;
 
 import com.alibaba.cloud.ai.graph.NodeOutput;
@@ -27,8 +27,6 @@ import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Graph Processor
@@ -46,8 +44,6 @@ public class GraphProcess {
 
 	private static final Logger logger = LoggerFactory.getLogger(GraphProcess.class);
 
-	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
 	/**
 	 * Constructor for GraphProcess
 	 *
@@ -64,6 +60,60 @@ public class GraphProcess {
 	 */
 	public Flux<ServerSentEvent<String>> processStream(AsyncGenerator<NodeOutput> generator) {
 		return Flux.create(sink -> processNext(generator, sink));
+	}
+
+	public Flux<ServerSentEvent<String>> processStream(Flux<NodeOutput> generator) {
+		return Flux.create(sink -> processNext(generator, sink));
+	}
+
+	public void processNext(Flux<NodeOutput> generator,
+							reactor.core.publisher.FluxSink<ServerSentEvent<String>> sink) {
+		generator.subscribe(
+				output -> {
+					logger.debug("processNext: output node={}, output class={}, output={}",
+							output != null ? output.node() : null,
+							output != null ? output.getClass().getName() : null, output);
+
+					String content;
+					if (output instanceof StreamingOutput streamingOutput) {
+						content = JSON.toJSONString(Map.of("type", "streaming", "node", output.node(), "chunk",
+								streamingOutput.chunk(), "timestamp", System.currentTimeMillis()));
+					}
+					else {
+						JSONObject nodeOutput = new JSONObject();
+						nodeOutput.put("type", "node_output");
+						nodeOutput.put("node", output.node());
+						nodeOutput.put("data", output.state().data());
+						nodeOutput.put("timestamp", System.currentTimeMillis());
+						content = JSON.toJSONString(nodeOutput);
+					}
+
+					logger.debug("processNext: emitting SSE event for node {}",
+							output != null ? output.node() : null);
+
+					sink.next(ServerSentEvent.builder(content)
+							.event("node_output")
+							.id(output.node() + "_" + System.currentTimeMillis())
+							.build());
+				},
+				error -> {
+					logger.error("processNext: Error occurred in data stream", error);
+					sink.next(ServerSentEvent.builder("{\"type\":\"error\",\"message\":\"" + error.getMessage() + "\"}")
+							.event("error")
+							.build());
+					sink.next(ServerSentEvent.builder("{\"type\":\"completed\",\"message\":\"Graph processing completed with error\"}")
+							.event("completed")
+							.build());
+					sink.complete();
+				},
+				() -> {
+					logger.debug("processNext: Graph processing completed");
+					sink.next(ServerSentEvent.builder("{\"type\":\"completed\",\"message\":\"Graph processing completed\"}")
+							.event("completed")
+							.build());
+					sink.complete();
+				}
+		);
 	}
 
 	private void processNext(AsyncGenerator<NodeOutput> generator,

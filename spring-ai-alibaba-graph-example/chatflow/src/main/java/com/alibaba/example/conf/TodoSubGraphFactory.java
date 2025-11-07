@@ -18,6 +18,7 @@ package com.alibaba.example.conf;
 
 import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.CompiledGraph;
 import com.alibaba.cloud.ai.graph.node.LlmNode;
@@ -36,13 +37,12 @@ import static com.alibaba.cloud.ai.graph.action.AsyncNodeAction.node_async;
  */
 public class TodoSubGraphFactory {
     public static CompiledGraph build(ChatClient chatClient) throws Exception {
-        KeyStrategyFactory keyStrategyFactory = () -> {
-            HashMap<String, KeyStrategy> map = new HashMap<>();
-            map.put("task_content", new ReplaceStrategy());
-            map.put("todo_desc", new ReplaceStrategy());
-            map.put("created_task", new ReplaceStrategy());
-            return map;
-        };
+        KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+                .addPatternStrategy("task_content", new ReplaceStrategy())
+                .addPatternStrategy("todo_desc", new ReplaceStrategy())
+                .addPatternStrategy("created_task", new ReplaceStrategy())
+                .build();
+
         StateGraph subGraph = new StateGraph("create-todo-subgraph", keyStrategyFactory);
 
         // LLM润色用户输入（每轮动态new）
@@ -64,7 +64,7 @@ public class TodoSubGraphFactory {
 
         // 回答确认 - 可选
         AnswerNode answerNode = AnswerNode.builder()
-                .answer("已创建任务：{{todo_desc}}")
+                .answer("已创建任务：{todo_desc}")
                 .build();
         subGraph.addNode("answer", node_async(answerNode));
 

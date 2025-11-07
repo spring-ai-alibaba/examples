@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: mcp-config-example
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+    mcp:
+      server:
+        enabled: false
+    alibaba:
+      mcp:
+        router:
+          enabled: true
+          discovery-order:
+            - file
+            - database
+            - nacos
+          # MCP file configurations
+          services:
+            - name: weather-service
+              description: "天气查询服务"
+              protocol: "http"
+              version: "1.0.0"
+              endpoint: "http://localhost:8080/weather"
+              enabled: true
+              tags:
+                - "weather"
+                - "api"
+            - name: translation-service
+              description: "翻译服务"
+              protocol: "http"
+              version: "2.0.0"
+              endpoint: "http://localhost:8081/translate"
+              enabled: true
+              tags:
+                - "translation"
+                - "nlp"
+
+          database:
+            enabled: true
+            url: jdbc:mysql://localhost:3306/testdb?useSSL=false&serverTimezone=UTC
+            username: root
+            password: root
+            driver-class-name: com.mysql.cj.jdbc.Driver
+
+        nacos:
+          server-addr: localhost:8848
+          namespace: public

@@ -10,10 +10,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
-    </properties>
-
     <artifactId>graph-observability-langfuse</artifactId>
 
     <dependencies>

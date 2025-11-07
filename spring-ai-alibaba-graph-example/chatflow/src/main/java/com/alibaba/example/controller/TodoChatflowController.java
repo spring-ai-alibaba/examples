@@ -49,12 +49,12 @@ public class TodoChatflowController {
     public Map<String, Object> chat(
             @RequestParam("sessionId") String sessionId,
             @RequestParam("userInput") String userInput
-    ) throws Exception {
+    ) {
         Map<String, Object> input = new HashMap<>();
         input.put("session_id", sessionId);
         input.put("user_input", userInput);
 
-        var stateOpt = mainGraph.invoke(input, RunnableConfig.builder().threadId(sessionId).build());
+        var stateOpt = mainGraph.call(input, RunnableConfig.builder().threadId(sessionId).build());
         OverAllState state = stateOpt.orElseThrow();
 
         Map<String, Object> result = new HashMap<>();

@@ -21,6 +21,7 @@ package com.alibaba.example.graph.conf;
 import com.alibaba.cloud.ai.graph.GraphRepresentation;
 import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
@@ -53,14 +54,13 @@ public class ParallelGraphConfiguration {
 	public StateGraph parallelGraph(ChatModel chatModel) throws GraphStateException {
 		ChatClient client = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
 		// 状态工厂注册字段与策略
-		KeyStrategyFactory keyStrategyFactory = () -> {
-			HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
-			keyStrategyHashMap.put("inputText", new ReplaceStrategy());
-			keyStrategyHashMap.put("sentiment", new ReplaceStrategy());
-			keyStrategyHashMap.put("keywords", new ReplaceStrategy());
-			keyStrategyHashMap.put("analysis", new ReplaceStrategy());
-			return keyStrategyHashMap;
-		};
+		KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+				.addPatternStrategy("inputText", new ReplaceStrategy())
+				.addPatternStrategy("sentiment", new ReplaceStrategy())
+				.addPatternStrategy("keywords", new ReplaceStrategy())
+				.addPatternStrategy("analysis", new ReplaceStrategy())
+				.build();
+
 		StateGraph graph = new StateGraph("ParallelDemo", keyStrategyFactory)
 			// 注册节点
 			.addNode("start", node_async(new InputNode()))

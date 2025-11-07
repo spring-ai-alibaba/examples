@@ -16,9 +16,10 @@
 
 package com.alibaba.example.graph.conf;
 
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.alibaba.cloud.ai.graph.CompiledGraph;
-import com.alibaba.cloud.ai.graph.OverAllState;
-import com.alibaba.cloud.ai.graph.OverAllStateFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.AsyncNodeAction;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
@@ -29,15 +30,15 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.resolution.ToolCallbackResolver;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.HttpMethod;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.alibaba.cloud.ai.graph.StateGraph.START;
 import static com.alibaba.cloud.ai.graph.StateGraph.END;
+import static com.alibaba.cloud.ai.graph.StateGraph.START;
 
 @Component
 public class ComplexSupportGraphBuilder {
@@ -47,19 +48,25 @@ public class ComplexSupportGraphBuilder {
 			ToolCallbackResolver toolCallbackResolver) throws GraphStateException {
 
 		// ChatClient
-		ChatClient chatClient = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
+		ChatClient chatClient = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor())
+			.defaultOptions(DashScopeChatOptions.builder().withInternalToolExecutionEnabled(false).build()).build();
 
-		OverAllStateFactory stateFactory = () -> {
-			OverAllState state = new OverAllState();
-			for (String key : List.of("input", "attachments", "docs", "parameterParsing_output", "classifier_output",
-					"retrieved_docs", "filtered_docs", "http_response", "llm_response", "tool_result", "human_feedback",
-					"answer")) {
-				state.registerKeyAndStrategy(key, (o1, o2) -> o2);
-			}
-			return state;
-		};
+		KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+				.addPatternStrategy("input", (o1, o2) -> o2)
+				.addPatternStrategy("attachments", (o1, o2) -> o2)
+				.addPatternStrategy("docs", (o1, o2) -> o2)
+				.addPatternStrategy("parameterParsing_output", (o1, o2) -> o2)
+				.addPatternStrategy("classifier_output", (o1, o2) -> o2)
+				.addPatternStrategy("retrieved_docs", (o1, o2) -> o2)
+				.addPatternStrategy("filtered_docs", (o1, o2) -> o2)
+				.addPatternStrategy("http_response", (o1, o2) -> o2)
+				.addPatternStrategy("llm_response", (o1, o2) -> o2)
+				.addPatternStrategy("tool_result", (o1, o2) -> o2)
+				.addPatternStrategy("human_feedback", (o1, o2) -> o2)
+				.addPatternStrategy("answer", (o1, o2) -> o2)
+				.build();
 
-		StateGraph graph = new StateGraph(stateFactory);
+		StateGraph graph = new StateGraph(keyStrategyFactory);
 
 		// —— 1. Document extraction ——
 		DocumentExtractorNode extractNode = DocumentExtractorNode.builder()
@@ -70,11 +77,13 @@ public class ComplexSupportGraphBuilder {
 		graph.addNode("extractDocs", AsyncNodeAction.node_async(extractNode));
 
 		// —— 2. Parameter parsing ——
+
+
 		ParameterParsingNode paramNode = ParameterParsingNode.builder()
 			.chatClient(chatClient)
 			.inputTextKey("input")
-			.parameters(List.of(Map.of("name", "ticketId", "type", "string", "description", "工单编号"),
-					Map.of("name", "priority", "type", "string", "description", "优先级")))
+				.parameters(List.of(new ParameterParsingNode.Param("ticketId", "string", "工单编号"),
+						new ParameterParsingNode.Param("priority", "string", "优先级")))
 			.build();
 		graph.addNode("parseParams", AsyncNodeAction.node_async(paramNode));
 

@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: vector-neo4j
+
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+
+    vectorstore:
+      neo4j:
+        initialize-schema: true
+        database-name: neo4j
+        index-name: yingzi_index
+        embedding-dimension: 1536
+        distance-type: cosine
+
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: yingzi_password

@@ -19,8 +19,10 @@ package com.alibaba.cloud.ai.graph.bigtool.controller;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.cloud.ai.graph.CompiledGraph;
 import com.alibaba.cloud.ai.graph.GraphRepresentation;
+import com.alibaba.cloud.ai.graph.KeyStrategy;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.OverAllState;
-import com.alibaba.cloud.ai.graph.OverAllStateFactory;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.AsyncNodeAction;
 import com.alibaba.cloud.ai.graph.bigtool.agent.CalculateAgent;
@@ -67,20 +69,17 @@ public class BigToolController {
 		this.initializeVectorStore();
 		ChatClient chatClient = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
 
-		OverAllStateFactory stateFactory = () -> {
-			OverAllState state = new OverAllState();
-			state.registerKeyAndStrategy(Constant.INPUT_KEY, new ReplaceStrategy());
-			state.registerKeyAndStrategy(Constant.HIT_TOOL, new ReplaceStrategy());
-			state.registerKeyAndStrategy(Constant.SOLUTION, new ReplaceStrategy());
-			state.registerKeyAndStrategy(Constant.TOOL_LIST, new ReplaceStrategy());
-			return state;
-		};
+		KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+				.addPatternStrategy(Constant.INPUT_KEY, new ReplaceStrategy())
+				.addPatternStrategy(Constant.HIT_TOOL, new ReplaceStrategy())
+				.addPatternStrategy(Constant.SOLUTION, new ReplaceStrategy())
+				.addPatternStrategy(Constant.TOOL_LIST, new ReplaceStrategy()).build();
 
 		ToolAgent tools = new ToolAgent(chatClient, Constant.INPUT_KEY, vectorStoreService);
 
 		CalculateAgent calculateAgent = new CalculateAgent(chatClient, Constant.INPUT_KEY);
 
-		StateGraph stateGraph = new StateGraph("Consumer Service Workflow Demo", stateFactory)
+		StateGraph stateGraph = new StateGraph("Consumer Service Workflow Demo", keyStrategyFactory)
 			.addNode("tools", AsyncNodeAction.node_async(tools))
 			.addNode("calculate_agent", AsyncNodeAction.node_async(calculateAgent))
 			.addEdge(StateGraph.START, "tools")
@@ -117,8 +116,8 @@ public class BigToolController {
 	}
 
 	@GetMapping("/search")
-	public String search(@RequestParam String query) throws GraphRunnerException {
-		Optional<OverAllState> invoke = compiledGraph.invoke(Map.of(Constant.INPUT_KEY, query, Constant.TOOL_LIST, documents));
+	public String search(@RequestParam String query) {
+		Optional<OverAllState> invoke = compiledGraph.call(Map.of(Constant.INPUT_KEY, query, Constant.TOOL_LIST, documents));
 		return invoke.get().value("solution").get().toString();
 	}
 

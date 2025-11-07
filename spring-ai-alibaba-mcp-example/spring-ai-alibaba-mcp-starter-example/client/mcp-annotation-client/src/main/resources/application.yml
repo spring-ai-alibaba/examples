@@ -1,0 +1,30 @@
+server:
+  port: 19100
+
+spring:
+  application:
+    name: mcp-annotation-client
+  main:
+    web-application-type: none
+  ai:
+    openai:
+      api-key: ${DASHSCOPE_API_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      chat:
+        options:
+          model: qwen-max
+    mcp:
+      client:
+        enabled: true
+        name: my-mcp-client
+        version: 1.0.0
+        request-timeout: 600s
+        type: SYNC  # or ASYNC for reactive applications
+        sse:
+          connections:
+            server1:
+              url: http://localhost:8080 # 本地
+        annotation-scanner:
+          enabled: true
+#            server2:
+#              url: https://mcp.amap.com?key=xxx # 远程高德MCP服务

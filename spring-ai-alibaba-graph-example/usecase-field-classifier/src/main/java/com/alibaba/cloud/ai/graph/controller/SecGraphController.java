@@ -25,7 +25,7 @@ import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.async.AsyncGenerator;
 import com.alibaba.cloud.ai.graph.checkpoint.config.SaverConfig;
-import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverConstant;
+import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverEnum;
 import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
 import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
@@ -56,7 +56,7 @@ public class SecGraphController {
     private final CompiledGraph compiledGraph;
 
     public SecGraphController(@Qualifier("secGraph") StateGraph stateGraph) throws GraphStateException {
-        SaverConfig saverConfig = SaverConfig.builder().register(SaverConstant.MEMORY, new MemorySaver()).build();
+        SaverConfig saverConfig = SaverConfig.builder().register(SaverEnum.MEMORY.getValue(), new MemorySaver()).build();
 
         this.compiledGraph = stateGraph
                 .compile(CompileConfig.builder().saverConfig(saverConfig).interruptBefore("human").build());
@@ -68,7 +68,7 @@ public class SecGraphController {
         RunnableConfig runnableConfig = RunnableConfig.builder().threadId(threadId).build();
         GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
         Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
-        AsyncGenerator<NodeOutput> resultFuture = compiledGraph.stream(Map.of("field", fieldName), runnableConfig);
+        Flux<NodeOutput> resultFuture = compiledGraph.fluxStream(Map.of("field", fieldName), runnableConfig);
         graphProcess.processStream(resultFuture, sink);
         return sink.asFlux()
                 .doOnCancel(() -> log.info("Client disconnected from stream"))
@@ -92,7 +92,7 @@ public class SecGraphController {
 
         Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
         GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
-        AsyncGenerator<NodeOutput> resultFuture = compiledGraph.streamFromInitialNode(state, runnableConfig);
+        Flux<NodeOutput> resultFuture = compiledGraph.fluxStreamFromInitialNode(state, runnableConfig);
         graphProcess.processStream(resultFuture, sink);
 
         return sink.asFlux()

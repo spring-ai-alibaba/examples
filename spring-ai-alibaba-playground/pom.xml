@@ -15,19 +15,7 @@
 		<spring-boot.version>3.4.0</spring-boot.version>
 		<spring-ai.version>1.0.0</spring-ai.version>
 
-        <!--Tips: playground 中使用 spring ai alibaba 开发版本。需要本地编译主干仓库！！！ -->
 		<spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
-
-        <!-- Node and npm -->
-        <node.version>v20.12.2</node.version>
-        <npm.version>10.9.2</npm.version>
-
-        <!-- For playground frontend resource. dist has been placed in the resource directory,
-        if you have the problem of secondary development or local front-end project failure to start,
-        please set this development to true, and run the "mvn clean package" to repackage the front-end project.
-        If you don't modify this configuration, you can compile the frontend and
-        copy the frontend resources by executing "mvn clean package -Dnpm.build.skip=false". -->
-        <npm.build.skip>true</npm.build.skip>
 
 		<zipkin.version>3.4.3</zipkin.version>
 		<micrometr.version>1.5.0-M2</micrometr.version>
@@ -55,6 +43,7 @@
 			<artifactId>logback-core</artifactId>
 			<version>1.5.18</version>
 		</dependency>
+
 		<!-- Spring Boot Starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -86,15 +75,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
 
         <!-- Spring AI -->
         <dependency>
@@ -108,13 +93,6 @@
             <artifactId>spring-ai-starter-mcp-client</artifactId>
             <version>${spring-ai.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-autoconfigure-mcp-client</artifactId>
-            <version>${spring-ai.version}</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.springframework.ai</groupId>
@@ -151,19 +129,6 @@
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-store-analyticdb</artifactId>
             <version>${spring-ai-alibaba.version}</version>
-        </dependency>
-
-        <!--DB -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>${sqlite-jdbc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-community-dialects</artifactId>
-            <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
@@ -250,125 +215,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>${maven-deploy-plugin.version}</version>
-			</plugin>
-
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.11.0</version>
-                <executions>
-                    <execution>
-                        <id>install node and pnpm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${npm.build.skip}</skip>
-                            <nodeVersion>${node.version}</nodeVersion>
-                            <npmVersion>${npm.version}</npmVersion>
-                            <workingDirectory>ui</workingDirectory>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>install pnpm</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${npm.build.skip}</skip>
-                            <arguments>install -g pnpm</arguments>
-                            <workingDirectory>ui</workingDirectory>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>pnpm install</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${npm.build.skip}</skip>
-                            <arguments>exec -- pnpm install</arguments>
-                            <workingDirectory>ui</workingDirectory>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>pnpm build</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <skip>${npm.build.skip}</skip>
-                            <arguments>exec -- pnpm build</arguments>
-                            <workingDirectory>ui</workingDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-
-					<!-- Copy frontend dist resource to static dir -->
-                    <execution>
-                        <id>copy-react-build</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${npm.build.skip}</skip>
-                            <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>ui/dist</directory>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-
-					<!-- Add new execution to copy mcp-lib directory -->
-					<execution>
-						<id>copy-mcp-lib</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/mcp-libs</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/mcp-libs</directory>
-									<filtering>false</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-
-					<!-- Add new execution to copy db directory -->
-					<execution>
-						<id>copy-db</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/db</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/db</directory>
-									<filtering>false</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

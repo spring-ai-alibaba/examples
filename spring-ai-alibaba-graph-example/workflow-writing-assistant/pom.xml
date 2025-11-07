@@ -32,13 +32,6 @@
     <description>Writing Assistant Workflow Built with Graph</description>
     <name>Writing Assistant Workflow</name>
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-ai-alibaba-graph-core.version>1.0.0.3</spring-ai-alibaba-graph-core.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,7 +47,7 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-graph-core</artifactId>
-            <version>${spring-ai-alibaba-graph-core.version}</version>
+            <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
     </dependencies>

@@ -67,8 +67,8 @@ public class ParallelNodeGraphController {
 
         GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
         Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
-        AsyncGenerator<NodeOutput> resultFuture = compiledGraph.stream(objectMap, runnableConfig);
-        graphProcess.processStream(resultFuture, sink);
+        Flux<NodeOutput> nodeOutputFlux = compiledGraph.fluxStream(objectMap, runnableConfig);
+        graphProcess.processStream(nodeOutputFlux, sink);
 
         return sink.asFlux()
                 .doOnCancel(() -> logger.info("Client disconnected from stream"))

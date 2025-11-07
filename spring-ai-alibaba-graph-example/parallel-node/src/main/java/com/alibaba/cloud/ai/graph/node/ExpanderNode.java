@@ -16,11 +16,14 @@
 
 package com.alibaba.cloud.ai.graph.node;
 
+import com.alibaba.cloud.ai.graph.GraphResponse;
 import com.alibaba.cloud.ai.graph.NodeOutput;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
 import com.alibaba.cloud.ai.graph.async.AsyncGenerator;
+import com.alibaba.cloud.ai.graph.streaming.FluxConverter;
 import com.alibaba.cloud.ai.graph.streaming.StreamingChatGenerator;
+import com.alibaba.cloud.ai.graph.streaming.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -69,7 +72,7 @@ public class ExpanderNode implements NodeAction {
 
         Flux<ChatResponse> chatResponseFlux = this.chatClient.prompt().user((user) -> user.text(DEFAULT_PROMPT_TEMPLATE.getTemplate()).param("number", expanderNumber).param("query", query)).stream().chatResponse();
 
-        AsyncGenerator<? extends NodeOutput> generator = StreamingChatGenerator.builder()
+        Flux<GraphResponse<StreamingOutput>> generator = FluxConverter.builder()
                 .startingNode("expander_llm_stream")
                 .startingState(state)
                 .mapResult(response -> {

@@ -1,12 +1,11 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2024-2025 the original author or authors.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,23 +16,22 @@
 
 package com.alibaba.cloud.ai.application.modulerag.core;
 
-import com.alibaba.cloud.ai.application.entity.IQSSearchResponse;
+import com.alibaba.cloud.ai.application.config.WebSearchProperties;
+import com.alibaba.cloud.ai.application.entity.iqs.IQSSearchRequest;
+import com.alibaba.cloud.ai.application.entity.iqs.IQSSearchResponse;
 import com.alibaba.cloud.ai.application.exception.SAAAppException;
 import com.alibaba.cloud.ai.application.modulerag.IQSSearchProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -45,28 +43,23 @@ import java.util.function.Consumer;
  */
 
 @Component
-@EnableConfigurationProperties(IQSSearchProperties.class)
 public class IQSSearchEngine {
 
 	private final RestClient restClient;
-
-	private final ObjectMapper objectMapper;
-
 	private final IQSSearchProperties iqsSearchProperties;
-
-	private static final String TIME_RANGE = "OneWeek";
-
 	private static final String BASE_URL = "https://cloud-iqs.aliyuncs.com/";
+	private static final String API_PATH = "/search/unified";
+	private static final String DEFAULT_TIME_RANGE = "OneWeek";
+	private static final String DEFAULT_ENGINE_TYPE = "Generic";
 
 	public IQSSearchEngine(
-			ObjectMapper objectMapper,
 			RestClient.Builder restClientBuilder,
-			IQSSearchProperties iqsSearchProperties,
+			WebSearchProperties webSearchProperties,
 			ResponseErrorHandler responseErrorHandler
 	) {
 
-		this.objectMapper = new ObjectMapper();
-		this.iqsSearchProperties = iqsSearchProperties;
+		this.iqsSearchProperties = webSearchProperties.iqs();
+		Assert.hasText(iqsSearchProperties.apiKey(), "apiKey must not be empty");
 		this.restClient = restClientBuilder.baseUrl(BASE_URL)
 				.defaultHeaders(getHeaders())
 				.defaultStatusHandler(responseErrorHandler)
@@ -75,26 +68,23 @@ public class IQSSearchEngine {
 
 	public IQSSearchResponse search(String query) throws JsonProcessingException {
 
-		Map<String, Boolean> reqDataContents = new HashMap<>();
-		reqDataContents.put("mainText", true);
-		// IQS 目前得 md 文档效果不好，所以关闭.
-		reqDataContents.put("markdownText", false);
-		reqDataContents.put("rerankScore", true);
-		Map<String, Object> reqData = new HashMap<>();
-		reqData.put("query", query);
-		reqData.put("timeRange", TIME_RANGE);
-		reqData.put("engineType", "Generic");
-		reqData.put("contents", reqDataContents);
-		String jsonReqData = objectMapper.writeValueAsString(reqData);
-
 		// String encodeQ = URLEncoder.encode(query, StandardCharsets.UTF_8);
+		final IQSSearchRequest request = IQSSearchRequest.builder()
+				.query(query)
+				.timeRange(DEFAULT_TIME_RANGE)
+				.engineType(DEFAULT_ENGINE_TYPE)
+				.contents(IQSSearchRequest.Contents.builder()
+						.mainText(true)
+						// IQS 目前的 md 文档效果不好, 所以关闭.
+						.markdownText(false)
+						.rerankScore(true)
+						.build())
+				.build();
+
 		ResponseEntity<IQSSearchResponse> response = this.restClient.post()
-				.uri(
-						"/search/unified?query={query}&timeRange={timeRange}",
-						query,
-						TIME_RANGE
-				).contentType(MediaType.APPLICATION_JSON)
-				.body(jsonReqData)
+				.uri(API_PATH)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(request)
 				.retrieve()
 				.toEntity(IQSSearchResponse.class);
 
@@ -115,11 +105,8 @@ public class IQSSearchEngine {
 		return httpHeaders -> {
 
 			httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-			httpHeaders.set("user-agent", userAgent());
-
-			if (StringUtils.hasText(this.iqsSearchProperties.getApiKey())) {
-				httpHeaders.set("X-API-Key", this.iqsSearchProperties.getApiKey());
-			}
+			httpHeaders.set(HttpHeaders.USER_AGENT, userAgent());
+			httpHeaders.setBearerAuth(this.iqsSearchProperties.apiKey());
 		};
 	}
 

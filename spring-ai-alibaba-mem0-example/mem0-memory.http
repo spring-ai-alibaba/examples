@@ -1,0 +1,9 @@
+# Chat Memory API
+
+### 聊天记忆
+GET http://localhost:8080/advisor/memory/mem0/call?message=你好，我是万能的喵，我爱玩三角洲行动&user_id=miao
+### 获取记忆
+GET http://localhost:8080/advisor/memory/mem0/messages?query=我的爱好是什么&user_id=miao
+
+### 测试
+GET http://localhost:8080/advisor/memory/mem0/test

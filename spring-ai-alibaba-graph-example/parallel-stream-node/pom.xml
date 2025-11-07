@@ -6,15 +6,12 @@
     <parent>
         <groupId>com.alibaba.cloud.ai</groupId>
         <artifactId>spring-ai-alibaba-graph-example</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>com.alibaba.cloud.ai.graph</groupId>
     <artifactId>parallel-stream-node</artifactId>
-
-    <properties>
-        <spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
-    </properties>
 
     <dependencies>
 
@@ -31,6 +28,7 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-graph-core</artifactId>
+            <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
         <dependency>

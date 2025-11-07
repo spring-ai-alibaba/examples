@@ -35,11 +35,10 @@ public class GraphController {
 	}
 
 	@PostMapping("/invoke")
-	public ResponseEntity<Map<String, Object>> invoke(@RequestBody Map<String, Object> inputs)
-			throws GraphStateException, GraphRunnerException {
+	public ResponseEntity<Map<String, Object>> invoke(@RequestBody Map<String, Object> inputs) {
 
 		// invoke graph
-		var resultFuture = graph.invoke(inputs);
+		var resultFuture = graph.call(inputs);
 
 		return ResponseEntity.ok(resultFuture.get().data());
 	}

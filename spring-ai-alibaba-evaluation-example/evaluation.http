@@ -1,0 +1,19 @@
+### RelevancyEvaluator相关性评估器
+GET http://localhost:8080/ai/evaluation/sa/relevancy?query=中国的首都是哪里?
+Accept: application/json
+
+### FactCheckingEvaluator事实性评估器
+GET http://localhost:8080/ai/evaluation/sa/fact-checking?query=中国的首都是哪里?
+Accept: application/json
+
+### AnswerRelevancyEvaluator评分评估器
+GET http://localhost:8080/ai/evaluation/saa/answer-relevancy?query=中国的首都是哪里?
+Accept: application/json
+
+### AnswerCorrectnessEvaluator正确性评估器
+GET http://localhost:8080/ai/evaluation/saa/answer-correctness?query=中国的首都是哪里?
+Accept: application/json
+
+### AnswerFaithfulnessEvaluator评分评估器
+GET http://localhost:8080/ai/evaluation/saa/answer-faithfulness?query=中国的首都是哪里?
+Accept: application/json

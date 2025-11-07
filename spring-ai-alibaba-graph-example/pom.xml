@@ -53,6 +53,10 @@
         <module>parallel-stream-node</module>
     </modules>
 
+        <properties>
+            <spring-ai-alibaba.version>1.0.0.4</spring-ai-alibaba.version>
+        </properties>
+
     <build>
         <plugins>
             <plugin>

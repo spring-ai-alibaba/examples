@@ -33,7 +33,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gson.version>2.10.1</gson.version>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
         <mybatis-plus-boot-starter.version>3.5.6</mybatis-plus-boot-starter.version>
         <mysql-connector-j.version>8.2.0</mysql-connector-j.version>
         <lombok.version>1.18.30</lombok.version>

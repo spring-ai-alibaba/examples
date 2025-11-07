@@ -18,6 +18,7 @@ package com.alibaba.cloud.ai.graph.config;
 import com.alibaba.cloud.ai.graph.GraphRepresentation;
 import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
@@ -48,21 +49,14 @@ public class GraphConfiguration {
 
     @Bean
     public StateGraph parallelStreamGraph(ChatClient.Builder chatClientBuilder) throws GraphStateException {
-        KeyStrategyFactory keyStrategyFactory = () -> {
-            HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
-
-            // 用户输入
-            keyStrategyHashMap.put("query", new ReplaceStrategy());
-            keyStrategyHashMap.put("expander_number", new ReplaceStrategy());
-            keyStrategyHashMap.put("expander_content", new ReplaceStrategy());
-
-            keyStrategyHashMap.put("translate_language", new ReplaceStrategy());
-            keyStrategyHashMap.put("translate_content", new ReplaceStrategy());
-
-            keyStrategyHashMap.put("merge_result", new ReplaceStrategy());
-
-            return keyStrategyHashMap;
-        };
+        KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+                .addPatternStrategy("query", new ReplaceStrategy())
+                .addPatternStrategy("expander_number", new ReplaceStrategy())
+                .addPatternStrategy("expander_content", new ReplaceStrategy())
+                .addPatternStrategy("translate_language", new ReplaceStrategy())
+                .addPatternStrategy("translate_content", new ReplaceStrategy())
+                .addPatternStrategy("merge_result", new ReplaceStrategy())
+                .build();
 
         Map<String, NodeStatus> node2Status = new HashMap<>();
 

@@ -3,19 +3,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>com.alibaba.cloud.ai</groupId>
+		<artifactId>spring-ai-alibaba-graph-example</artifactId>
+		<version>${revision}</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
+
 	<groupId>com.alibaba.cloud.ai</groupId>
 	<artifactId>workflow-review-classifier</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>workflow-review-classifier</name>
 	<description>Review Classifier Workflow Example</description>
-	<properties>
-		<java.version>17</java.version>
-	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -24,7 +23,7 @@
 		<dependency>
 			<groupId>com.alibaba.cloud.ai</groupId>
 			<artifactId>spring-ai-alibaba-graph-core</artifactId>
-			<version>1.0.0.3</version>
+			<version>${spring-ai-alibaba.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.github.docker-java</groupId>
@@ -44,7 +43,7 @@
 		<dependency>
 			<groupId>com.alibaba.cloud.ai</groupId>
 			<artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
-			<version>1.0.0.3</version>
+			<version>${spring-ai-alibaba.version}</version>
 		</dependency>
 
 		<dependency>

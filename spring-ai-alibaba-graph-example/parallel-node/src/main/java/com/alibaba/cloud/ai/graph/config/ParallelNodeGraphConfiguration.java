@@ -19,6 +19,7 @@ package com.alibaba.cloud.ai.graph.config;
 import com.alibaba.cloud.ai.graph.GraphRepresentation;
 import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.dispatcher.CollectorDispatcher;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
@@ -54,23 +55,16 @@ public class ParallelNodeGraphConfiguration {
 
     @Bean
     public StateGraph parallelNodeGraph(ChatClient.Builder chatClientBuilder) throws GraphStateException {
-        KeyStrategyFactory keyStrategyFactory = () -> {
-            HashMap<String, KeyStrategy> keyStrategyHashMap = new HashMap<>();
-
-            // 用户输入
-            keyStrategyHashMap.put("query", new ReplaceStrategy());
-            keyStrategyHashMap.put("expander_number", new ReplaceStrategy());
-            keyStrategyHashMap.put("expander_content", new ReplaceStrategy());
-            keyStrategyHashMap.put("translate_language", new ReplaceStrategy());
-            keyStrategyHashMap.put("translate_content", new ReplaceStrategy());
-            keyStrategyHashMap.put("collector_next_node", new ReplaceStrategy());
-            
-            // 状态管理字段
-            keyStrategyHashMap.put("expand_status", new ReplaceStrategy());
-            keyStrategyHashMap.put("translate_status", new ReplaceStrategy());
-            
-            return keyStrategyHashMap;
-        };
+        KeyStrategyFactory keyStrategyFactory = new KeyStrategyFactoryBuilder()
+                .addPatternStrategy("query", new ReplaceStrategy())
+                .addPatternStrategy("expander_number", new ReplaceStrategy())
+                .addPatternStrategy("expander_content", new ReplaceStrategy())
+                .addPatternStrategy("translate_language", new ReplaceStrategy())
+                .addPatternStrategy("translate_content", new ReplaceStrategy())
+                .addPatternStrategy("collector_next_node", new ReplaceStrategy())
+                .addPatternStrategy("expand_status", new ReplaceStrategy())
+                .addPatternStrategy("translate_status", new ReplaceStrategy())
+                .build();
 
         StateGraph stateGraph = new StateGraph(keyStrategyFactory)
                 .addNode("dispatcher", node_async(new DispatcherNode()))

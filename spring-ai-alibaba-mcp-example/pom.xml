@@ -41,6 +41,7 @@
 		<module>spring-ai-alibaba-mcp-build-example</module>
         <module>spring-ai-alibaba-mcp-nacos-example</module>
         <module>spring-ai-alibaba-mcp-auth-example</module>
+        <module>spring-ai-alibaba-mcp-config-example</module>
     </modules>
 
 	<build>

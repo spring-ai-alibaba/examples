@@ -16,7 +16,9 @@
     <modules>
         <module>vector-simple-example</module>
         <module>vector-redis-example</module>
+        <module>vector-opensearch-example</module>
         <module>vector-oceanbase-example</module>
+        <module>vector-neo4j-example</module>
     </modules>
 
     <properties>

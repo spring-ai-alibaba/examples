@@ -36,15 +36,19 @@
 	<name>Spring AI Alibaba Starter MCP Examples</name>
 
 	<modules>
+		<module>client/mcp-stdio-client-example</module>
+		<module>client/mcp-webflux-client-example</module>
+		<module>client/mcp-sdk-streamable-client-example</module>
+		<module>client/mcp-streamble-client</module>
+		<module>client/mcp-streamable-webflux-client</module>
+		<module>client/mcp-annotation-client</module>
+
 		<module>server/mcp-webflux-server-example</module>
 		<module>server/mcp-stdio-server-example</module>
-
-		<module>client/mcp-stdio-client-example</module>
-		<module>client/mcp-streamable-client-example</module>
-		<module>client/mcp-webflux-client-example</module>
-<!--        <module>client/mcp-recovery-client</module>-->
-		<module>client/mcp-sdk-streamable-client-example</module>
-    </modules>
+		<module>server/mcp-streamable-webmvc-server</module>
+		<module>server/mcp-streamable-webflux-server</module>
+		<module>server/mcp-annotation-server</module>
+	</modules>
 
 	<build>
 		<plugins>

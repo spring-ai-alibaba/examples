@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Agent Example</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem 0;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            border: none;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #eaeaea;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        .feedback-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .feedback-description {
+            margin-top: 0.8rem;
+        }
+
+        .thread-id {
+            font-family: monospace;
+            background-color: #000000;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .response-area {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .tool-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+            color: #6a11cb;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-robot me-2"></i>React Agent Example</h1>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <span class="thread-id">Thread ID: <span id="currentThreadId">未生成</span></span>
+                <button class="btn btn-light btn-sm ms-2" id="generateThreadId">
+                    <i class="fas fa-sync-alt me-1"></i>生成新ID
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-comment-dots me-2"></i>智能体交互
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="queryInput" class="form-label">输入查询内容</label>
+                        <textarea class="form-control" id="queryInput" rows="3" placeholder="请输入您要查询的内容..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-info-circle me-1"></i>智能体可能需要您的反馈才能继续执行
+                                </span>
+                        </div>
+                        <button class="btn btn-primary" id="invokeBtn">
+                            <i class="fas fa-paper-plane me-1"></i>发送查询
+                        </button>
+                    </div>
+
+                    <div id="responseSection" class="mt-4" style="display: none;">
+                        <h5>智能体响应</h5>
+                        <div class="response-area" id="responseArea">
+                            <!-- 响应内容将在这里显示 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="feedbackSection" style="display: none;">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-clipboard-check me-2"></i>操作反馈
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">智能体请求执行以下操作，请批准或拒绝：</p>
+                    <div id="feedbackItems">
+                        <!-- 反馈项将在这里动态生成 -->
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button class="btn btn-success" id="submitFeedback">
+                            <i class="fas fa-check-circle me-1"></i>提交反馈
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-history me-2"></i>请求历史
+                </div>
+                <div class="card-body">
+                    <div id="requestHistory">
+                        <!-- 历史记录将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 生成随机线程ID
+    function generateThreadId() {
+        return 'thread_' + Math.random().toString(36).substring(2, 10);
+    }
+
+    // 更新线程ID显示
+    function updateThreadIdDisplay() {
+        document.getElementById('currentThreadId').textContent = currentThreadId;
+    }
+
+    // 添加历史记录
+    function addHistoryEntry(type, content) {
+        const historyContainer = document.getElementById('requestHistory');
+        const timestamp = new Date().toLocaleTimeString();
+
+        const entry = document.createElement('div');
+        entry.className = 'mb-2 p-2 border rounded';
+
+        let icon, bgClass;
+        if (type === 'query') {
+            icon = 'fa-paper-plane';
+            bgClass = 'bg-primary bg-opacity-10';
+        } else if (type === 'response') {
+            icon = 'fa-robot';
+            bgClass = 'bg-success bg-opacity-10';
+        } else if (type === 'feedback') {
+            icon = 'fa-clipboard-check';
+            bgClass = 'bg-warning bg-opacity-10';
+        }
+
+        entry.className += ' ' + bgClass;
+        entry.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <small><i class="fas ${icon} me-1"></i>${type}</small>
+                    <small class="text-muted">${timestamp}</small>
+                </div>
+                <div class="mt-1 small">${content.substring(0, 50)}${content.length > 50 ? '...' : ''}</div>
+            `;
+
+        historyContainer.prepend(entry);
+    }
+
+    // 初始化线程ID
+    let currentThreadId = generateThreadId();
+    updateThreadIdDisplay();
+
+    // 生成新线程ID
+    document.getElementById('generateThreadId').addEventListener('click', function() {
+        currentThreadId = generateThreadId();
+        updateThreadIdDisplay();
+        document.getElementById('responseSection').style.display = 'none';
+        document.getElementById('feedbackSection').style.display = 'none';
+    });
+
+    // 发送查询请求
+    document.getElementById('invokeBtn').addEventListener('click', function() {
+        const query = document.getElementById('queryInput').value.trim();
+        if (!query) {
+            alert('请输入查询内容');
+            return;
+        }
+
+        // 显示加载状态
+        const invokeBtn = document.getElementById('invokeBtn');
+        invokeBtn.disabled = true;
+        invokeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>处理中...';
+
+        // 记录查询历史
+        addHistoryEntry('query', query);
+
+        // 构建请求URL
+        const url = `/invoke?query=${encodeURIComponent(query)}&threadId=${currentThreadId}`;
+
+        // 发送GET请求
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 显示响应区域
+                document.getElementById('responseSection').style.display = 'block';
+
+                // 记录响应历史
+                let resp = ""
+                for(let i = 0; i < data.length; i++) {
+                    resp += `ToolName: ${data[i].name} \r\n ToolArguments: \r\n ${data[i].arguments} \r\n\r\n`
+                }
+                addHistoryEntry('response', resp);
+
+                // 显示响应内容
+                const responseArea = document.getElementById('responseArea');
+                responseArea.textContent = resp;
+
+                // 检查是否需要反馈
+                if (data && data.length > 0) {
+                    // 显示反馈区域
+                    document.getElementById('feedbackSection').style.display = 'block';
+
+                    // 生成反馈项
+                    const feedbackItemsContainer = document.getElementById('feedbackItems');
+                    feedbackItemsContainer.innerHTML = '';
+
+                    data.forEach((item, index) => {
+                        const feedbackItem = document.createElement('div');
+                        feedbackItem.className = 'feedback-item';
+                        feedbackItem.innerHTML = `
+                                <div class="feedback-header">
+                                    <div>
+                                        <i class="fas fa-toolbox tool-icon"></i>
+                                        <strong>操作 ${index + 1}</strong>
+                                    </div>
+                                    <div class="feedback-actions">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="feedback${index}" id="approve${index}" value="approve" checked>
+                                            <label class="form-check-label" for="approve${index}">批准</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="feedback${index}" id="reject${index}" value="reject">
+                                            <label class="form-check-label" for="reject${index}">拒绝</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="feedback-description" id="description${index}" style="display: none;">
+                                    <label for="rejectReason${index}" class="form-label">拒绝原因</label>
+                                    <textarea class="form-control" id="rejectReason${index}" rows="2" placeholder="请输入拒绝原因..."></textarea>
+                                </div>
+                            `;
+
+                        feedbackItemsContainer.appendChild(feedbackItem);
+
+                        // 添加事件监听器，显示/隐藏拒绝原因输入框
+                        const rejectRadio = document.getElementById(`reject${index}`);
+                        const descriptionDiv = document.getElementById(`description${index}`);
+
+                        rejectRadio.addEventListener('change', function() {
+                            if (this.checked) {
+                                descriptionDiv.style.display = 'block';
+                            }
+                        });
+
+                        const approveRadio = document.getElementById(`approve${index}`);
+                        approveRadio.addEventListener('change', function() {
+                            if (this.checked) {
+                                descriptionDiv.style.display = 'none';
+                            }
+                        });
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                alert('请求失败: ' + error.message);
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                invokeBtn.disabled = false;
+                invokeBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>发送查询';
+            });
+    });
+
+    // 提交反馈
+    document.getElementById('submitFeedback').addEventListener('click', function() {
+        const feedbackItems = document.querySelectorAll('.feedback-item');
+        const feedbacks = [];
+
+        // 收集反馈数据
+        feedbackItems.forEach((item, index) => {
+            const isApproved = document.getElementById(`approve${index}`).checked;
+            const feedback = {
+                isApproved: isApproved,
+                feedback: isApproved ? '' : document.getElementById(`rejectReason${index}`).value
+            };
+            feedbacks.push(feedback);
+        });
+        console.log(feedbacks)
+
+        // 构建请求URL
+        const url = `/feedback?threadId=${currentThreadId}`;
+
+        // 显示加载状态
+        const submitFeedback = document.getElementById('submitFeedback');
+        submitFeedback.disabled = true;
+        submitFeedback.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>处理中...';
+
+        // 发送POST请求
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(feedbacks)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+                return response.text();
+            })
+            .then(result => {
+                // 记录反馈历史
+                addHistoryEntry('feedback', JSON.stringify(feedbacks));
+
+                alert('反馈提交成功: ' + result);
+
+                // 隐藏反馈区域
+                document.getElementById('feedbackSection').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                alert('反馈提交失败: ' + error.message);
+            })
+            .finally(() => {
+                const submitFeedback = document.getElementById('submitFeedback');
+                submitFeedback.disabled = false;
+                submitFeedback.innerHTML = `<i class="fas fa-check-circle me-1"></i>提交反馈`;
+            });
+    });
+</script>
+</body>
+</html>

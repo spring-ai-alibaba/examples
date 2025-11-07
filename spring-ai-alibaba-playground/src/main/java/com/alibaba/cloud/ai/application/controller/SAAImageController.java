@@ -1,12 +1,11 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2024-2025 the original author or authors.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +16,6 @@
 
 package com.alibaba.cloud.ai.application.controller;
 
-import com.alibaba.cloud.ai.application.annotation.UserIp;
 import com.alibaba.cloud.ai.application.entity.result.Result;
 import com.alibaba.cloud.ai.application.service.SAAImageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,7 +53,6 @@ public class SAAImageController {
 	 * Image Recognition
 	 * prompt can be empty
 	 */
-	@UserIp
 	@PostMapping("/image2text")
 	@Operation(summary = "DashScope Image Recognition")
 	public Flux<String> image2text(
@@ -77,7 +74,6 @@ public class SAAImageController {
 		return res;
 	}
 
-	@UserIp
 	@GetMapping("/text2image")
 	@Operation(summary = "DashScope Image Generation")
 	public Result<Void> text2Image(
