@@ -20,7 +20,7 @@ import com.alibaba.cloud.ai.graph.config.McpNodeProperties;
 import org.apache.commons.compress.utils.Lists;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.springframework.ai.mcp.McpToolUtils;
-import org.springframework.ai.mcp.client.autoconfigure.properties.McpClientCommonProperties;
+import org.springframework.ai.mcp.client.common.autoconfigure.properties.McpClientCommonProperties;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.definition.ToolDefinition;

@@ -23,8 +23,12 @@ package org.springframework.ai.mcp.client.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.client.transport.WebFluxSseClientTransport;
-import org.springframework.ai.mcp.client.autoconfigure.properties.McpClientCommonProperties;
+import io.modelcontextprotocol.json.jackson.JacksonMcpJsonMapper;
+
 import org.springframework.ai.mcp.client.autoconfigure.properties.McpSseClientProperties;
+import org.springframework.ai.mcp.client.common.autoconfigure.NamedClientMcpTransport;
+import org.springframework.ai.mcp.client.common.autoconfigure.properties.McpClientCommonProperties;
+
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -64,7 +68,7 @@ public class SseWebFluxTransportAutoConfiguration {
                             }
             );
             String sseEndpoint = ((McpSseClientProperties.SseParameters)serverParameters.getValue()).sseEndpoint() != null ? ((McpSseClientProperties.SseParameters)serverParameters.getValue()).sseEndpoint() : "/sse";
-            WebFluxSseClientTransport transport = WebFluxSseClientTransport.builder(webClientBuilder).sseEndpoint(sseEndpoint).objectMapper(objectMapper).build();
+            WebFluxSseClientTransport transport = WebFluxSseClientTransport.builder(webClientBuilder).sseEndpoint(sseEndpoint).jsonMapper(new JacksonMcpJsonMapper(objectMapper)).build();
             sseTransports.add(new NamedClientMcpTransport((String)serverParameters.getKey(), transport));
         }
 

@@ -199,7 +199,7 @@ public class RagComponentController {
                 .rerankModel(rerankModel)
                 .rerankOptions(dashScopeRerankProperties.getOptions())
                 .build();
-        HybridSearchAdvisor hybridSearchAdvisor = HybridSearchAdvisor.builder()
+        HybridSearchAdvisor hybridSearchAdvisor = HybridSearchAdvisor.Builder.builder()
                 .queryTransformers(queryTransformers)
                 .queryExpander(multiQueryExpander)
                 .hyDeTransformer(hyDeTransformer)
@@ -223,7 +223,7 @@ public class RagComponentController {
                 .numberOfQueries(3)
                 .chatClientBuilder(chatClientBuilder)
                 .build();
-        MultiQueryRetrieverAdvisor multiQueryRetrieverAdvisor = MultiQueryRetrieverAdvisor.builder()
+        MultiQueryRetrieverAdvisor multiQueryRetrieverAdvisor = MultiQueryRetrieverAdvisor.Builder.builder()
                 .queryExpander(multiQueryExpander)
                 .documentRetriever(hybridRetriever)
                 .build();
