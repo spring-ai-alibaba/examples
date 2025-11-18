@@ -145,7 +145,7 @@ public class GraphConfiguration {
 		MergeNode mergeNode = new MergeNode(Lists.newArrayList("parallel_output1", "parallel_output2"), "sub_input");
 
 		// Streaming node - real-time AI response
-		StreamingChatNode streamingNode = StreamingChatNode.create("StreamingNode", "final_output", "streaming_output",
+		StreamingChatNode streamingNode = StreamingChatNode.create("StreamingNode", "subgraph_final_output", "streaming_output",
 				chatClient, "Please perform detailed analysis on the subgraph results:");
 
 		// End node - final output formatting
@@ -164,9 +164,7 @@ public class GraphConfiguration {
 				.addPatternStrategy("sub_input", new ReplaceStrategy())
 				.addPatternStrategy("sub_output1", new ReplaceStrategy())
 				.addPatternStrategy("sub_output2", new ReplaceStrategy())
-				.addPatternStrategy("_subgraph", new ReplaceStrategy())
 				.addPatternStrategy("subgraph_final_output", new ReplaceStrategy())
-				.addPatternStrategy("final_output", new ReplaceStrategy())
 				.addPatternStrategy("streaming_output", new ReplaceStrategy())
 				.addPatternStrategy("summary_output", new ReplaceStrategy())
 				.addPatternStrategy("end_output", new ReplaceStrategy())

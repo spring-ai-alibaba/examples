@@ -67,14 +67,15 @@ public class JsonStateSerializerWithTypeInfo extends PlainTextStateSerializer {
     }
 
     @Override
-    public void write(OverAllState obj, ObjectOutput out) throws IOException {
-        String json = serialize(obj);
+    public void writeData(Map<String, Object> data, ObjectOutput out) throws IOException {
+        String json = mapper.writeValueAsString(data);
         out.writeUTF(json);
     }
 
     @Override
-    public OverAllState read(ObjectInput in) throws IOException {
+    public Map<String, Object> readData(ObjectInput in) throws IOException, ClassNotFoundException {
         String json = in.readUTF();
-        return deserialize(json);
+        return mapper.readValue(json, new TypeReference<>() {
+        });
     }
 }

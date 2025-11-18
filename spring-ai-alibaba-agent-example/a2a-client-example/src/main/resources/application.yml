@@ -1,0 +1,23 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: a2s-client-example
+  ai:
+    alibaba:
+      a2a:
+        server:
+          enabled: false
+        nacos:
+          discovery:
+            enabled: true
+          registry:
+            enabled: false
+          server-addr:  ${NACOS_ADDRESS:localhost:8848}
+          username: ${NACOS_USERNAME:nacos}
+          password: ${NACOS_PASSWORD}
+
+logging:
+  level:
+    root: debug

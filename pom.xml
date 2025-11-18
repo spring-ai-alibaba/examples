@@ -41,12 +41,12 @@
 		<maven.compiler.target>17</maven.compiler.target>
 
 		<!-- Spring AI -->
-		<spring-ai.version>1.0.0</spring-ai.version>
+		<spring-ai.version>1.1.0-M4</spring-ai.version>
 
 		<!-- Spring AI Alibaba -->
 		<!-- Install Spring AI Alibaba in your local. -->
-		<spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
-		<spring-ai-extensions.version>1.1.0.0-SNAPSHOT</spring-ai-extensions.version>
+		<spring-ai-alibaba.version>1.1.0.0-M4</spring-ai-alibaba.version>
+		<spring-ai-extensions.version>1.1.0.0-M4</spring-ai-extensions.version>
 		<!-- Spring Boot -->
 		<spring-boot.version>3.4.0</spring-boot.version>
 
@@ -75,10 +75,10 @@
 		<module>spring-ai-alibaba-observability-example</module>
 		<module>spring-ai-alibaba-more-platform-and-model-example</module>
 		<module>spring-ai-alibaba-nl2sql-example</module>
-		<module>spring-ai-alibaba-studio-example</module>
 		<module>spring-ai-alibaba-graph-example</module>
 		<module>spring-ai-alibaba-bailian-example</module>
         <module>spring-ai-alibaba-evaluation-example</module>
+		<!--        <module>spring-ai-alibaba-agent-example/a2a-example</module>-->
         <!-- For mem0, this is on saa snapshot version, if use, please install saa in local -->
         <!-- <module>spring-ai-alibaba-mem0-example</module> -->
 	</modules>
@@ -106,6 +106,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-extensions-bom</artifactId>
+                <version>${spring-ai-extensions.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 			
 		</dependencies>
 	</dependencyManagement>

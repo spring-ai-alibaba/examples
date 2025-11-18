@@ -16,24 +16,11 @@
 
 package com.alibaba.cloud.ai.application.modulerag;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 /**
+ * iqs search properties
+ *
  * @author yuluo
  * @author <a href="mailto:yuluo08290126@gmail.com">yuluo</a>
  */
-
-@ConfigurationProperties("spring.ai.alibaba.playground.iqs.search")
-public class IQSSearchProperties {
-
-	private String apiKey;
-
-	public String getApiKey() {
-		return this.apiKey;
-	}
-
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
-
+public record IQSSearchProperties(String apiKey) {
 }

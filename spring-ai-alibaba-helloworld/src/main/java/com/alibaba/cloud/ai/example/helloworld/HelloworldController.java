@@ -103,4 +103,35 @@ public class HelloworldController {
                 ).stream().content();
     }
 
+	/**
+	 * ChatClient 新的聊天接口，支持流式输出和自定义 ChatOptions 配置
+	 * eg:
+	 * http://127.0.0.1:18080/helloworld/advisor/newChat?query=你好&topP=0.8&temperature=0.9
+	 */
+	@GetMapping("/advisor/newChat")
+	public Flux<String> newChat(
+			HttpServletResponse response,
+			@RequestParam(value = "query", defaultValue = "你好，很高兴认识你，能简单介绍一下自己吗？") String query,
+			@RequestParam(value = "topP", required = false) Double topP,
+			@RequestParam(value = "temperature", required = false) Double temperature,
+			@RequestParam(value = "maxTokens", required = false) Integer maxTokens) {
+
+		response.setCharacterEncoding("UTF-8");
+
+		// 构建 ChatOptions
+		DashScopeChatOptions.DashscopeChatOptionsBuilder optionsBuilder = DashScopeChatOptions.builder();
+
+		if (topP != null) {
+			optionsBuilder.withTopP(topP);
+		}
+		if (temperature != null) {
+			optionsBuilder.withTemperature(temperature);
+		}
+
+		return this.dashScopeChatClient.prompt(query)
+				.options(optionsBuilder.build())
+				.stream()
+				.content();
+	}
+
 }

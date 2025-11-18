@@ -18,11 +18,16 @@ package com.alibaba.cloud.ai.graph.controller;
 
 import com.alibaba.cloud.ai.graph.CompiledGraph;
 import com.alibaba.cloud.ai.graph.OverAllState;
+import com.alibaba.cloud.ai.graph.RunnableConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,37 +50,41 @@ public class GraphController {
 	@Autowired
 	private CompiledGraph compiledGraph;
 
+	private final static Logger logger = LoggerFactory.getLogger(GraphController.class);
+
 	/**
 	 * Execute graph processing
 	 * @param input the input content to process
 	 * @return processing result with success status and output
 	 */
 	@GetMapping("/execute")
-	public Map<String, Object> execute(@RequestParam(value = "prompt", defaultValue = "Hello World") String input) {
-		try {
-			// Create initial state
-			Map<String, Object> initialState = new HashMap<>();
-			initialState.put("input", input);
+	public Mono<Map<String, Object>> execute(@RequestParam(value = "prompt", defaultValue = "Hello World") String input) {
+		return Mono.fromCallable(() -> {
+					// Create initial state
+					Map<String, Object> initialState = Map.of("input", input);
+					RunnableConfig runnableConfig = RunnableConfig.builder().build();
 
-			// Execute graph
-			OverAllState result = compiledGraph.call(initialState).get();
+					// Execute graph
+					OverAllState result = compiledGraph.call(initialState, runnableConfig).get();
 
-			// Return result
-			Map<String, Object> response = new HashMap<>();
-			response.put("success", true);
-			response.put("input", input);
-			response.put("output", result.value("end_output").orElse("No output"));
-			response.put("logs", result.value("logs").orElse("No logs"));
+					// Return result
+					Map<String, Object> response = new HashMap<>();
+					response.put("success", true);
+					response.put("input", input);
+					response.put("output", result.value("end_output").orElse("No output"));
+					response.put("logs", result.value("logs").orElse("No logs"));
 
-			return response;
-
-		}
-		catch (Exception e) {
-			Map<String, Object> errorResponse = new HashMap<>();
-			errorResponse.put("success", false);
-			errorResponse.put("error", e.getMessage());
-			return errorResponse;
-		}
+					logger.info("分析成功：{}", response);
+					return response;
+				})
+				.subscribeOn(Schedulers.boundedElastic())
+				.onErrorResume(e -> {
+					logger.error("异常结束 [{}]", e.getMessage(), e);
+					Map<String, Object> errorResponse = new HashMap<>();
+					errorResponse.put("success", false);
+					errorResponse.put("error", e.getMessage());
+					return Mono.just(errorResponse);
+				});
 	}
 
 }

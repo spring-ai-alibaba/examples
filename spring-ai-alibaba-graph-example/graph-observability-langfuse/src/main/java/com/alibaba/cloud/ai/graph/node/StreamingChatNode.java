@@ -16,11 +16,11 @@
 
 package com.alibaba.cloud.ai.graph.node;
 
-import com.alibaba.cloud.ai.graph.NodeOutput;
+import com.alibaba.cloud.ai.graph.GraphResponse;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
-import com.alibaba.cloud.ai.graph.async.AsyncGenerator;
-import com.alibaba.cloud.ai.graph.streaming.StreamingChatGenerator;
+import com.alibaba.cloud.ai.graph.streaming.FluxConverter;
+import com.alibaba.cloud.ai.graph.streaming.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -103,15 +103,15 @@ public class StreamingChatNode implements NodeAction {
 				});
 
 			// Wrap streaming response with StreamingChatGenerator
-			AsyncGenerator<? extends NodeOutput> generator = StreamingChatGenerator.builder()
-				.startingNode(nodeName + "_stream")
-				.startingState(state)
-				.mapResult(response -> {
-					String content = response.getResult().getOutput().getText();
-					logger.info("{}: mapResult emit chunk: {}", nodeName, content);
-					return Map.of(outputKey, content);
-				})
-				.build(chatResponseFlux);
+			Flux<GraphResponse<StreamingOutput>> generator = FluxConverter.builder()
+					.startingNode(nodeName + "_stream")
+					.startingState(state)
+					.mapResult(resp -> {
+						String content = resp.getResult().getOutput().getText();
+						logger.info("{} mapResult emit content: {}", nodeName, content);
+						return Map.of(outputKey, content);
+					})
+					.build(chatResponseFlux);
 
 			logger.info("{} streaming processing setup completed", nodeName);
 			return Map.of(outputKey, generator);

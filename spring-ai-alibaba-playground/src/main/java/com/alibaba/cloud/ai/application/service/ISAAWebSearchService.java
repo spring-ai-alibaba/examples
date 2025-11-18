@@ -17,6 +17,7 @@
 package com.alibaba.cloud.ai.application.service;
 
 import com.alibaba.cloud.ai.application.entity.dashscope.ChatResponseDTO;
+import com.alibaba.cloud.ai.application.enums.WebSearchEnum;
 import reactor.core.publisher.Flux;
 
 /**
@@ -28,6 +29,8 @@ import reactor.core.publisher.Flux;
  */
 
 public interface ISAAWebSearchService {
+
+    WebSearchEnum type();
 
     Flux<ChatResponseDTO> chat(String prompt);
 

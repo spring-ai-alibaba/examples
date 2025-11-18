@@ -1,0 +1,130 @@
+### Scenario 1: Order Approval Workflow
+
+### Normal order (amount < 10000, no interruption)
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-001&amount=5000&threadId=normal-order-1
+
+###
+
+### High amount order (amount > 10000, will interrupt)
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-002&amount=15000&threadId=high-order-1
+
+###
+
+### Resume after approval
+POST http://localhost:8080/interruptable/order/resume?approved=true&threadId=high-order-1
+
+###
+
+### Resume after rejection
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-003&amount=20000&threadId=high-order-2
+
+###
+
+POST http://localhost:8080/interruptable/order/resume?approved=false&threadId=high-order-2
+
+###
+
+### Scenario 2: Sensitive Operation Workflow
+
+### Normal operation (no interruption)
+POST http://localhost:8080/interruptable/operation/execute?operation=read_data&params=userId:123&threadId=normal-op-1
+
+###
+
+### Sensitive operation: delete user
+POST http://localhost:8080/interruptable/operation/execute?operation=delete_user&params=userId:123,reason:test&threadId=sensitive-op-1
+
+###
+
+### Confirm and continue
+POST http://localhost:8080/interruptable/operation/confirm?confirmed=true&threadId=sensitive-op-1
+
+###
+
+### Sensitive operation: delete database (high risk)
+POST http://localhost:8080/interruptable/operation/execute?operation=delete_database&params=dbName:test_db&threadId=sensitive-op-2
+
+###
+
+POST http://localhost:8080/interruptable/operation/confirm?confirmed=true&threadId=sensitive-op-2
+
+###
+
+### Sensitive operation: modify system config
+POST http://localhost:8080/interruptable/operation/execute?operation=modify_system_config&params=key:timeout,value:3600&threadId=sensitive-op-3
+
+###
+
+POST http://localhost:8080/interruptable/operation/confirm?confirmed=false&threadId=sensitive-op-3
+
+###
+
+### Scenario 3: Multiple Concurrent Workflows
+
+### Order 1
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-101&amount=12000&threadId=concurrent-order-1
+
+###
+
+### Order 2
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-102&amount=18000&threadId=concurrent-order-2
+
+###
+
+### Order 3
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-103&amount=25000&threadId=concurrent-order-3
+
+###
+
+### Resume order 1
+POST http://localhost:8080/interruptable/order/resume?approved=true&threadId=concurrent-order-1
+
+###
+
+### Resume order 2
+POST http://localhost:8080/interruptable/order/resume?approved=false&threadId=concurrent-order-2
+
+###
+
+### Resume order 3
+POST http://localhost:8080/interruptable/order/resume?approved=true&threadId=concurrent-order-3
+
+###
+
+### Scenario 4: Edge Cases
+
+### Very high amount order
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-999&amount=999999&threadId=edge-case-1
+
+###
+
+POST http://localhost:8080/interruptable/order/resume?approved=true&threadId=edge-case-1
+
+###
+
+### Zero amount order
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-000&amount=0&threadId=edge-case-2
+
+###
+
+### Exact threshold amount
+GET http://localhost:8080/interruptable/order/process?orderId=ORD-THRESHOLD&amount=10000&threadId=edge-case-3
+
+###
+
+### Multiple sensitive operations in sequence
+POST http://localhost:8080/interruptable/operation/execute?operation=delete_user&params=userId:999&threadId=seq-op-1
+
+###
+
+POST http://localhost:8080/interruptable/operation/confirm?confirmed=true&threadId=seq-op-1
+
+###
+
+POST http://localhost:8080/interruptable/operation/execute?operation=export_sensitive_data&params=table:users&threadId=seq-op-2
+
+###
+
+POST http://localhost:8080/interruptable/operation/confirm?confirmed=true&threadId=seq-op-2
+
+###

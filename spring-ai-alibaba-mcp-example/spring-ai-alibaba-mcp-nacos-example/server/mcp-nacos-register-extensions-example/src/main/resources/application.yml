@@ -34,6 +34,3 @@ spring:
             enabled: true
             service-group: mcp-server
             service-name: webflux-mcp-server-yingzi
-    toolcalling:
-      weather:
-        api-key: ${WEATHER_API_KEY}

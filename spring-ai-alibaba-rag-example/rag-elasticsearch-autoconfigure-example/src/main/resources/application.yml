@@ -1,0 +1,53 @@
+spring:
+  # spring elasticsearch配置
+  elasticsearch:
+    uris: http://localhost:9200
+    username: test
+    password: test
+  ai:
+    # dashscope配置
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}
+      chat:
+        options:
+          model: qwen-plus-2025-04-28
+      embedding:
+        options:
+          model: text-embedding-v1
+    # vector store配置
+    vectorstore:
+      elasticsearch:
+        initialize-schema: true
+        index-name: spring_ai_alibaba_rag_index
+        similarity: cosine
+        dimensions: 1536
+    # rag配置
+    alibaba:
+      rag:
+        elasticsearch:
+          # 默认值true
+          enabled: true
+          # 默认值false
+          use-rrf: false
+          # knn召回参数配置
+          recall:
+            # 相似度阈值，默认值0.0接受所有
+            similarity-threshold: 0.8
+            # 邻居数量，默认值50
+            neighbors-num: 50
+            # 候选集数量，默认值100
+            candidate-num: 100
+          # rrf重排参数配置
+          rrf:
+            # k值，默认值60
+            rank-constant: 60
+            # 窗口大小，默认值50
+            rank-window-size: 50
+          # 支持bm25, knn , hybrid，默认值hybrid
+          retriever-type: hybrid
+          # 返回topK个文档，默认值50
+          top-k: 50
+          # hybrid模式下knn权重，默认值1
+          knn-bias: 1
+          # hybrid模式下bm25权重，默认值1
+          bm25-bias: 1

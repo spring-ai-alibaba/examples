@@ -1,0 +1,26 @@
+spring:
+  # spring elasticsearch配置
+  elasticsearch:
+    uris: http://localhost:9200
+    username: test
+    password: test
+  ai:
+    # dashscope配置
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}
+      chat:
+        options:
+          model: qwen-plus-2025-04-28
+      embedding:
+        options:
+          model: text-embedding-v1
+      rerank:
+        options:
+          model: qwen3-rerank
+    # vector store配置
+    vectorstore:
+      elasticsearch:
+        initialize-schema: true
+        index-name: spring_ai_alibaba_rag_index
+        similarity: cosine
+        dimensions: 1536

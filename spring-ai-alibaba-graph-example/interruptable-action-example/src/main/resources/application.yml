@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: interruptable-action-example
+  
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY:your-api-key}
+      base-url: https://api.openai.com
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.7
+
+logging:
+  level:
+    root: INFO
+    com.alibaba.cloud.ai.graph: DEBUG
+    com.alibaba.cloud.ai.graph.interruptable: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
