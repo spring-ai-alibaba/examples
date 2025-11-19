@@ -119,7 +119,7 @@ public class HelloworldController {
 		response.setCharacterEncoding("UTF-8");
 
 		// 构建 ChatOptions
-		DashScopeChatOptions.DashscopeChatOptionsBuilder optionsBuilder = DashScopeChatOptions.builder();
+		DashScopeChatOptions.DashScopeChatOptionsBuilder optionsBuilder = DashScopeChatOptions.builder();
 
 		if (topP != null) {
 			optionsBuilder.withTopP(topP);

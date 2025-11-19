@@ -21,13 +21,11 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-mcp-registry</artifactId>
-            <version>${spring-ai-extensions.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-autoconfigure-mcp-registry</artifactId>
-            <version>${spring-ai-extensions.version}</version>
         </dependency>
 
     </dependencies>

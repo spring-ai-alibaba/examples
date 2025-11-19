@@ -24,8 +24,8 @@ import com.alibaba.cloud.ai.application.modulerag.core.IQSSearchEngine;
 import com.alibaba.cloud.ai.application.modulerag.data.DataClean;
 import com.alibaba.cloud.ai.application.modulerag.join.ConcatenationDocumentJoiner;
 import com.alibaba.cloud.ai.application.modulerag.prompt.CustomContextQueryAugmenter;
-import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
@@ -67,7 +67,7 @@ public class SAAModuleRagWebSearchService implements ISAAWebSearchService {
             IQSSearchEngine searchEngine,
             QueryTransformer queryTransformer,
             SimpleLoggerAdvisor simpleLoggerAdvisor,
-            @Qualifier("dashscopeChatModel") ChatModel chatModel,
+            @Qualifier("dashScopeChatModel") ChatModel chatModel,
             @Qualifier("queryArgumentPromptTemplate") PromptTemplate queryArgumentPromptTemplate
     ) {
 
@@ -83,7 +83,7 @@ public class SAAModuleRagWebSearchService implements ISAAWebSearchService {
         this.chatClient = ChatClient.builder(chatModel)
                 .defaultOptions(
                         DashScopeChatOptions.builder()
-                                .withModel(DashScopeApi.ChatModel.DEEPSEEK_R1.getValue())
+                                .withModel(DashScopeModel.ChatModel.DEEPSEEK_R1.getValue())
                                 // stream 模式下是否开启增量输出
                                 .withIncrementalOutput(true)
                                 .build()

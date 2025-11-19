@@ -72,7 +72,7 @@ public class SAAImageService {
 	private final ChatClient daschScopeChatClient;
 
 	public SAAImageService(
-			@Qualifier("dashscopeChatModel") ChatModel chatModel,
+			@Qualifier("dashScopeChatModel") ChatModel chatModel,
 			@Qualifier("dashScopeImageModel") ImageModel imageModel
 	) {
 

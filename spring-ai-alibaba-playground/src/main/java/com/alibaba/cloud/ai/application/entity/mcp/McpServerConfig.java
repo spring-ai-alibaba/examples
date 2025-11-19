@@ -17,7 +17,7 @@
 package com.alibaba.cloud.ai.application.entity.mcp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.ai.mcp.client.autoconfigure.properties.McpStdioClientProperties;
+import org.springframework.ai.mcp.client.common.autoconfigure.properties.McpStdioClientProperties;
 
 import java.util.Map;
 

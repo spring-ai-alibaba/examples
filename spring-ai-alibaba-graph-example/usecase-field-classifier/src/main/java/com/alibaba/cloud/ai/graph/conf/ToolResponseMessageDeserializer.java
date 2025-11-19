@@ -57,6 +57,9 @@ public class ToolResponseMessageDeserializer extends JsonDeserializer<ToolRespon
             metadata = p.getCodec().treeToValue(metadataNode, Map.class);
         }
 
-        return new ToolResponseMessage(responses, metadata);
+        return ToolResponseMessage.builder()
+            .responses(responses)
+            .metadata(metadata)
+            .build();
     }
 }

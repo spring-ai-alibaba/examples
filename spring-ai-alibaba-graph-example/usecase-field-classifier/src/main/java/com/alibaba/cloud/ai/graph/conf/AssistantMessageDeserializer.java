@@ -59,6 +59,10 @@ public class AssistantMessageDeserializer extends JsonDeserializer<AssistantMess
             }
         }
 
-        return new AssistantMessage(text, metadata, toolCalls);
+        return AssistantMessage.builder()
+            .content(text)
+            .properties(metadata)
+            .toolCalls(toolCalls)
+            .build();
     }
 }

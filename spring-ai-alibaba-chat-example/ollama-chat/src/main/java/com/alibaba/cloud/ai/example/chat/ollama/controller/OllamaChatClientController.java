@@ -17,12 +17,13 @@
 package com.alibaba.cloud.ai.example.chat.ollama.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.ai.ollama.api.OllamaChatOptions;
 import reactor.core.publisher.Flux;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,7 +52,7 @@ public class OllamaChatClientController {
 				)
 				// 设置 ChatClient 中 ChatModel 的 Options 参数
 				.defaultOptions(
-						OllamaOptions.builder()
+					OllamaChatOptions.builder()
 								.topP(0.7)
 								.model("llama3")
 								.build()

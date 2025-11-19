@@ -27,7 +27,6 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-mcp-common</artifactId>
-            <version>${spring-ai-extensions.version}</version>
         </dependency>
 
         <dependency>
@@ -38,7 +37,6 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-mcp-distributed</artifactId>
-            <version>${spring-ai-extensions.version}</version>
         </dependency>
 
     </dependencies>

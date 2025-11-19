@@ -42,7 +42,7 @@ private final ChatModel dashScopeChatModel;
 private final ChatModel ollamaChatModel;
 
 public MoreClientController(
-        @Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel,
+        @Qualifier("dashScopeChatModel") ChatModel dashScopeChatModel,
         @Qualifier("ollamaChatModel") ChatModel OllamaChatModel
 ) {
     this.dashScopeChatModel = dashScopeChatModel;
@@ -54,7 +54,7 @@ public MoreClientController(
 
 ```java
 @Autowired
-@Qualifier("dashscopeChatModel")
+@Qualifier("dashScopeChatModel")
 private ChatModel getDashScopeChatModel;
 ```
 
@@ -117,7 +117,7 @@ public class MoreModelCallController {
 	private final ChatModel dashScopeChatModel;
 
 	public MoreModelCallController(
-			@Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel
+			@Qualifier("dashScopeChatModel") ChatModel dashScopeChatModel
 	) {
 		this.dashScopeChatModel = dashScopeChatModel;
 	}

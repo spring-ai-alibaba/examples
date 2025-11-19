@@ -43,7 +43,7 @@ public class MorePlatformController {
      * 如openAiChatModel的路径见：org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration.java
     */
     public MorePlatformController(
-            @Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel,
+            @Qualifier("dashScopeChatModel") ChatModel dashScopeChatModel,
             @Qualifier("ollamaChatModel") ChatModel OllamaChatModel,
             @Qualifier("openAiChatModel") ChatModel openAIChatModel
     ) {

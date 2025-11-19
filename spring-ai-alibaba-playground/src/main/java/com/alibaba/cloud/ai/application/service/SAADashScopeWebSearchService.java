@@ -18,8 +18,9 @@ package com.alibaba.cloud.ai.application.service;
 
 import com.alibaba.cloud.ai.application.entity.dashscope.ChatResponseDTO;
 import com.alibaba.cloud.ai.application.enums.WebSearchEnum;
-import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
@@ -43,7 +44,7 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService {
 
     public SAADashScopeWebSearchService(
             SimpleLoggerAdvisor simpleLoggerAdvisor,
-            @Qualifier("dashscopeChatModel")ChatModel chatModel)
+            @Qualifier("dashScopeChatModel")ChatModel chatModel)
     {
         this.simpleLoggerAdvisor = simpleLoggerAdvisor;
         this.chatClient = ChatClient.builder(chatModel)
@@ -57,7 +58,7 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService {
     }
 
     public Flux<ChatResponseDTO> chat(String prompt) {
-        var searchOptions = DashScopeApi.SearchOptions.builder()
+        var searchOptions = DashScopeApiSpec.SearchOptions.builder()
                 .forcedSearch(true)
                 .enableSource(true)
                 .searchStrategy("pro")
@@ -67,7 +68,7 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService {
 
         var options = DashScopeChatOptions.builder()
                 .withEnableSearch(true)
-                .withModel(DashScopeApi.ChatModel.DEEPSEEK_V3.getValue())
+                .withModel(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
                 .withSearchOptions(searchOptions)
                 .withTemperature(0.7)
                 .build();

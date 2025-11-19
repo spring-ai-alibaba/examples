@@ -54,7 +54,7 @@ public class SAASummarizerService {
 	public SAASummarizerService(
 			SimpleLoggerAdvisor simpleLoggerAdvisor,
 			MessageChatMemoryAdvisor messageChatMemoryAdvisor,
-			@Qualifier("dashscopeChatModel") ChatModel chatModel,
+			@Qualifier("dashScopeChatModel") ChatModel chatModel,
 			@Qualifier("summarizerPromptTemplate") PromptTemplate docsSummaryPromptTemplate
 	) {
 

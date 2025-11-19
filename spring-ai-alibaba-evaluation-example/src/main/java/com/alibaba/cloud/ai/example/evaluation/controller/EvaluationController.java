@@ -137,7 +137,7 @@ public class EvaluationController {
         var document = ragChatResponse.documents();
         var claim = ragChatResponse.response();
 
-        var evaluator = new FactCheckingEvaluator(chatClientBuilder);
+        var evaluator = FactCheckingEvaluator.builder(chatClientBuilder).build();
         var evaluationRequest = new EvaluationRequest(
                 // Document
                 document,

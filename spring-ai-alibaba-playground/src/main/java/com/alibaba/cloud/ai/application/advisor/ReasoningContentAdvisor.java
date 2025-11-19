@@ -71,12 +71,12 @@ public class ReasoningContentAdvisor implements BaseAdvisor {
 			List<Generation> thinkGenerations = resp.getResults().stream()
 					.map(generation -> {
 						AssistantMessage output = generation.getOutput();
-						AssistantMessage thinkAssistantMessage = new AssistantMessage(
-								String.format("<think>%s</think>", reasoningContent) + output.getText(),
-								output.getMetadata(),
-								output.getToolCalls(),
-								output.getMedia()
-						);
+						AssistantMessage thinkAssistantMessage = AssistantMessage.builder()
+							.content(String.format("<think>%s</think>", reasoningContent) + output.getText())
+							.properties(output.getMetadata())
+							.toolCalls(output.getToolCalls())
+							.media(output.getMedia())
+							.build();
 						return new Generation(thinkAssistantMessage, generation.getMetadata());
 					}).toList();
 			
