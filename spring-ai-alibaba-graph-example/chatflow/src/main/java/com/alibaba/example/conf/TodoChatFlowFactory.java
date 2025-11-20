@@ -82,7 +82,7 @@ public class TodoChatFlowFactory {
             }
             Map<String, Object> input = Map.of("task_content", taskContent);
 
-            var subResult = subGraph.invoke(input, RunnableConfig.builder().threadId(subThreadId).build());
+            var subResult = subGraph.call(input, RunnableConfig.builder().threadId(subThreadId).build());
             if (subResult.isPresent()) {
                 Object createdTaskObj = subResult.get().value("created_task").orElse(null);
                 String createdTask = null;
