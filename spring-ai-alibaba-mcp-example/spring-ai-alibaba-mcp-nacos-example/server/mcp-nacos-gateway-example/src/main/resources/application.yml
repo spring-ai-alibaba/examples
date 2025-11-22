@@ -1,44 +1,29 @@
+server:
+  port: 19000
+
 spring:
   application:
-    name: mcp-nacos-gateway-example
+    name: mcp-gateway-server
   ai:
     mcp:
       server:
-        name: mcp-gateway-example
+        name: mcp-nacos-gateway-example
         version: 1.0.0
-        type: ASYNC
-        instructions: "This gateway server provides dynamic MCP tools from Nacos registered services"
         enabled: true
+        protocol: streamable
+        streamable-http:
+          mcp-endpoint: /mcp
     dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY}
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
-      chat:
-        options:
-          model: qwen-max
+      api-key: ${DASHSCOPE_API_KEY}
+
     alibaba:
       mcp:
-        nacos:
-          server-addr: 127.0.0.1:8848
-#          namespace: 4ad3108b-4d44-43d0-9634-3c1ac4850c8c
-          username: nacos
-          password:
-        router:
-          enabled: true
-          service-names:
-            - webflux-mcp-server
         gateway:
           enabled: true
-          registry: nacos
           nacos:
-            service-names:
-              - webflux-mcp-server
-#              - webmvc-mcp-server
-
-server:
-  port: 18090
-
-# 调试日志
-logging:
-  level:
-    com.alibaba.cloud.ai.mcp.gateway: DEBUG
-    io.modelcontextprotocol: DEBUG
+            service-names: mcp-nacos-restful
+        nacos:
+          namespace: 4ad3108b-4d44-43d0-9634-3c1ac4850c8c
+          server-addr: 127.0.0.1:8848
+          username: nacos
+          password: nacos

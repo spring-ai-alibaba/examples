@@ -18,12 +18,15 @@
 package com.alibaba.alibaba.ai.mcp.samples.client;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+
+import java.util.Scanner;
 
 @SpringBootApplication
 public class Application {
@@ -32,22 +35,31 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    // 直接硬编码中文问题，避免配置文件编码问题
-    private String userInput = "北京的天气如何？";
-
     @Bean
     public CommandLineRunner predefinedQuestions(ChatClient.Builder chatClientBuilder, ToolCallbackProvider tools,
             ConfigurableApplicationContext context) {
 
-        return args -> {
+        ToolCallback[] toolCallbacks = tools.getToolCallbacks();
+        System.out.println("Available tools:");
+        for (ToolCallback toolCallback : toolCallbacks) {
+            System.out.println(">>> " + toolCallback.getToolDefinition().name());
+        }
 
+        return args -> {
             var chatClient = chatClientBuilder
-                    .defaultToolCallbacks(tools)
+                    .defaultToolCallbacks(tools.getToolCallbacks())
                     .build();
 
-            System.out.println("\n>>> QUESTION: " + userInput);
-            System.out.println("\n>>> ASSISTANT: " + chatClient.prompt(userInput).call().content());
-
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                System.out.print("\n>>> QUESTION: ");
+                String userInput = scanner.nextLine();
+                if (userInput.equalsIgnoreCase("exit")) {
+                    break;
+                }
+                System.out.println("\n>>> ASSISTANT: " + chatClient.prompt(userInput).call().content());
+            }
+            scanner.close();
             context.close();
         };
     }

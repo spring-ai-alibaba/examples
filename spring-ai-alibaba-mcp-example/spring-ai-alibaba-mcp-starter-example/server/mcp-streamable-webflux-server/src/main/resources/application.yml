@@ -8,27 +8,12 @@ spring:
     mcp:
       server:
         name: streamable-mcp-server
-        protocol: STATELESS # SSE、STREAMABLE、STATELESS
+        protocol: STREAMABLE # SSE、STREAMABLE、STATELESS
         version: 1.0.0
         type: ASYNC  # Recommended for reactive applications
         instructions: "This reactive server provides time information tools and resources"
-        capabilities:
-          tool: true
-          resource: true
-          prompt: true
-          completion: true
         request-timeout: 20s
         streamable-http:
           mcp-endpoint: /mcp
-#          keep-alive-interval: 30s
+          keep-alive-interval: 30s
           disallow-delete: false
-
-
-# 调试日志
-logging:
-  level:
-    io:
-      modelcontextprotocol:
-        client: DEBUG
-        spec: DEBUG
-        server: DEBUG

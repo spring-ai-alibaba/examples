@@ -15,29 +15,16 @@
     <name>Spring AI - MCP Nacos Gateway Example</name>
 
     <dependencies>
-        <!-- Spring Boot Starter Web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-        
-        <!-- MCP Gateway Nacos 支持 -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
-            <artifactId>spring-ai-alibaba-starter-mcp-router</artifactId>
-            <version>${spring-ai-extensions.version}</version>
+            <artifactId>spring-ai-alibaba-starter-mcp-gateway</artifactId>
+            <version>1.1.0.0</version>
         </dependency>
-        
-        <!-- MCP Server WebMvc 支持 -->
+
+        <!-- MCP Server WebFlux 支持（也可换成 WebMvc） -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>mcp</artifactId>
-                    <groupId>io.modelcontextprotocol.sdk</groupId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spring-ai-starter-mcp-server-webflux</artifactId>
         </dependency>
 
     </dependencies>

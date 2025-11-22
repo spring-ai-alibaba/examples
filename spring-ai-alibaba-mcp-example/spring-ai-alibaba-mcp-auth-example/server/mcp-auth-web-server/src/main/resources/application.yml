@@ -1,27 +1,19 @@
 server:
-  port: 19000
+  port: 20000
 
 spring:
   application:
-    name: mcp-auth-mcp-server
+    name: mcp-auth-web-server
   ai:
     mcp:
       server:
-        name: mcp-auth-mcp-server
+        name: streamable-mcp-server
+        protocol: STREAMABLE # SSE、STREAMABLE、STATELESS
         version: 1.0.0
         type: ASYNC  # Recommended for reactive applications
         instructions: "This reactive server provides time information tools and resources"
-        sse-message-endpoint: /mcp/messages
-        capabilities:
-          tool: true
-          resource: true
-          prompt: true
-          completion: true
-# 调试日志
-logging:
-  level:
-    io:
-      modelcontextprotocol:
-        client: DEBUG
-        spec: DEBUG
-        server: DEBUG
+        request-timeout: 20s
+        streamable-http:
+          mcp-endpoint: /mcp
+          keep-alive-interval: 30s
+          disallow-delete: false
