@@ -16,27 +16,25 @@
 
 package com.alibaba.cloud.ai.example.audio;
 
-import com.alibaba.cloud.ai.dashscope.api.DashScopeAudioTranscriptionApi;
 import com.alibaba.cloud.ai.dashscope.audio.DashScopeAudioTranscriptionOptions;
 import com.alibaba.cloud.ai.dashscope.audio.transcription.AudioTranscriptionModel;
-import com.alibaba.cloud.ai.dashscope.common.DashScopeException;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.audio.transcription.AudioTranscription;
 import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
 import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 语音转文本（语音合成）
@@ -53,7 +51,7 @@ public class AudioTranscriptionController {
 	private static final Logger log = LoggerFactory.getLogger(AudioTranscriptionController.class);
 
 	// 模型列表：https://help.aliyun.com/zh/model-studio/sambert-websocket-api
-	private static final String DEFAULT_MODEL = DashScopeAudioTranscriptionApi.AudioTranscriptionModel.PARAFORMER_REALTIME_V2.getValue();
+	private static final String DEFAULT_MODEL = DashScopeModel.AudioModel.PARAFORMER_V2.getValue();
 
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -62,15 +60,20 @@ public class AudioTranscriptionController {
 		this.transcriptionModel = transcriptionModel;
 	}
 
-	@GetMapping
-	public String stt() {
+	/**
+	 * 录音文件识别
+	 */
+	@GetMapping("/call")
+	public String callSTT() {
 
-		String currentDir = System.getProperty("user.dir");
-		Path filePath = Paths.get(currentDir, "hello_world_male_16k_16bit_mono.wav");
+		// 录音文件支持HTTP / HTTPS协议
+		// 若录音文件存储在阿里云OSS，使用RESTful API方式支持使用以 oss://为前缀的临时 URL
+		Resource resource = new DefaultResourceLoader()
+			.getResource("https://dashscope.oss-cn-beijing.aliyuncs.com/samples/audio/paraformer/hello_world_female2.wav");
 
 		AudioTranscriptionResponse response = transcriptionModel.call(
 				new AudioTranscriptionPrompt(
-						new FileSystemResource(filePath),
+						resource,
 						DashScopeAudioTranscriptionOptions.builder()
 								.withModel(DEFAULT_MODEL)
 								.build()
@@ -81,104 +84,29 @@ public class AudioTranscriptionController {
 	}
 
 	/**
-	 * 以 Audio Speech 的输出作为输入
+	 * 实时语音识别
 	 */
 	@GetMapping("/stream")
 	public String streamSTT() {
 
-		String currentDir = System.getProperty("user.dir");
-		Path filePath = Paths.get(currentDir, "spring-ai-alibaba-audio-example/dashscope-audio/src/main/resources/gen/tts/output.mp3");
-
-		CountDownLatch latch = new CountDownLatch(1);
-		StringBuilder stringBuilder = new StringBuilder();
-
+		ClassPathResource audioResource = new ClassPathResource("hello_world_male_16k_16bit_mono.wav");
 		Flux<AudioTranscriptionResponse> response = transcriptionModel
 				.stream(
 						new AudioTranscriptionPrompt(
-								new FileSystemResource(filePath),
+								audioResource,
 								DashScopeAudioTranscriptionOptions.builder()
-										.withModel(DEFAULT_MODEL)
+										.withModel("paraformer-realtime-v2")
 										.withSampleRate(16000)
-										.withFormat(DashScopeAudioTranscriptionOptions.AudioFormat.PCM)
+										.withFormat(DashScopeAudioTranscriptionOptions.AudioFormat.WAV)
 										.withDisfluencyRemovalEnabled(false)
 										.build()
 						)
 				);
 
-		response.doFinally(
-				signal -> latch.countDown()
-		).subscribe(
-				resp -> stringBuilder.append(resp.getResult().getOutput())
-		);
-
-		try {
-			latch.await();
-		}
-		catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-
-		return stringBuilder.toString();
-	}
-
-	@GetMapping("/async")
-	public String asyncSTT() {
-		StringBuilder stringBuilder = new StringBuilder();
-		CountDownLatch latch = new CountDownLatch(1);
-
-		String currentDir = System.getProperty("user.dir");
-		Path filePath = Paths.get(currentDir, "spring-ai-alibaba-audio-example/dashscope-audio/src/main/resources/gen/tts/output-stream.mp3");
-
-		try {
-			AudioTranscriptionResponse submitResponse = transcriptionModel.asyncCall(
-					new AudioTranscriptionPrompt(
-							new FileSystemResource(filePath),
-							DashScopeAudioTranscriptionOptions.builder()
-									.withModel(DEFAULT_MODEL)
-									.build()
-					)
-			);
-
-			DashScopeAudioTranscriptionApi.Response.Output submitOutput = Objects.requireNonNull(submitResponse.getMetadata()
-					.get("output"));
-			String taskId = submitOutput.taskId();
-
-			scheduler.scheduleAtFixedRate(
-					() -> checkTaskStatus(taskId, stringBuilder, latch), 0, 1, TimeUnit.SECONDS);
-			latch.await();
-
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new DashScopeException("Thread was interrupted: " + e.getMessage());
-		}
-		finally {
-			scheduler.shutdown();
-		}
-
-		return stringBuilder.toString();
-	}
-
-	private void checkTaskStatus(String taskId, StringBuilder stringBuilder, CountDownLatch latch) {
-
-		try {
-			AudioTranscriptionResponse fetchResponse = transcriptionModel.fetch(taskId);
-			DashScopeAudioTranscriptionApi.Response.Output fetchOutput =
-					Objects.requireNonNull(fetchResponse.getMetadata().get("output"));
-			DashScopeAudioTranscriptionApi.TaskStatus taskStatus = fetchOutput.taskStatus();
-
-			if (taskStatus.equals(DashScopeAudioTranscriptionApi.TaskStatus.SUCCEEDED)) {
-				stringBuilder.append(fetchResponse.getResult().getOutput());
-				latch.countDown();
-			}
-			else if (taskStatus.equals(DashScopeAudioTranscriptionApi.TaskStatus.FAILED)) {
-				log.warn("Transcription failed.");
-				latch.countDown();
-			}
-		}
-		catch (Exception e) {
-			latch.countDown();
-			throw new RuntimeException("Error occurred while checking task status: " + e.getMessage());
-		}
+		return response.map(AudioTranscriptionResponse::getResult)
+			.map(AudioTranscription::getOutput)
+			.collect(Collectors.joining())
+			.block();
 	}
 
 }

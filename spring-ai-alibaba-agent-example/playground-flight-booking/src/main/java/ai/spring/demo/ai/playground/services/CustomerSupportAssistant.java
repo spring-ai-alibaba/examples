@@ -67,7 +67,7 @@ public class CustomerSupportAssistant {
 						PromptChatMemoryAdvisor.builder(chatMemory).build(), // Chat Memory
 						// new VectorStoreChatMemoryAdvisor(vectorStore)),
 					
-						new QuestionAnswerAdvisor(vectorStore), // RAG
+						QuestionAnswerAdvisor.builder(vectorStore).build(), // RAG
 						// new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()
 						// 	.withFilterExpression("'documentType' == 'terms-of-service' && region in ['EU', 'US']")),
 

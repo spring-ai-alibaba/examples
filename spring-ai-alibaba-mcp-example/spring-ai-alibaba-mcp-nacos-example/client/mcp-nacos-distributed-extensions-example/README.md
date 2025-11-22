@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-mcp-distributed</artifactId>
-            <version>${spring-ai-extensions.version}</version>
+            <version>${spring-ai-alibaba-extensions.version}</version>
         </dependency>
 ```
 

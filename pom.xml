@@ -41,14 +41,14 @@
 		<maven.compiler.target>17</maven.compiler.target>
 
 		<!-- Spring AI -->
-		<spring-ai.version>1.1.0-M4</spring-ai.version>
+		<spring-ai.version>1.1.0</spring-ai.version>
+		<!-- Spring Boot -->
+		<spring-boot.version>3.5.7</spring-boot.version>
 
 		<!-- Spring AI Alibaba -->
 		<!-- Install Spring AI Alibaba in your local. -->
-		<spring-ai-alibaba.version>1.1.0.0-M4</spring-ai-alibaba.version>
-		<spring-ai-extensions.version>1.1.0.0-M4</spring-ai-extensions.version>
-		<!-- Spring Boot -->
-		<spring-boot.version>3.4.0</spring-boot.version>
+		<spring-ai-alibaba.version>1.1.0.0-M5</spring-ai-alibaba.version>
+		<spring-ai-alibaba.extensions.version>1.1.0.0-M5</spring-ai-alibaba.extensions.version>
 
 		<!-- maven plugin -->
 		<maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -109,11 +109,10 @@
             <dependency>
                 <groupId>com.alibaba.cloud.ai</groupId>
                 <artifactId>spring-ai-alibaba-extensions-bom</artifactId>
-                <version>${spring-ai-extensions.version}</version>
+                <version>${spring-ai-alibaba.extensions.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-			
 		</dependencies>
 	</dependencyManagement>
 

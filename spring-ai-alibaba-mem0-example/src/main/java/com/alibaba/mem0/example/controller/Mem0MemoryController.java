@@ -74,7 +74,10 @@ public class Mem0MemoryController {
     public List<Document> messages(
             @RequestParam(value = "query", defaultValue = "我的爱好是什么？") String query,
             @RequestParam(value = "user_id", defaultValue = "miao") String userId) {
-        Mem0ServerRequest.SearchRequest searchRequest = Mem0ServerRequest.SearchRequest.builder().query(query).userId(userId).build();
+        Mem0ServerRequest.SearchRequest searchRequest = Mem0ServerRequest.SearchRequest.mem0Builder()
+            .query(query)
+            .userId(userId)
+            .build();
         return store.similaritySearch(searchRequest);
     }
 
@@ -136,7 +139,10 @@ public class Mem0MemoryController {
                         .build());
         logger.info("用户和agent的长期记忆保存成功");
         // 获取用户和agent的长期记忆
-        List<Document> documents = store.similaritySearch(Mem0ServerRequest.SearchRequest.builder().userId("test2").agentId("agent2").build());
+        List<Document> documents = store.similaritySearch(Mem0ServerRequest.SearchRequest.mem0Builder()
+            .userId("test2")
+            .agentId("agent2")
+            .build());
         logger.info("agent的长期记忆: {}", documents);
 
         // 测试agent的短期记忆

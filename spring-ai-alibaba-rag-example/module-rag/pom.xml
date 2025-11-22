@@ -52,12 +52,12 @@
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-vector-store-elasticsearch</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>co.elastic.clients</groupId>
-					<artifactId>elasticsearch-java</artifactId>
-				</exclusion>
-			</exclusions>
+			<!--<exclusions>-->
+			<!--	<exclusion>-->
+			<!--		<groupId>co.elastic.clients</groupId>-->
+			<!--		<artifactId>elasticsearch-java</artifactId>-->
+			<!--	</exclusion>-->
+			<!--</exclusions>-->
 		</dependency>
 
 		<dependency>

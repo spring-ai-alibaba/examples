@@ -41,7 +41,7 @@ public class WebSearchConfiguration {
 
 	@Bean
 	public QueryTransformer queryTransformer(
-			@Qualifier("dashscopeChatModel") ChatModel chatModel,
+			@Qualifier("dashScopeChatModel") ChatModel chatModel,
 			@Qualifier("transformerPromptTemplate") PromptTemplate transformerPromptTemplate
 	) {
 
@@ -61,7 +61,7 @@ public class WebSearchConfiguration {
 
 	@Bean
 	public QueryExpander queryExpander(
-			@Qualifier("dashscopeChatModel") ChatModel chatModel
+			@Qualifier("dashScopeChatModel") ChatModel chatModel
 	) {
 
 		ChatClient chatClient = ChatClient.builder(chatModel)

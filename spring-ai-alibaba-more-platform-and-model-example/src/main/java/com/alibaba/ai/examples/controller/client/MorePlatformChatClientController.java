@@ -46,7 +46,7 @@ public class MorePlatformChatClientController {
 	private final ChatModel openAIChatModel;
 
 	public MorePlatformChatClientController(
-			@Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel,
+			@Qualifier("dashScopeChatModel") ChatModel dashScopeChatModel,
 			@Qualifier("ollamaChatModel") ChatModel ollamaChatModel,
 			@Qualifier("openAiChatModel") ChatModel openAIChatModel
 	) {

@@ -48,7 +48,7 @@ public class SAARAGService4VectorStore implements ISAARAGService {
 			VectorStoreDelegate vectorStoreDelegate,
 			SimpleLoggerAdvisor simpleLoggerAdvisor,
 			MessageChatMemoryAdvisor messageChatMemoryAdvisor,
-			@Qualifier("dashscopeChatModel") ChatModel chatModel,
+			@Qualifier("dashScopeChatModel") ChatModel chatModel,
 			@Qualifier("systemPromptTemplate") PromptTemplate systemPromptTemplate
 	) {
 

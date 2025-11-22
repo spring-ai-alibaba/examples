@@ -16,7 +16,7 @@
 
 package com.alibaba.ai.examples.controller.model;
 
-import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.ChatOptions;
@@ -48,7 +48,7 @@ public class MoreModelCallController {
 	private final ChatModel dashScopeChatModel;
 
 	public MoreModelCallController(
-			@Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel
+			@Qualifier("dashScopeChatModel") ChatModel dashScopeChatModel
 	) {
 		this.dashScopeChatModel = dashScopeChatModel;
 	}
@@ -65,7 +65,7 @@ public class MoreModelCallController {
 
 		System.out.println("===============================================");
 		System.out.println("当前输入的模型为：" + model);
-		System.out.println("默认模型为：" + DashScopeApi.ChatModel.QWEN_PLUS.getValue());
+		System.out.println("默认模型为：" + DashScopeModel.ChatModel.QWEN_PLUS.getValue());
 		System.out.println("===============================================");
 
 		ChatOptions runtimeOptions = ChatOptions.builder().model(model).build();
