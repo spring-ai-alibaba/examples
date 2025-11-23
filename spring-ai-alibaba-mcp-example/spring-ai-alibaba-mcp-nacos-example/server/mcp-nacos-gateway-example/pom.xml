@@ -14,11 +14,13 @@
     <description>Spring AI - MCP Nacos Gateway Example</description>
     <name>Spring AI - MCP Nacos Gateway Example</name>
 
+
+<!--    1.1.0.0-M5-SNAPSHOT暂未发版，请本地编译-->
     <dependencies>
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-mcp-gateway</artifactId>
-            <version>${spring-ai-alibaba.extensions.version}</version>
+            <version>1.1.0.0-M5-SNAPSHOT</version>
         </dependency>
 
         <!-- MCP Server WebFlux 支持（也可换成 WebMvc） -->
