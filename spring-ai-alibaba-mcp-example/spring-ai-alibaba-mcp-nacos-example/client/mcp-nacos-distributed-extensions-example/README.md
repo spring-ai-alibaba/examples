@@ -2,8 +2,8 @@
 本项目配套[mcp-nacos-register-extensions-examlple](https://github.com/spring-ai-alibaba/examples/tree/main/spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-nacos-example/server/mcp-nacos-register-extensions-example)模块一起使用。实现MCP Server服务的分布式调用
 
 本示例是MCP Server多实例节点注册在Nacos后，MCP Client分布式连接多节点，负载均衡触发工具请求，要求版本如下：
-1. Nacos版本在3.0.1及以上
-2. [spring ai extensions](https://github.com/spring-ai-alibaba/spring-ai-extensions)在1.1.0.0-SNAPSHOT版本及以上
+1. Nacos版本在3.1.0及以上
+2. [spring ai extensions](https://github.com/spring-ai-alibaba/spring-ai-extensions)在1.1.0.0-M4版本及以上
 
 ## mcp-nacos-register-extensions-examlple模块前提概述
 借助该模块，可将MCP Server服务注册至Nacos中，支持SSE、Streamable、Stateless三种协议类型，可以同时部署多个节点

@@ -18,13 +18,14 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-mcp-gateway</artifactId>
-            <version>1.1.0.0</version>
+            <version>${spring-ai-alibaba.extensions.version}</version>
         </dependency>
 
         <!-- MCP Server WebFlux 支持（也可换成 WebMvc） -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-mcp-server-webflux</artifactId>
+            <version>${spring-ai.version}</version>
         </dependency>
 
     </dependencies>

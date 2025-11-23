@@ -23,11 +23,6 @@
             <artifactId>spring-ai-alibaba-starter-mcp-registry</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.alibaba.cloud.ai</groupId>
-            <artifactId>spring-ai-alibaba-autoconfigure-mcp-registry</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

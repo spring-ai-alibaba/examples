@@ -4,8 +4,8 @@
 
 本示例是 MCP Gateway 代理 Nacos 中的 MCP 服务，实现服务能力到 AI 工具的转化，要求版本如下：
 
-1. Nacos: 3.1.0+
-2. spring ai alibaba extensions: 1.1.0.0+
+1. Nacos版本在3.1.0及以上
+2. [spring ai extensions](https://github.com/spring-ai-alibaba/spring-ai-extensions)在1.1.0.0-M5版本及以上
 
 ## 🧩 主要依赖
 
@@ -14,7 +14,6 @@
 <dependency>
     <groupId>com.alibaba.cloud.ai</groupId>
     <artifactId>spring-ai-alibaba-starter-mcp-gateway-nacos</artifactId>
-    <version>${spring-ai-extensions.version}</version>
 </dependency>
 
 <!-- MCP Server WebMvc 支持 -->

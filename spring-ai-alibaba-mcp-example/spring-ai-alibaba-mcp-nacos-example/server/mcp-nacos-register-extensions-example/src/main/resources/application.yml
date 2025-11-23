@@ -1,5 +1,5 @@
 server:
-  port: 22000
+  port: 21000
 
 spring:
   main:
@@ -9,28 +9,25 @@ spring:
   ai:
     mcp:
       server:
-        name: webflux-mcp-server-yingzi
+        name: webflux-mcp-server
         version: 1.0.0
         type: ASYNC  # Recommended for reactive applications
         instructions: "This reactive server provides time information tools and resources"
-        sse-message-endpoint: /mcp/messages
-        capabilities:
-          tool: true
-          resource: true
-          prompt: true
-          completion: true
-        protocol: SSE
-    dashscope:
-      api-key: ${DASHSCOPE_API_KEY}
+        protocol: STREAMABLE
+        request-timeout: 20s
+        streamable-http:
+          mcp-endpoint: /mcp
+          keep-alive-interval: 30s
+          disallow-delete: false
 
     alibaba:
       mcp:
         nacos:
-          namespace: 8237f998-2f01-4cf8-bfc1-64012d09cce2
+          namespace: 0908ca08-c382-404c-9d96-37fe1628b183
           server-addr: 127.0.0.1:8848
           username: nacos
           password: nacos
           register:
             enabled: true
-            service-group: mcp-server
-            service-name: webflux-mcp-server-yingzi
+            service-group: mcp-server       ## 指定分组名称
+            service-name: webflux-mcp-server ## 指定服务名称

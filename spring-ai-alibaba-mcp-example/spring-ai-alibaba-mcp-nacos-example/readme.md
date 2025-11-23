@@ -6,6 +6,8 @@
 - 网关：通过nacos实现存量restful接口应用，转化为mcp server服务
 - 路由：通过nacos实现mcp client调用工具路由控制（待补充）
 
+依赖：[spring ai extensions](https://github.com/spring-ai-alibaba/spring-ai-extensions)在1.1.0.0-M4版本及以上
+
 ## 前置条件
 
 - Java 17+
