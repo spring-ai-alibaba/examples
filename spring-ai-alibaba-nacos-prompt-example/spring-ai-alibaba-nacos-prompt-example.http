@@ -1,0 +1,2 @@
+# PromptController类的generateJoke方法
+GET http://localhost:8080/nacos/books?author=鲁迅

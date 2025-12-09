@@ -1,0 +1,18 @@
+# MoonshotClientController类的simpleChat方法
+GET http://localhost:8080/client/simple/chat
+
+###
+# MoonshotClientController类的streamChat方法
+GET http://localhost:8080/client/stream/chat
+
+###
+# MoonshotModelController类的simpleChat方法
+GET http://localhost:8080/moonshot/chat-model/simple/chat
+
+###
+# MoonshotModelController类的streamChat方法
+GET http://localhost:8080/moonshot/chat-model/stream/chat
+
+###
+# MoonshotModelController类的customChat方法
+GET http://localhost:8080/moonshot/chat-model/custom/chat

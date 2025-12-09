@@ -1,113 +1,390 @@
-# Spring AI Alibaba Playground
+# Spring-Ai-Alibaba-Playground 模块
 
-## 快速体验
+## 模块说明
 
-### 使用 Docker 运行
+运行如下命令，可以使用 Docker 快速启动 Playground 项目。请访问 [阿里云百炼 API-KEY](https://bailian.console.aliyun.com/?tab=model#/api-key)获得 API-KEY 并设置 `AI_DASHSCOPE_API_KEY=your_api_key`。。
 
-运行如下命令，可以使用 Docker 快速启动 Playground 项目。请访问 [阿里云百炼 API-KEY](https://bailian.console.aliyun.com/?tab=model#/api-key)获得 API-KEY 并设置 `AI_DASHSCOPE_API_KEY=your_api_key`。
+## 接口文档
 
-```shell
-docker run -d -p 8080:8080 \
-  -e AI_DASHSCOPE_API_KEY=your_api_key \
-  --name spring-ai-alibaba-playground \
-  sca-registry.cn-hangzhou.cr.aliyuncs.com/spring-ai-alibaba/playground:1.0.0.2-x
+### SAAToolsController 接口
+
+#### 1. toolCallChat 方法
+
+**接口路径：** `GET /api/v1/tool-call`
+
+**功能描述：** http://127.0.0.1:8080/api/v1/tool-call?prompt="使用百度翻译将隐私计算翻译为英文"
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/tool-call
 ```
 
-打开浏览器访问 `http://localhost:8080` 查看前端页面：
 
-<p align="center">
-    <img src="./images/playground.png" alt="PlayGround" style="max-width: 949px; height: 537px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);" />
-</p>
+### SAAVideoController 接口
 
-#### 开启更多组件
+#### 1. videoQuestionAnswering 方法
 
-Playground 作为一个 AI 智能体应用，依赖大模型等在线服务，需要通过环境变量指定访问凭证。如果要开启 Playground 全部能力，需要通过环境变量指定访问凭证：
+**接口路径：** `GET /api/v1/video-qa`
 
-  - 【必须】[阿里云百炼 API-KEY](https://bailian.console.aliyun.com/?tab=model#/api-key)，大模型服务，示例 `export AI_DASHSCOPE_API_KEY=xxx`
-  - 【可选】[阿里云百炼 创建知识库](https://bailian.console.aliyun.com/?tab=app#/knowledge-base)，知识库服务，默认知识库名为saa-playground-2
-  - 【可选】[百度翻译 appId 和 secretKey](https://api.fanyi.baidu.com/product/113)，使用 Tool Call 时必须，示例 `export BAIDU_TRANSLATE_APP_ID=xxx`、`export BAIDU_TRANSLATE_SECRET_KEY=xxx`
-  - 【可选】[百度地图 api key](https://lbs.baidu.com/faq/api)，使用 Tool Call 必须，示例 `export BAIDU_MAP_API_KEY=xxx`
-  - 【可选】[阿里云 IQS 服务 apikey](https://help.aliyun.com/document_detail/2870227.html)，使用ModuleRag联网搜索必须，示例 `export WEB_SEARCH_TYPE=ModuleRag`、`export IQS_SEARCH_API_KEY=xxx`
-  - 【可选】[阿里云 AnalyticDB 向量数据库](https://help.aliyun.com/zh/analyticdb/analyticdb-for-postgresql/getting-started/instances-with-vector-engine-optimization-enabled/)，使用 RAG 时可开启（默认使用内存向量数据库）。先使用 `export VECTOR_STORE_TYPE=analyticdb` 开启 AnalyticDB，然后配置相关参数
+**功能描述：** 视频问答接口
 
-示例 Docker 运行命令：
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-```shell
-docker run -d -p 8080:8080 \
-  -v "$(pwd)/logs:/app/logs" \
-  -e AI_DASHSCOPE_API_KEY=your_api_key \
-  -e ADB_ACCESS_KEY_ID=your_access_key \
-  -e ADB_ACCESS_KEY_SECRET=your_secret_key \
-  -e BAIDU_TRANSLATE_APP_ID=your_app_id \
-  -e BAIDU_TRANSLATE_SECRET_KEY=your_secret_key \
-  -e BAIDU_MAP_API_KEY=your_api_key \
-  -e VECTOR_STORE_TYPE=analyticdb \
-  -e IQS_SEARCH_API_KEY=your_api_key \
-  --name spring-ai-alibaba-playground \
-  sca-registry.cn-hangzhou.cr.aliyuncs.com/spring-ai-alibaba/playground:1.0.0.2-x
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/video-qa
 ```
 
-### 下载源码构建运行
+#### 2. genVideo 方法
 
-**1. 项目打包**
+**接口路径：** `GET /api/v1/video-gen`
 
-```shell
-mvn clean install -DskipTests
+**功能描述：** 此处只使用最简单的文生视频接口，更多 example 查阅：
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/video-gen
 ```
 
-> PS: 项目中的前端资源默认放在了 resource/static 目录下，在执行 mvn clean package 时，默认跳过了前端资源打包。如果在启动项目时前端资源加载错误或者二次开发了前端时。
-> 需要将 pom 中的 <npm.build.skip> 改为 false，然后重新执行 `mvn clean package` 或者执行 `mvn clean package -Dnpm.build.skip=false`。
 
-**2. 配置环境变量**
+### SAAAudioController 接口
 
-请注意，必须要为 Playground 配置环境变量，配置方法参考 Docker 运行一节中的说明。
+#### 1. audioToText 方法
 
-**3. 运行项目**
-```shell
-export AI_DASHSCOPE_API_KEY=your_api_key
-java -jar ./target/app.jar
+**接口路径：** `GET /api/v1//audio2text`
+
+**功能描述：** used to convert audio to text output
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1//audio2text
 ```
 
-启动成功后，打开浏览器访问 `http://localhost:8080` 查看前端页面。
 
-## 本地开发
+### SAAMcpController 接口
 
-参考以下步骤在本地 IDE 环境中运行项目。
+#### 1. mcpChat 方法
 
-**1. 前端 UI 打包**
+**接口路径：** `GET /api/v1/inner/mcp`
 
-```shell
-make frontend-build
+**功能描述：** 内部接口不应该直接被 web 请求！
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/inner/mcp
 ```
 
-**2. 切换 IDE 工作目录**
+#### 2. mcpList 方法
 
-Playground 作为 `spring-ai-alibaba-examples` 仓库子项目，有以下两种 IDE 导入方式：
-1. 作为独立项目单独导入；
-2. 作为整个 spring-ai-alibaba-examples 项目的子 module 导入。
+**接口路径：** `GET /api/v1/mcp-list`
 
-在使用子 module 导入时，需要配置工作目录如下：
+**功能描述：** 提供 mcpList 相关功能
 
-<p align="center">
-    <img src="./images/run.png" alt="PlayGround" style="max-width: 949px; height: 537px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);" />
-</p>
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-**3. 导出环境变量**
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
 
-请注意，必须要为 Playground 配置环境变量，配置方法参考 Docker 运行一节中的说明。
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/mcp-list
+```
 
-如果不使用阿里云百炼创建知识库，那么需要将配置文件中的 `spring.ai.alibaba.playground.bailian.enable 修改为 false`
+#### 3. mcpRun 方法
 
-**4. 【可选】安装并构建前端资源**
+**接口路径：** `GET /api/v1/mcp-run`
 
-请注意，如果你想不想启动前端页面，可以跳过此步骤！
-如果想启动前端页面，执行 `make frontend-dev`
+**功能描述：** 提供 mcpRun 相关功能
 
-**5. 运行 `SAAPlayGroundApplication`**
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-项目启动之后，浏览器访问 `http://localhost:8080` 查看前端页面。
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
 
-## 常见问题与解决方法
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/mcp-run
+```
 
-1. 如果访问接口时，报 9411 端口相关错误，这是 zipkin 服务未启动原因，不影响接口调用；
-2. 注意系统启动正常，但个别功能受阻隘时，请检查相应的 AK 是否配置。
+
+### SAAImageController 接口
+
+#### 1. image2text 方法
+
+**接口路径：** `GET /api/v1/image2text`
+
+**功能描述：** Image Recognition
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/image2text
+```
+
+#### 2. text2Image 方法
+
+**接口路径：** `GET /api/v1/text2image`
+
+**功能描述：** 提供 text2Image 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/text2image
+```
+
+
+### SAABaseController 接口
+
+#### 1. health 方法
+
+**接口路径：** `GET /api/v1/health`
+
+**功能描述：** 提供 health 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/health
+```
+
+
+### SAAChatController 接口
+
+#### 1. chat 方法
+
+**接口路径：** `GET /api/v1/chat`
+
+**功能描述：** Send the specified parameters to get the model response.
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/chat
+```
+
+#### 2. deepThinkingChat 方法
+
+**接口路径：** `GET /api/v1/deep-thinking/chat`
+
+**功能描述：** 提供 deepThinkingChat 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/deep-thinking/chat
+```
+
+
+### SAASummarizerController 接口
+
+#### 1. summary 方法
+
+**接口路径：** `GET /api/v1/summarizer`
+
+**功能描述：** 提供 summary 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/summarizer
+```
+
+
+### SAAWebSearchController 接口
+
+#### 1. search 方法
+
+**接口路径：** `GET /api/v1/search`
+
+**功能描述：** ModuleRag: 基于模块化rag的iqs在线搜索
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 信息检索
+- 知识查询
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/search
+```
+
+
+### SAARAGController 接口
+
+#### 1. ragChat 方法
+
+**接口路径：** `GET /api/v1/rag`
+
+**功能描述：** 提供 ragChat 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/rag
+```
+
+
+## 技术实现
+
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **logback-classic**: 核心依赖
+- **logback-core**: 核心依赖
+- **spring-boot-starter-web**: 核心依赖
+- **spring-boot-starter-webflux**: 核心依赖
+- **spring-boot-starter-validation**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+
+## 测试指导
+
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[spring-ai-alibaba-playground.http](./spring-ai-alibaba-playground.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# toolCallChat 接口测试
+curl "http://localhost:8080/api/v1/tool-call"
+```
+
+```bash
+# videoQuestionAnswering 接口测试
+curl "http://localhost:8080/api/v1/video-qa"
+```
+
+## 注意事项
+
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-09 23:29:58*

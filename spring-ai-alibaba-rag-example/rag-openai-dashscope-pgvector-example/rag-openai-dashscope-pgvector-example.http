@@ -1,0 +1,14 @@
+# KnowledgeBaseController类的insertTextContent方法
+GET http://localhost:8080/api/v1/knowledge-base/insert-text
+
+###
+# KnowledgeBaseController类的uploadFileByType方法
+POST http://localhost:8080/api/v1/knowledge-base/upload-file
+
+###
+# KnowledgeBaseController类的similaritySearch方法
+GET http://localhost:8080/api/v1/knowledge-base/search
+
+###
+# KnowledgeBaseController类的chatWithKnowledge方法
+GET http://localhost:8080/api/v1/knowledge-base/chat?topK=5

@@ -1,0 +1,14 @@
+# AzureOpenAiChatModelController类的simpleChat方法
+GET http://localhost:8080azure/openai/chat-model/simple/chat
+
+###
+# AzureOpenAiChatModelController类的streamChat方法
+GET http://localhost:8080azure/openai/chat-model/stream/chat
+
+###
+# AzureOpenAiChatModelController类的clientChat方法
+GET http://localhost:8080azure/openai/chat-client/chat
+
+###
+# AzureOpenAiChatModelController类的clientStreamChat方法
+GET http://localhost:8080azure/openai/client/stream/chat

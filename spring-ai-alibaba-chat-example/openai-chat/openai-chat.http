@@ -1,22 +1,22 @@
-# Openai Chat API
+# OpenAiChatClientController类的simpleChat方法
+GET http://localhost:8080/openai/chat-client/simple/chat
 
-### Chat Client Simple Chat
-GET http://127.0.0.1:10003/openai/chat-client/simple/chat
+###
+# OpenAiChatClientController类的streamChat方法
+GET http://localhost:8080/openai/chat-client/stream/chat
 
-### Chat Client Stream Chat
-GET http://127.0.0.1:10003/openai/chat-client/stream/chat
+###
+# OpenAiChatModelController类的simpleChat方法
+GET http://localhost:8080/openai/chat-model/simple/chat
 
-### Chat Client Stream Chat Response
-GET http://127.0.0.1:10003/openai/chat-client/stream/response
+###
+# OpenAiChatModelController类的streamChat方法
+GET http://localhost:8080/openai/chat-model/stream/chat
 
-### Chat Model Simple Chat
-GET http://127.0.0.1:10003/openai/chat-model/simple/chat
+###
+# OpenAiChatModelController类的customChat方法
+GET http://localhost:8080/openai/chat-model/custom/chat
 
-### Chat Model Stream Chat
-GET http://127.0.0.1:10003/openai/chat-model/stream/chat
-
-### Chat Model Custom Options Chat
-GET http://127.0.0.1:10003/openai/chat-model/custom/chat
-
-### Chat Model Standard JSON Mode Chat
-GET http://127.0.0.1:10003/openai/chat-model/custom/chat/json-mode
+###
+# OpenAiChatModelController类的jsonChat方法
+GET http://localhost:8080/openai/chat-model/custom/chat/json-mode

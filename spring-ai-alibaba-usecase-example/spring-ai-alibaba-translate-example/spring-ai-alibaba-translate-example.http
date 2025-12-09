@@ -1,0 +1,18 @@
+# TranslateController类的translateFile方法
+POST http://localhost:8080/api/translate/file
+
+###
+# DashScopeTranslateController类的simpleTranslation方法
+GET http://localhost:8080/api/dashscope/translate/simple
+
+###
+# DashScopeTranslateController类的streamTranslation方法
+GET http://localhost:8080/api/dashscope/translate/stream
+
+###
+# DashScopeTranslateController类的customTranslation方法
+GET http://localhost:8080/api/dashscope/translate/custom
+
+###
+# DashScopeTranslateController类的translateMarkdownFile方法
+POST http://localhost:8080/api/dashscope/translate/markdown-file

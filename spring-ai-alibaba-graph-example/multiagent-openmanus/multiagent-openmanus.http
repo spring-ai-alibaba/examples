@@ -1,0 +1,18 @@
+# OpenmanusController类的simpleChat方法
+GET http://localhost:8080/manus/chat
+
+###
+# OpenmanusHumanController类的initGraph方法
+GET http://localhost:8080/manus/human/init
+
+###
+# OpenmanusHumanController类的simpleChat方法
+GET http://localhost:8080/manus/human/chat
+
+###
+# OpenmanusHumanController类的resume方法
+GET http://localhost:8080/manus/human/resume
+
+###
+# OpenmanusHumanController类的resumeToNextStep方法
+GET http://localhost:8080/manus/human/resume-to-next-step

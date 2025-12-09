@@ -1,74 +1,93 @@
-# Spring AI Alibaba Example
+# Rag-Milvus-Example 模块
 
-这个项目展示了如何使用 Spring AI Alibaba 集成 Milvus 进行向量搜索。
+## 模块说明
 
-## Quick Start
+这个项目展示了如何使用 Spring AI Alibaba 集成 Milvus 进行向量搜索。。
 
-- JDK 17
-- Milvus (Docker Compose)
+## 接口文档
 
-1. 通过 Docker Compose 安装 Milvus。
+### RagController 接口
 
-    - docker-compose 的 yml 文件见目录 `/spring-ai-alibaba-examples/docker-compose/milvus/docker-compose.yml`
-    - 详细安装文档见地址：https://milvus.io/docs/install_standalone-docker-compose.md
+#### 1. generation 方法
 
-2. 启动 Milvus；
-3. 打开浏览器访问 `localhost:8000`，访问 dashboard；
-4. 在 default 数据库创建 collection；
+**接口路径：** `GET /ai/chat`
 
-   ![img.png](img.png)
+**功能描述：** 提供 generation 相关功能
 
-5. 打开 Milvus 向量检索；
-6. 修改 application.yml 中的配置；
-7. 运行本项目，在项目启动时会将数据导入 Milvus；
-8. 在 dashboard 手动加载集合：
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-如果加载集合完成，将看到以下输出：
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
 
-![img_1.png](img2.jpg)
-
-其中 Milvus 的配置如下：
-
-> 注意：不同版本 Milvus 的配置略有不同，Milvus2.3.0 版本才原生支持 Cosine 距离，请根据实际情况调整
-
-## 项目演示
-
-### 1. 导入
-
-```shell
-# 注意：在执行查询前，应该手动加载集合。避免查询错误
-
-# 向量查询
-curl http://localhost:8080/ai/select
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/chat
 ```
 
-如果一切正常，将看到以下输出：
+#### 2. search 方法
 
-```json
-[
-  {
-    "id": "fae19802-f6c0-42a6-8408-6c68dba55722",
-    "text": "17. SpringAIAlibaba支持自然语言处理、计算机视觉、语音处理和数据分析与预测功能。",
-    "media": null,
-    "metadata": {
-      "distance": 0.25151956
-    },
-    "score": 0.7484804391860962
-  },
-  {
-    ....
-  }
-]
+**接口路径：** `GET /ai/select`
+
+**功能描述：** 向量数据查询测试
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 信息检索
+- 知识查询
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/select
 ```
 
-### 查询提问
 
-浏览器访问：
+## 技术实现
 
-http://localhost:8080/ai/chat?prompt="如何使用 spring ai alibaba 开发 ai 应用"
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-boot-starter-web**: 核心依赖
+- **spring-ai-milvus-store**: 核心依赖
+- **spring-ai-autoconfigure-vector-store-milvus**: 核心依赖
+- **spring-ai-advisors-vector-store**: 核心依赖
 
-将看到如下输出：
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
 
-```text
-要使用 Spring AI Alibaba 开发 AI 应用，您可以按照以下步骤进行： 1. ......
+## 测试指导
+
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[rag-milvus-example.http](./rag-milvus-example.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# generation 接口测试
+curl "http://localhost:8080/ai/chat"
 ```
+
+## 注意事项
+
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-09 23:31:06*

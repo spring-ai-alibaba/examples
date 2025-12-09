@@ -1,0 +1,10 @@
+# RagAutoConfigureController类的retrievalHybrid方法
+GET http://localhost:8080/rag/retrieval/hybrid
+
+###
+# RagAutoConfigureController类的retrievalHyde方法
+GET http://localhost:8080/rag/retrieval/hyde
+
+###
+# RagAutoConfigureController类的transformHyde方法
+GET http://localhost:8080/rag/transform/hyde

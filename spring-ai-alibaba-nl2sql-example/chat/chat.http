@@ -1,0 +1,18 @@
+# Nl2sqlForGraphController类的search方法
+GET http://localhost:8080nl2sql/search
+
+###
+# AnalyticNl2SqlController类的nl2Sql方法
+POST http://localhost:8080/chat
+
+###
+# HomeController类的index方法
+GET http://localhost:8080/
+
+###
+# HomeController类的index方法
+POST http://localhost:8080/
+
+###
+# SimpleChatController类的simpleNl2Sql方法
+POST http://localhost:8080/simpleChat

@@ -1,0 +1,10 @@
+# VllmChatModelController类的simpleChat方法
+GET http://localhost:8080/vllm/chat-model/simple/chat
+
+###
+# VllmChatModelController类的streamChat方法
+GET http://localhost:8080/vllm/chat-model/stream/chat
+
+###
+# VllmChatModelController类的customChat方法
+GET http://localhost:8080/vllm/chat-model/custom/chat

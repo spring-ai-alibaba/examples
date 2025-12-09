@@ -1,0 +1,30 @@
+# MapListController类的chatMap方法
+GET http://localhost:8080/map-list/chatMap
+
+###
+# MapListController类的chatList方法
+GET http://localhost:8080/map-list/chatList?query=请为我描述下影子的特性
+
+###
+# JsonController类的simpleChat方法
+GET http://localhost:8080/json/chat?query=请以JSON格式介绍你自己
+
+###
+# JsonController类的simpleChatFormat方法
+GET http://localhost:8080/json/chat-format?query=请以JSON格式介绍你自己
+
+###
+# BeanController类的simpleChat方法
+GET http://localhost:8080/bean/chat?query=以影子为作者，写一篇200字左右的有关人工智能诗篇
+
+###
+# BeanController类的simpleChatFormat方法
+GET http://localhost:8080/bean/chat-format?query=以影子为作者，写一篇200字左右的有关人工智能诗篇
+
+###
+# BeanController类的chatModel方法
+GET http://localhost:8080/bean/chat-model-format?query=以影子为作者，写一篇200字左右的有关人工智能诗篇
+
+###
+# BeanController类的simpleChat方法
+GET http://localhost:8080/bean/play?query=以影子为作者，写一篇200字左右的有关人工智能诗篇

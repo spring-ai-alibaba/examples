@@ -1,0 +1,2 @@
+# SQLController类的sql方法
+POST http://localhost:8080/sql

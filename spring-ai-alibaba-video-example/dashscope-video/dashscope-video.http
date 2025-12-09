@@ -1,14 +1,14 @@
-# Vidio API
+# VideoController类的textToVideo方法
+GET http://localhost:8080/ai/video/text
 
-### 文生视频
+###
+# VideoController类的videoTmpl方法
+GET http://localhost:8080/ai/video/tmpl
 
-GET http://127.0.0.1:10081/ai/video/text
+###
+# VideoController类的firstFrame方法
+GET http://localhost:8080/ai/video/first
 
-### 使用视频模板
-GET http://127.0.0.1:10081/ai/video/tmpl
-
-### 首帧生成
-GET http://127.0.0.1:10081/ai/video/first
-
-### 首尾帧生成
-GET http://127.0.0.1:10081/ai/video/fl
+###
+# VideoController类的firstAndLastFrame方法
+GET http://localhost:8080/ai/video/fl

@@ -1,0 +1,18 @@
+# ModuleRAGTranslationController类的rag方法
+POST http://localhost:8080/module-rag/rag/translation
+
+###
+# ModuleRAGRewriteController类的rag方法
+POST http://localhost:8080/module-rag/rag/rewrite
+
+###
+# ModuleRAGCompressionController类的rag方法
+POST http://localhost:8080/module-rag/rag/compression/{chatId}
+
+###
+# ModuleRAGMemoryController类的chatWithDocument方法
+POST http://localhost:8080/module-rag/rag/memory/{chatId}
+
+###
+# ModuleRAGBasicController类的chatWithDocument方法
+GET http://localhost:8080/module-rag/rag/basic

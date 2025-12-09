@@ -1,16 +1,18 @@
-# Ollama Chat API
+# OllamaChatModelController类的simpleChat方法
+GET http://localhost:8080/model/simple/chat
 
-### Chat Client Simple Chat
-GET http://127.0.0.1:10005/client/simple/chat
+###
+# OllamaChatModelController类的streamChat方法
+GET http://localhost:8080/model/stream/chat
 
-### Chat Client Stream Chat
-GET http://127.0.0.1:10005/client/stream/chat
+###
+# OllamaChatModelController类的customChat方法
+GET http://localhost:8080/model/custom/chat
 
-### Chat Model Stream Chat
-GET http://127.0.0.1:10005/model/stream/chat
+###
+# OllamaChatClientController类的simpleChat方法
+GET http://localhost:8080/client/simple/chat
 
-### Chat Model Stream Chat
-GET http://127.0.0.1:10005/model/simple/chat
-
-### Chat Model Custom Options Chat
-GET http://127.0.0.1:10005/model/custom/chat
+###
+# OllamaChatClientController类的streamChat方法
+GET http://localhost:8080/client/stream/chat

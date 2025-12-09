@@ -1,27 +1,42 @@
-# DashScope Chat API
+# DashScopeChatClientController类的simpleChat方法
+GET http://localhost:8080/client/simple/chat
 
-### Chat Client Simple Chat
-GET http://127.0.0.1:10000/client/simple/chat
+###
+# DashScopeChatClientController类的streamChat方法
+GET http://localhost:8080/client/stream/chat
 
-### Chat Client Stream Chat
-GET http://127.0.0.1:10000/client/stream/chat
+###
+# DashScopeChatClientController类的analyzeImageByUrl方法
+GET http://localhost:8080/client/image/analyze/url
 
-### Chat Model Simple Chat
-GET http://127.0.0.1:10000/model/simple/chat
+###
+# DashScopeChatClientController类的analyzeImageByUpload方法
+POST http://localhost:8080/client/image/analyze/upload
 
-### Chat Model Tokens
-GET http://127.0.0.1:10000/model/tokens
+###
+# DashScopeChatModelController类的simpleChat方法
+GET http://localhost:8080/model/simple/chat
 
-### Chat Model Stream Chat
-GET http://127.0.0.1:10000/model/stream/chat
+###
+# DashScopeChatModelController类的streamChat方法
+GET http://localhost:8080/model/stream/chat
 
-### Chat Model Custom Options Chat
-GET http://127.0.0.1:10000/model/custom/chat
+###
+# DashScopeChatModelController类的tokens方法
+GET http://localhost:8080/model/tokens
 
-### Chat Model Custom Http Headers
-GET http://127.0.0.1:10000/model/custom/http-headers
+###
+# DashScopeChatModelController类的customChat方法
+GET http://localhost:8080/model/custom/chat
 
-### Chat Model DashScope Web Search
-GET http://127.0.0.1:10000/model/dashscope/web-search
+###
+# DashScopeChatModelController类的dashScopeWebSearch方法
+GET http://localhost:8080/model/dashscope/web-search
 
-GET http://127.0.0.1:10000/model/dashscope/web-search/2
+###
+# DashScopeChatModelController类的dashScopeWebSearch2方法
+GET http://localhost:8080/model/dashscope/web-search/2
+
+###
+# DashScopeChatModelController类的customHttpHeaders方法
+GET http://localhost:8080/model/custom/http-headers

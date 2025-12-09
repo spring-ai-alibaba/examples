@@ -1,49 +1,92 @@
-### Spring Ai Alibaba Rag Example ###
+# Rag-Elasticsearch-Example 模块
 
-This section will describe how to create example and call rag service. 
+## 模块说明
 
-##### Local Rag Example #####
+This section will describe how to create example and call rag service.。
 
-Local rag example includes two main flows, import document and rag.
+## 接口文档
 
-Import document includes the following steps:
-1. Parse document.
-2. Split document to chunks with proper chunk size and delimiters.
-3. Convert chunk text to embed vector.
-4. Save text and embed vector to vector db including metadata if needed.
+### LocalRagController 接口
 
-Rag includes the following steps:
-1. Retrieval trunks from vector db with query.
-2. Rerank the retrieved trunks to get score of relevance between query and retrieved trunks.
-3. Generate result based on filtered trunks.
+#### 1. importDocument 方法
 
-For how to run and test local rag example, please refer to the following instructions:
+**接口路径：** `GET /ai/rag/importDocument`
+
+**功能描述：** 提供 importDocument 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/rag/importDocument
 ```
-1. start application.
-2. import document by using curl http request.
-curl -X GET http://127.0.0.1:8080/ai/rag/importDocument
 
-3. retrieval and generation
-curl -G 'http://127.0.0.1:8080/ai/rag' --data-urlencode 'message=如何快速开始spring ai alibaba'
+#### 2. generate 方法
+
+**接口路径：** `GET /ai/rag`
+
+**功能描述：** 提供 generate 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/rag
 ```
 
-##### Cloud Rag Example #####
 
-Cloud rag example includes two main flows, import document and rag.
-Import document includes the following steps:
-1. Parse document and split document to chunks with proper chunk size and delimiters on cloud side.
-2. Add chunks to cloud vector db(Chunks will be converted to embed vector on cloud side).
+## 技术实现
 
-Rag includes the following steps:
-1. Retrieval trunks from vector db with query.
-2. Generate result based on filtered trunks.
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-boot-starter-web**: 核心依赖
+- **commons-lang3**: 核心依赖
+- **spring-ai-pdf-document-reader**: 核心依赖
+- **spring-ai-starter-vector-store-elasticsearch**: 核心依赖
 
-For how to run and test cloud rag example, please refer to the following instructions:
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+
+## 测试指导
+
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[rag-elasticsearch-example.http](./rag-elasticsearch-example.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# importDocument 接口测试
+curl "http://localhost:8080/ai/rag/importDocument"
 ```
-1. start application.
-2. import document by using curl http request.
-curl -X GET http://127.0.0.1:8080/ai/cloud/rag/importDocument
 
-3. retrieval and generation
-curl -G 'http://127.0.0.1:8080/ai/cloud/rag' --data-urlencode 'message=如何快速开始spring ai alibaba'
-```
+## 注意事项
+
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-09 23:31:14*

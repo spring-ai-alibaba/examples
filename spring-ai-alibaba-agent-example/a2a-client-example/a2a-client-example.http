@@ -1,0 +1,6 @@
+# A2AClientController类的sync方法
+GET http://localhost:8080//sync
+
+###
+# A2AClientController类的stream方法
+GET http://localhost:8080//stream

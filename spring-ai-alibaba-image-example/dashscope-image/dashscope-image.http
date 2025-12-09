@@ -1,0 +1,6 @@
+# DashScopeImageController类的image方法
+GET http://localhost:8080/example/image
+
+###
+# DashScopeImageController类的multipleConditions方法
+GET http://localhost:8080/example/image/multipleConditions

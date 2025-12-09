@@ -1,0 +1,38 @@
+# SimpleVectorManagementController类的addEvidence方法
+POST http://localhost:8080/simple/add/evidence
+
+###
+# SimpleVectorManagementController类的search方法
+POST http://localhost:8080/simple/search
+
+###
+# SimpleVectorManagementController类的deleteDocuments方法
+POST http://localhost:8080/simple/delete
+
+###
+# SimpleVectorManagementController类的schema方法
+POST http://localhost:8080/simple/init/schema
+
+###
+# AnalyticDbVectorManagementController类的addEvidence方法
+POST http://localhost:8080/add/evidence
+
+###
+# AnalyticDbVectorManagementController类的search方法
+POST http://localhost:8080/search
+
+###
+# AnalyticDbVectorManagementController类的deleteDocuments方法
+POST http://localhost:8080/delete
+
+###
+# AnalyticDbVectorManagementController类的schema方法
+POST http://localhost:8080/init/schema
+
+###
+# HomeController类的index方法
+GET http://localhost:8080/
+
+###
+# HomeController类的index方法
+POST http://localhost:8080/

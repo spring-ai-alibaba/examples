@@ -1,0 +1,18 @@
+# ZhiPuAiChatClientController类的simpleChat方法
+GET http://localhost:8080/zhipuai/chat-client/simple/chat
+
+###
+# ZhiPuAiChatClientController类的streamChat方法
+GET http://localhost:8080/zhipuai/chat-client/stream/chat
+
+###
+# ZhiPuAiChatModelController类的simpleChat方法
+GET http://localhost:8080/zhipuai/chat-model/simple/chat
+
+###
+# ZhiPuAiChatModelController类的streamChat方法
+GET http://localhost:8080/zhipuai/chat-model/stream/chat
+
+###
+# ZhiPuAiChatModelController类的customChat方法
+GET http://localhost:8080/zhipuai/chat-model/custom/chat

@@ -1,0 +1,2 @@
+# ClassificationController类的getPromptWithFewShotsHistory方法
+POST http://localhost:8080/classify

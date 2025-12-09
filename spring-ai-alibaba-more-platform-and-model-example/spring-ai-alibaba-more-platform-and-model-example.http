@@ -1,0 +1,8 @@
+# MorePlatformController类的chat方法
+GET http://localhost:8080no-platform/{platform}/{prompt}
+
+###
+# MoreModelCallController类的modelChat方法
+GET http://localhost:8080/no-model/{model}/{prompt}
+
+###

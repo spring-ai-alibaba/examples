@@ -1,0 +1,18 @@
+# MultiModelController类的image方法
+GET http://localhost:8080/dashscope/multi/image
+
+###
+# MultiModelController类的video方法
+GET http://localhost:8080/dashscope/multi/video
+
+###
+# MultiModelController类的audio方法
+GET http://localhost:8080/dashscope/multi/audio
+
+###
+# MultiModelController类的imagesBinary方法
+GET http://localhost:8080/dashscope/multi/image/bin
+
+###
+# MultiModelController类的streamImage方法
+GET http://localhost:8080/dashscope/multi/stream/image

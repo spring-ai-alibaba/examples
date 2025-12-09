@@ -1,0 +1,14 @@
+# HelloworldController类的simpleChat方法
+GET http://localhost:8080/helloworld/simple/chat?query=你好，很高兴认识你，能简单介绍一下自己吗？
+
+###
+# HelloworldController类的streamChat方法
+GET http://localhost:8080/helloworld/stream/chat?query=你好，很高兴认识你，能简单介绍一下自己吗？
+
+###
+# HelloworldController类的advisorChat方法
+GET http://localhost:8080/helloworld/advisor/chat/{conversationId}
+
+###
+# HelloworldController类的newChat方法
+GET http://localhost:8080/helloworld/advisor/newChat?query=你好，很高兴认识你，能简单介绍一下自己吗？

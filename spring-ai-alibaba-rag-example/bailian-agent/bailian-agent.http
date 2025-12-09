@@ -1,0 +1,6 @@
+# BailianAgentRagController类的call方法
+GET http://localhost:8080/ai/bailian/agent/call?message=如何使用SDK快速调用阿里云百炼的应用?
+
+###
+# BailianAgentRagStreamController类的stream方法
+GET http://localhost:8080/ai/bailian/agent/stream?message=你好，请问你的知识库文档主要是关于什么内容的?

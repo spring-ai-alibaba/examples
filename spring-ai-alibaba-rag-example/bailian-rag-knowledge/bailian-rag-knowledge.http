@@ -1,0 +1,6 @@
+# CloudRagController类的importDocument方法
+GET http://localhost:8080/ai/bailian/knowledge/importDocument
+
+###
+# CloudRagController类的generate方法
+GET http://localhost:8080/ai/bailian/knowledge/generate?message=你好，请问你的知识库文档主要是关于什么内容的?

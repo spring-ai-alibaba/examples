@@ -1,0 +1,6 @@
+# EmbeddingModelController类的embeddingGenericOpts方法
+GET http://localhost:8080/observability/embedding/generic
+
+###
+# ImageModelController类的image方法
+GET http://localhost:8080/observability/image/generate

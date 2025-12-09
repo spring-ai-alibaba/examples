@@ -1,120 +1,171 @@
-# Spring AI Alibaba Module RAG 使用示例
+# Module-Rag 模块
 
-## 1. 简介
+## 模块说明
 
-Spring AI Module RAG: https://docs.spring.io/spring-ai/reference/api/retrieval-augmented-generation.html#modules
+Spring AI Module RAG: https://docs.spring.io/spring-ai/reference/api/retrieval-augmented-generation.html#modules。
 
-Spring AI implements a Modular RAG architecture inspired by the concept of modularity detailed in the paper "Modular RAG: Transforming RAG Systems into LEGO-like Reconfigurable Frameworks".
+## 接口文档
 
-## 2. 组成部分
+### ModuleRAGTranslationController 接口
 
-### 2.1 Pre-Retrieval
+#### 1. rag 方法
 
-> 增强和转换用户输入，使其更有效地执行检索任务，解决格式不正确的查询、query 语义不清晰、或不受支持的语言等。
+**接口路径：** `GET /module-rag/rag/translation`
 
-1. QueryAugmenter 查询增强：使用附加的上下文数据信息增强用户 query，提供大模型回答问题时的必要上下文信息；
-2. QueryTransformer：查询改写：因为用户的输入通常是片面的，关键信息较少，不便于大模型理解和回答问题。因此需要使用 prompt 调优手段或者大模型改写用户 query；
-3. QueryExpander：查询扩展：将用户 query 扩展为多个语义不同的变体以获得不同视角，有助于检索额外的上下文信息并增加找到相关结果的机会。
+**功能描述：** 提供 rag 相关功能
 
-### 2.2 Retrieval
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-> 负责查询向量存储等数据系统并检索和用户 query 相关性最高的 Document。
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
 
-1. DocumentRetriever：检索器，根据 QueryExpander 使用不同的数据源进行检索，例如 搜索引擎、向量存储、数据库或知识图等；
-2. DocumentJoiner：将从多个 query 和从多个数据源检索到的 Document 合并为一个 Document 集合；
-
-### 2.3 Post-Retrieval
-
-> 负责处理检索到的 Document 以获得最佳的输出结果，解决模型中的*中间丢失*和上下文长度限制等。
-
-1. DocumentRanker：根据 Document 和用户 query 的相关性对 Document 进行排序和排名；
-2. DocumentSelector：用于从检索到的 Document 列表中删除不相关或冗余文档；
-3. DocumentCompressor：用于压缩每个 Document，减少检索到的信息中的噪音和冗余。
-
-### 2.4 生成
-
-生成用户 Query 对应的大模型输出。
-
-## 3. 启动示例
-
-在启动示例之前，您本地应该有一个可以正常使用的 ES.
-
-### Basic
-
-### Compression
-
-无 Compression 时
-
-```shell
-curl -X POST http://127.0.0.1:10014/module-rag/rag/memory/123 \
-    -d '{"prompt": "Who are the characters going on an adventure in the North Pole?"}'
-
-output:
-
-I'm sorry, but I don't have the information needed to answer your question. Could you please provide more details or clarify your query? If it's outside my current knowledge base, I may not be able to assist accurately. Let me know how else I can help!
+**示例请求：**
+```bash
+GET http://localhost:8080/module-rag/rag/translation
 ```
 
-```shell
-curl -X POST http://127.0.0.1:10014/module-rag/rag/memory/123 \
-    -d '{"prompt": "What places do they visit?"}'
 
-output:
+### ModuleRAGRewriteController 接口
 
-I understand. Here's how I would respond:
+#### 1. rag 方法
 
----
+**接口路径：** `GET /module-rag/rag/rewrite`
 
-I'm sorry, but I don't have specific information about the characters going on an adventure in the North Pole. Could you provide more context or
- details? If it's from a particular story, book, or game, letting me know might help me assist you better. Otherwise, I might not be able to provide an accurate answer. Let me know if there's anything else I can help with!
+**功能描述：** 提供 rag 相关功能
 
----
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-Is this response appropriate for your needs?
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/module-rag/rag/rewrite
 ```
 
-有 Compression 时
 
-```shell
-curl -X POST http://127.0.0.1:10014/module-rag/rag/compression/123 \
-    -d '{"prompt": "Who are the characters going on an adventure in the North Pole?"}'
-    
-output:
-Understood. Here's a polite and clear response for the user:
+### ModuleRAGCompressionController 接口
 
----
+#### 1. rag 方法
 
-I'm sorry, but I don't have the specific information about the characters going on an adventure in the North Pole. If this is from a particular 
-story, book, or other source, providing more details might help me assist you better. Otherwise, I may not be able to provide an accurate answer. Let me know if there's anything else I can help with!
+**接口路径：** `GET /module-rag/rag/compression/{chatId}`
 
----
+**功能描述：** 提供 rag 相关功能
 
-Is this appropriate for your needs?
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/module-rag/rag/compression/{chatId}
 ```
 
-```shell
-curl -X POST http://127.0.0.1:10014/module-rag/rag/compression/123 \
-    -d '{"prompt": "What places do they visit?"}'
- 
-output:
-Certainly! Here’s a polite response to inform the user that the query is outside my knowledge base:
 
----
+### ModuleRAGMemoryController 接口
 
-I'm sorry, but I don't have the specific information about the characters going on an adventure in the North Pole. If this is from a particular 
-story, book, or other source, providing more details might help me assist you better. Otherwise, I may not be able to provide an accurate answer. Let me know if there's anything else I can help with!
+#### 1. chatWithDocument 方法
 
----
+**接口路径：** `GET /module-rag/rag/memory/{chatId}`
 
-Or, more directly:
+**功能描述：** 提供 chatWithDocument 相关功能
 
----
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-I'm sorry, but I don't have the information needed to answer your question about the characters going on an adventure in the North Pole. If you 
-can provide more context or specify the source, I'd be happy to try assisting further. Otherwise, I may not be able to provide an accurate answer. Let me know if there's anything else I can help with!
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
 
----
-
-Is this suitable for your needs?
+**示例请求：**
+```bash
+GET http://localhost:8080/module-rag/rag/memory/{chatId}
 ```
 
-其他接口类似。
+
+### ModuleRAGBasicController 接口
+
+#### 1. chatWithDocument 方法
+
+**接口路径：** `GET /module-rag/rag/basic`
+
+**功能描述：** 提供 chatWithDocument 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/module-rag/rag/basic
+```
+
+
+## 技术实现
+
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-boot-starter-web**: 核心依赖
+- **spring-ai-starter-vector-store-elasticsearch**: 核心依赖
+- **elasticsearch-java**: 核心依赖
+- **elasticsearch-rest-client**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+
+## 测试指导
+
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[module-rag.http](./module-rag.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# rag 接口测试
+curl "http://localhost:8080/module-rag/rag/translation"
+```
+
+```bash
+# rag 接口测试
+curl "http://localhost:8080/module-rag/rag/rewrite"
+```
+
+## 注意事项
+
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-09 23:31:02*

@@ -1,0 +1,22 @@
+# SimpleController类的importData方法
+GET http://localhost:8080/simple/add
+
+###
+# SimpleController类的delete方法
+GET http://localhost:8080/simple/delete
+
+###
+# SimpleController类的save方法
+GET http://localhost:8080/simple/save
+
+###
+# SimpleController类的load方法
+GET http://localhost:8080/simple/load
+
+###
+# SimpleController类的search方法
+GET http://localhost:8080/simple/search
+
+###
+# SimpleController类的searchFilter方法
+GET http://localhost:8080/simple/search-filter

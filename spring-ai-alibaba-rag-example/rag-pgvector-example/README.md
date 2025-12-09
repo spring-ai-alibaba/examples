@@ -1,61 +1,193 @@
-### Spring Ai Alibaba Rag Pgvector Example ###
+# Rag-Pgvector-Example 模块
 
-This section will describe how to create example and call rag service. 
+## 模块说明
 
-##### Rag Example #####
+This section will describe how to create example and call rag service.。
 
-Local rag example includes two main flows, import document and rag.
+## 接口文档
 
-Import document includes the following steps:
-1. Parse document.
-2. Split document to chunks with proper chunk size and delimiters.
-3. Convert chunk text to embed vector.
-4. Save text and embed vector to vector db including metadata if needed.
+### RagPgVectorController 接口
 
-Rag includes the following steps:
-1. Retrieval trunks from vector db with query.
-2. Rerank the retrieved trunks to get score of relevance between query and retrieved trunks.
-3. Generate result based on filtered trunks.
+#### 1. importDocument 方法
 
-For how to run and test local rag example, please refer to the following instructions:
+**接口路径：** `GET /ai/rag/importDocument`
 
+**功能描述：** 提供 importDocument 相关功能
 
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
-```code
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE TABLE IF NOT EXISTS vector_store (
-id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-content text,
-metadata json,
-embedding vector(1536)
-);
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
 
-CREATE INDEX ON vector_store USING HNSW (embedding vector_cosine_ops);
-```
-
-#### Import File
+**示例请求：**
 ```bash
-curl -X POST http://localhost:8080/ai/rag/importFileV2 \
-  -F "file=@/path/to/your/file" 
+GET http://localhost:8080/ai/rag/importDocument
 ```
-This endpoint allows you to import a file for RAG processing. The file will be processed and stored in the vector database.
 
-#### Search with File ID
+#### 2. insertText 方法
+
+**接口路径：** `GET /ai/rag/importText`
+
+**功能描述：** Receive any long text, split it and write it into a vector store
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
 ```bash
-curl -G 'http://localhost:8080/ai/rag/search' \
-  --data-urlencode 'messages=what is alibaba?' \
-  --data-urlencode 'fileId={fileId}'
+GET http://localhost:8080/ai/rag/importText
 ```
-This endpoint performs a search query within a specific file's content. Replace `{fileId}` with the actual file ID.
 
-#### Delete Files
+#### 3. insertFiles 方法
+
+**接口路径：** `GET /ai/rag/importFile`
+
+**功能描述：** read and write multiple files and write it into a vector store
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
 ```bash
-curl -X DELETE 'http://localhost:8080/ai/rag/deleteFiles?fileId={fileId}'
+GET http://localhost:8080/ai/rag/importFile
 ```
-This endpoint allows you to delete a specific file from the vector database. Replace `{fileId}` with the actual file ID you want to delete.
+
+#### 4. generate 方法
+
+**接口路径：** `GET /ai/rag`
+
+**功能描述：** 提供 generate 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/rag
+```
+
+#### 5. importFileV2 方法
+
+**接口路径：** `GET /ai/rag/importFileV2`
+
+**功能描述：** read and write multiple files and write it into a vector store
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/rag/importFileV2
+```
+
+#### 6. search 方法
+
+**接口路径：** `GET /ai/rag/searchV2`
+
+**功能描述：** search the vector store
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 信息检索
+- 知识查询
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/rag/searchV2
+```
+
+#### 7. deleteFiles 方法
+
+**接口路径：** `GET /ai/rag/deleteFilesV2`
+
+**功能描述：** 提供 deleteFiles 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/ai/rag/deleteFilesV2
+```
 
 
+## 技术实现
 
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-boot-starter-web**: 核心依赖
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-ai-pdf-document-reader**: 核心依赖
+- **spring-ai-pgvector-store**: 核心依赖
+- **spring-ai-autoconfigure-vector-store-pgvector**: 核心依赖
 
-### Pgvector DockerFile
-to [README.md](../../docker-compose/pgvector/README.md)
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+
+## 测试指导
+
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[rag-pgvector-example.http](./rag-pgvector-example.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# importDocument 接口测试
+curl "http://localhost:8080/ai/rag/importDocument"
+```
+
+## 注意事项
+
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-09 23:31:06*

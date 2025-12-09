@@ -1,0 +1,6 @@
+# StuffController类的completion方法
+GET http://localhost:8080/prompt/ai/stuff?message=Which athletes won the mixed doubles gold medal in curling at the 2022 Winter Olympics?&stuffit=false
+
+###
+# RoleController类的generate方法
+GET http://localhost:8080/example/ai/roles?message=Tell me about three famous pirates from the Golden Age of Piracy and why they did.  Write at least a sentence for each pirate.&name=Bob&voice=pirate

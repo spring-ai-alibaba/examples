@@ -1,103 +1,134 @@
-# MXY RAG Server
+# Rag-Openai-Dashscope-Pgvector-Example 模块
 
-基于Spring AI的RAG（检索增强生成）服务器，使用阿里云通义千问模型（OpenAI兼容模式）。
+## 模块说明
 
-## 特性
+基于Spring AI的RAG（检索增强生成）服务器，使用阿里云通义千问模型（OpenAI兼容模式）。。
 
-- 智能问答：基于知识库的RAG问答
-- 多格式支持：PDF、Word、TXT等文档
-- 向量存储：PostgreSQL + pgvector
-- 流式响应：支持实时对话
-- 阿里云模型：通义千问 + text-embedding-v3
+## 接口文档
 
-## 技术栈
+### KnowledgeBaseController 接口
 
-- Spring Boot 3.4.5 + Spring AI 1.0.0
-- Java 17
-- PostgreSQL + pgvector
-- 阿里云通义千问（OpenAI兼容模式）
+#### 1. insertTextContent 方法
 
-## 快速开始
+**接口路径：** `GET /api/v1/knowledge-base/insert-text`
 
-### 1. 环境准备
+**功能描述：** 将字符串内容插入到向量库中。
 
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
 ```bash
-# 设置API Key
-set AI_DASHSCOPE_API_KEY=your_api_key
-
-# 确保PostgreSQL已安装pgvector扩展
-CREATE EXTENSION IF NOT EXISTS vector;
+GET http://localhost:8080/api/v1/knowledge-base/insert-text
 ```
 
-### 2. 配置数据库
+#### 2. uploadFileByType 方法
 
-修改 `application.yaml` 中的数据库连接：
+**接口路径：** `GET /api/v1/knowledge-base/upload-file`
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/springai
-    username: postgres
-    password: postgres
-```
+**功能描述：** 根据文件类型动态选择Reader加载文件到知识库。
 
-### 3. 启动应用
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
 
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
 ```bash
-mvn spring-boot:run
+GET http://localhost:8080/api/v1/knowledge-base/upload-file
 ```
 
-应用启动在 `http://localhost:9000`
+#### 3. chatWithKnowledge 方法
 
-## API接口
+**接口路径：** `GET /api/v1/knowledge-base/chat`
 
-### 上传文档
-```http
-POST /api/v1/knowledge-base/upload-file
-Content-Type: multipart/form-data
+**功能描述：** 阻塞式LLM对话接口，根据业务类型获取相关知识库数据进行问答。
 
-file=@document.pdf
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/knowledge-base/chat
 ```
 
-### 插入文本
-```http
-POST /api/v1/knowledge-base/insert-text
-Content-Type: application/x-www-form-urlencoded
+#### 4. chatWithKnowledgeStream 方法
 
-content=文本内容
+**接口路径：** `GET /api/v1/knowledge-base/chat-stream`
+
+**功能描述：** 流式LLM对话接口，根据业务类型获取相关知识库数据进行问答。
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/api/v1/knowledge-base/chat-stream
 ```
 
-### 智能问答
-```http
-POST /api/v1/knowledge-base/chat
-Content-Type: application/x-www-form-urlencoded
 
-query=你的问题&topK=5
+## 技术实现
+
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-ai-bom**: 核心依赖
+- **spring-boot-starter-web**: 核心依赖
+- **spring-ai-starter-model-openai**: 核心依赖
+- **spring-ai-pgvector-store**: 核心依赖
+- **spring-ai-autoconfigure-vector-store-pgvector**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+
+## 测试指导
+
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[rag-openai-dashscope-pgvector-example.http](./rag-openai-dashscope-pgvector-example.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# insertTextContent 接口测试
+curl "http://localhost:8080/api/v1/knowledge-base/insert-text"
 ```
-
-### 流式问答
-```http
-POST /api/v1/knowledge-base/chat-stream
-Content-Type: application/x-www-form-urlencoded
-
-query=你的问题&topK=5
-```
-
-### 相似性搜索
-```http
-GET /api/v1/knowledge-base/search?query=搜索内容&topK=5
-```
-
-## 模型配置
-
-- **Chat模型**: qwen-plus-latest（阿里云通义千问）
-- **嵌入模型**: text-embedding-v3（1024维）
-- **调用方式**: OpenAI兼容模式
-- **API地址**: https://dashscope.aliyuncs.com/compatible-mode
 
 ## 注意事项
 
-1. 需要阿里云DashScope API Key
-2. PostgreSQL需安装pgvector扩展
-3. 默认支持最大10MB文件上传
-4. 向量维度固定为1024维
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-09 23:31:02*

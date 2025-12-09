@@ -1,16 +1,18 @@
-# DeepSeek Chat API
+# DeepSeekChatModelController类的simpleChat方法
+GET http://localhost:8080/model/simple/chat
 
-### Chat Client Simple Chat
-GET http://127.0.0.1:10001/client/ai/generate
+###
+# DeepSeekChatModelController类的streamChat方法
+GET http://localhost:8080/model/stream/chat
 
-### Chat Client Stream Chat
-GET http://127.0.0.1:10001/client/ai/stream
+###
+# DeepSeekChatClientController类的customOptions方法
+GET http://localhost:8080/client/ai/customOptions
 
-### Chat Client Custom Options Chat
-GET http://127.0.0.1:10001/client/ai/customOptions
+###
+# DeepSeekChatClientController类的chat方法
+GET http://localhost:8080/client/ai/generate
 
-### Chat Model Stream Chat
-GET http://127.0.0.1:10001/model/stream/chat
-
-### Chat Model Stream Chat
-GET http://127.0.0.1:10001/model/simple/chat
+###
+# DeepSeekChatClientController类的stream方法
+GET http://localhost:8080/client/ai/stream

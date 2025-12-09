@@ -1,0 +1,10 @@
+# RedisController类的importData方法
+GET http://localhost:8080/redis/import
+
+###
+# RedisController类的search方法
+GET http://localhost:8080/redis/search
+
+###
+# RedisController类的deleteFilter方法
+GET http://localhost:8080/redis/delete-filter

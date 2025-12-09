@@ -1,15 +1,10 @@
-# Aduio Transcription API
+# AudioSpeechController类的streamTTS方法
+GET http://localhost:8080/ai/speech/stream
 
-### STT(speech to text) call API
-GET http://127.0.0.1:10009/ai/transcription/call
+###
+# AudioTranscriptionController类的callSTT方法
+GET http://localhost:8080/ai/transcription/call
 
-### STT(speech to text) stream API
-GET http://127.0.0.1:10009/ai/transcription/stream
-
-# Audio Speech API
-
-### TTS(text to speech) API
-GET http://127.0.0.1:10009/ai/speech/call
-
-### TTS(text to speech) stream API
-GET http://127.0.0.1:10009/ai/speech/stream
+###
+# AudioTranscriptionController类的streamSTT方法
+GET http://localhost:8080/ai/transcription/stream

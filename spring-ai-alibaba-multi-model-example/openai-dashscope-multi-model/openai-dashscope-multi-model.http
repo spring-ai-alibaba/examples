@@ -1,0 +1,6 @@
+# OpenAiChatClientController类的analyzeImageByUrl方法
+GET http://localhost:8080openai/client/image/analyze/url
+
+###
+# OpenAiChatClientController类的analyzeImageByUpload方法
+POST http://localhost:8080openai/client/image/analyze/upload

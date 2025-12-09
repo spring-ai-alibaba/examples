@@ -1,0 +1,10 @@
+# MultiModelController类的image方法
+GET http://localhost:8080/api/image
+
+###
+# MultiModelController类的streamImage方法
+GET http://localhost:8080/api/stream/image
+
+###
+# MultiModelController类的video方法
+GET http://localhost:8080/api/video

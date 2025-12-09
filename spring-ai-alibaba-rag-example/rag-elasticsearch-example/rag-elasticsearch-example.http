@@ -1,0 +1,6 @@
+# LocalRagController类的importDocument方法
+GET http://localhost:8080/ai/rag/importDocument
+
+###
+# LocalRagController类的generate方法
+GET http://localhost:8080/ai/rag?message=how to get start with spring ai alibaba?

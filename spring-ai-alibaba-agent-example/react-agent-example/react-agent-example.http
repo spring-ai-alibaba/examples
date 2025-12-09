@@ -1,0 +1,6 @@
+# AgentController类的invoke方法
+GET http://localhost:8080/invoke
+
+###
+# AgentController类的feedback方法
+POST http://localhost:8080/feedback

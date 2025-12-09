@@ -1,0 +1,54 @@
+# TransformerController类的tokenTextSplitter方法
+GET http://localhost:8080/transformer/token-text-splitter
+
+###
+# TransformerController类的contentFormatTransformer方法
+GET http://localhost:8080/transformer/content-format-transformer
+
+###
+# TransformerController类的keywordMetadataEnricher方法
+GET http://localhost:8080/transformer/keyword-metadata-enricher
+
+###
+# TransformerController类的summaryMetadataEnricher方法
+GET http://localhost:8080/transformer/summary-metadata-enricher
+
+###
+# WriterController类的writeFile方法
+GET http://localhost:8080/writer/file
+
+###
+# WriterController类的writeVector方法
+GET http://localhost:8080/writer/vector
+
+###
+# WriterController类的search方法
+GET http://localhost:8080/writer/search
+
+###
+# ReaderController类的readText方法
+GET http://localhost:8080/reader/text
+
+###
+# ReaderController类的readJson方法
+GET http://localhost:8080/reader/json
+
+###
+# ReaderController类的readPdfPage方法
+GET http://localhost:8080/reader/pdf-page
+
+###
+# ReaderController类的readPdfParagraph方法
+GET http://localhost:8080/reader/pdf-paragraph
+
+###
+# ReaderController类的readMarkdown方法
+GET http://localhost:8080/reader/markdown
+
+###
+# ReaderController类的readHtml方法
+GET http://localhost:8080/reader/html
+
+###
+# ReaderController类的readTika方法
+GET http://localhost:8080/reader/tika
