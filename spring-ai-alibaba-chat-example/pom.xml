@@ -40,8 +40,6 @@
 		<module>ollama-chat</module>
 		<module>openai-chat</module>
 		<module>zhipuai-chat</module>
-		<!-- 编译不通过，暂时注释 -->
-		<!--<module>moonshot-chat</module>-->
 		<module>deepseek-chat</module>
 		<module>dashscope-chat</module>
 		<module>azure-openai-chat</module>

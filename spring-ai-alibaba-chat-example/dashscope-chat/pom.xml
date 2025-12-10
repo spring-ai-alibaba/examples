@@ -32,10 +32,6 @@
 	<description>Spring AI Alibaba Dashscope Chat Example</description>
 	<name>Spring AI Alibaba Dashscope Chat Examples</name>
 
-	<properties>
-		<spring-ai-alibaba.version>1.0.0.3</spring-ai-alibaba.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

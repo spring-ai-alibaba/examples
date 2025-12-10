@@ -54,7 +54,7 @@ public class HelloworldController {
                 // 设置 ChatClient 中 ChatModel 的 Options 参数
                 .defaultOptions(
                         DashScopeChatOptions.builder()
-                                .withTopP(0.7)
+                                .topP(0.7)
                                 .build()
                 )
                 .build();
@@ -114,7 +114,7 @@ public class HelloworldController {
 			@RequestParam(value = "query", defaultValue = "你好，很高兴认识你，能简单介绍一下自己吗？") String query,
 			@RequestParam(value = "topP", required = false) Double topP,
 			@RequestParam(value = "temperature", required = false) Double temperature,
-			@RequestParam(value = "maxTokens", required = false) Integer maxTokens) {
+			@RequestParam(value = "maxTokens", required = false) Integer maxToken) {
 
 		response.setCharacterEncoding("UTF-8");
 
@@ -122,10 +122,13 @@ public class HelloworldController {
 		DashScopeChatOptions.DashScopeChatOptionsBuilder optionsBuilder = DashScopeChatOptions.builder();
 
 		if (topP != null) {
-			optionsBuilder.withTopP(topP);
+			optionsBuilder.topP(topP);
 		}
 		if (temperature != null) {
-			optionsBuilder.withTemperature(temperature);
+			optionsBuilder.temperature(temperature);
+		}
+		if (maxToken != null) {
+			optionsBuilder.maxToken(maxToken);
 		}
 
 		return this.dashScopeChatClient.prompt(query)
