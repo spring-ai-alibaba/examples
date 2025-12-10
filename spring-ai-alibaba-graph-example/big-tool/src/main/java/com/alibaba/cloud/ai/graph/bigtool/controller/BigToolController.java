@@ -117,7 +117,7 @@ public class BigToolController {
 
 	@GetMapping("/search")
 	public String search(@RequestParam String query) {
-		Optional<OverAllState> invoke = compiledGraph.call(Map.of(Constant.INPUT_KEY, query, Constant.TOOL_LIST, documents));
+		Optional<OverAllState> invoke = compiledGraph.invoke(Map.of(Constant.INPUT_KEY, query, Constant.TOOL_LIST, documents));
 		return invoke.get().value("solution").get().toString();
 	}
 
