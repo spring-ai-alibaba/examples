@@ -1,85 +1,139 @@
 ---
 name: readme-generate
-description: Generates comprehensive README.md files for Spring Boot modules based on task specification requirements
+description: Intelligently generates and fuses README.md files for Spring Boot modules with existing content preservation
 ---
 
-# README Generator
+# README Generator with Content Fusion
 
-This skill automatically analyzes Spring Boot modules and generates comprehensive README.md files according to the specified format requirements, including module functionality, API documentation, usage examples, technical implementation, testing guidance, and important notes.
+This skill automatically analyzes Spring Boot modules and **intelligently fuses** generated API documentation with existing technical content. It preserves important manual documentation while adding comprehensive API documentation, usage examples, technical implementation, testing guidance, and important notes.
 
 ## When to Use
 
 Use this skill when you need to:
-- Generate README.md files for new modules
-- Update existing README.md files when module content changes
-- Create consistent documentation across multiple modules
-- Document API interfaces automatically
-- Provide comprehensive module documentation for developers
+- **Generate README.md files for new modules**
+- **Update existing README.md files without losing valuable content**
+- **Merge existing technical documentation with auto-generated API docs**
+- **Create consistent documentation across multiple modules**
+- **Document API interfaces automatically while preserving existing guides**
+- **Provide comprehensive module documentation for developers**
+
+## Key Features
+
+### 🔄 Intelligent Content Fusion
+- **Preserves existing technical documentation**: Background, architecture, deployment guides
+- **Detects manual content**: Automatically identifies valuable existing sections
+- **Smart merging**: Combines generated API docs with existing content
+- **Backup protection**: Creates timestamped backups before any modification
+
+### 📋 Backup Strategy
+- **Automatic backups**: Timestamped backup files created before any changes
+- **Safety first**: Never loses existing content
+- **Easy recovery**: Previous versions can be restored anytime
+
+### 🎯 Smart Detection
+- Identifies manual sections: Background, Architecture, Quick Start, Deployment, etc.
+- Distinguishes between generated content and user-written documentation
+- Prioritizes preservation of high-value technical content
 
 ## How to Use
 
-### Generate README for a Module
-
-Execute the README generator script to create comprehensive documentation:
+### Generate/Fuse README for a Module
 
 ```bash
-python .claude/skills/readme-generate/scripts/readme_generator.py <module_path> [output_file]
+python .claude/skills/readme-generate/scripts/readme_generator.py <module_path> [output_file] [--force]
 ```
 
 **Parameters:**
 - `module_path` (required): Path to the Spring Boot module directory
 - `output_file` (optional): Custom output file path (default: `{module_path}/README.md`)
+- `--force` (optional): Force complete regeneration instead of fusion
 
 **Examples:**
 ```bash
-# Generate for chat module-generate.md (creates basic/chat/README.md)
+# Smart fusion: merges existing docs with new API documentation
 python .claude/skills/readme-generate/scripts/readme_generator.py basic/chat
 
-# Generate for tool module-generate.md with custom output
-python .claude/skills/readme-generate/scripts/readme_generator.py basic/tool custom_README.md
+# Force complete regeneration (creates backup first)
+python .claude/skills/readme-generate/scripts/readme_generator.py basic/tool --force
 
-# Generate for image module-generate.md
-python .claude/skills/readme-generate/scripts/readme_generator.py basic/image
+# Generate with custom output file
+python .claude/skills/readme-generate/scripts/readme_generator.py basic/image custom_README.md
 
-# Update existing README
+# Update existing README with intelligent merging
 python .claude/skills/readme-generate/scripts/readme_generator.py graph/parallel
 ```
 
+## Content Fusion Strategy
+
+### 🔄 Smart Merging Behavior
+
+**By Default (Fusion Mode):**
+1. **Preserves existing manual sections**: Background, Architecture, Deployment Guides, etc.
+2. **Adds generated API documentation**: Complete REST API documentation with examples
+3. **Intelligent detection**: Automatically identifies valuable existing content
+4. **Backup creation**: Timestamped backup before any changes
+
+**With --force Flag:**
+1. **Complete regeneration**: Full content replacement
+2. **Still creates backup**: Safety is never compromised
+3. **Fresh API docs**: All sections regenerated from current code
+
+### 📋 Content Preservation Rules
+
+**Always Preserved:**
+- 背景说明 (Background)
+- 架构设计 (Architecture Design)
+- 快速开始 (Quick Start)
+- 部署指南 (Deployment Guide)
+- 开发指南 (Development Guide)
+- 配置说明 (Configuration Instructions)
+- 环境要求 (Environment Requirements)
+- 功能特性 (Feature Overview)
+
+**Always Generated/Fresh:**
+- 接口文档 (API Documentation) - Complete REST API coverage
+- 技术实现 (Technical Implementation) - Current code analysis
+- 测试指导 (Testing Guidance) - Latest testing procedures
+- 注意事项 (Important Notes) - Current environment requirements
+
 ## Generated README Structure
 
-The skill generates README.md files that strictly follow the task specification:
+The skill intelligently merges existing documentation with automatically generated sections:
 
-### 1. 模块功能介绍 (Module Functionality Description)
+### Preserved Sections (Existing Content)
+- **Background & Architecture**: User-written technical documentation
+- **Guides & Tutorials**: Step-by-step instructions and best practices
+- **Configuration**: Environment setup and deployment instructions
+- **Custom Content**: Any valuable manual documentation
+
+### Generated Sections (Fresh Content)
+
+#### 1. 模块功能介绍 (Module Functionality Description)
 - Automatically extracts module functionality from controller classes
 - Generates comprehensive descriptions based on actual implementation
 - Provides clear overview of module purpose and capabilities
 
-### 2. 接口文档 (API Documentation)
+#### 2. 接口文档 (API Documentation)
 - **Complete API Coverage**: All REST endpoints documented
 - **Path Information**: Full endpoint paths with HTTP methods
 - **Parameter Details**: All request parameters with default values
 - **Response Format**: JSON response structure
 - **Feature Lists**: Key capabilities and characteristics
+- **Usage Examples**: Ready-to-use curl commands
 
-### 3. 使用示例 (Usage Examples)
-- **HTTP Requests**: Ready-to-use curl commands
-- **Parameter Examples**: Default parameter values for testing
-- **Integration Examples**: Different usage scenarios
-- **Tool Integration**: Links to corresponding .http files
-
-### 4. 技术实现 (Technical Implementation)
+#### 3. 技术实现 (Technical Implementation)
 - **Core Components**: Key Spring Boot and Spring AI Alibaba components
 - **Configuration Details**: Environment variables and configuration requirements
 - **Dependencies**: Important Maven/Gradle dependencies
 - **Architecture Overview**: Module structure and design patterns
 
-### 5. 测试指导 (Testing Guidance)
+#### 4. 测试指导 (Testing Guidance)
 - **HTTP File Testing**: Direct links to generated .http test files
 - **curl Commands**: Command-line testing examples
 - **IDE Integration**: IntelliJ IDEA and VS Code testing guidance
 - **Parameter Testing**: Different parameter combinations
 
-### 6. 注意事项 (Important Notes)
+#### 5. 注意事项 (Important Notes)
 - **Environment Setup**: Required environment variables and configurations
 - **Network Requirements**: Service connectivity requirements
 - **Character Encoding**: UTF-8 support for international content

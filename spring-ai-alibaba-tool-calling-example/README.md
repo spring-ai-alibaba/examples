@@ -1,11 +1,16 @@
-# Spring-Ai-Alibaba-Tool-Calling-Example 模块
+# Tool Calling Example
+Demonstrate four approaches to ToolCalling with four distinct examples here:
+- TimeController : Methods as Tools
+- AddressController : Methods as Tools - MethodToolCallback
+- BaiduTranslateController : Function as Tools - Function Name 
+- WeatherController : Function as Tools - FunctionCallBack
 
-## 模块说明
+If you want to build your own tools, you can refer to the implementation in the community module of the Spring AI Alibaba repository and use the currently stable version 1.0.0.2.
 
-Demonstrate four approaches to ToolCalling with four distinct examples here:。
+More available tools can be found on [this documentation](https://java2ai.com/docs/1.0.0-M5.1/integrations/tools/). For mcp style tools please check [spring-ai-alibaba-mcp-example](../spring-ai-alibaba-mcp-example).
 
+For more detail information: [spring-ai-tools](https://docs.spring.io/spring-ai/reference/api/tools.html)
 ## 接口文档
-
 ### TimeController 接口
 
 #### 1. simpleChat 方法
@@ -184,10 +189,7 @@ GET http://localhost:8080/weather/chat
 ```bash
 GET http://localhost:8080/weather/chat-tool-function-name
 ```
-
-
 ## 技术实现
-
 ### 核心组件
 - **Spring Boot**: 应用框架
 - **Spring AI Alibaba**: AI 功能集成
@@ -202,9 +204,7 @@ GET http://localhost:8080/weather/chat-tool-function-name
 - 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
 - 默认端口：8080
 - 默认上下文路径：/basic
-
 ## 测试指导
-
 ### 使用 HTTP 文件测试
 模块根目录下提供了 **[spring-ai-alibaba-tool-calling-example.http](./spring-ai-alibaba-tool-calling-example.http)** 文件，包含所有接口的测试用例：
 - 可在 IDE 中直接执行
@@ -221,9 +221,7 @@ curl "http://localhost:8080/time/chat"
 # chat 接口测试
 curl "http://localhost:8080/address/chat"
 ```
-
 ## 注意事项
-
 1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
 2. **网络连接**: 需要能够访问阿里云 DashScope 服务
 3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
@@ -231,4 +229,51 @@ curl "http://localhost:8080/address/chat"
 
 ---
 
-*此 README.md 由自动化工具生成于 2025-12-09 23:29:58*
+*此 README.md 由自动化工具生成于 2025-12-11 00:51:02*
+## 模块说明
+Demonstrate four approaches to ToolCalling with four distinct examples here:。
+
+## How to Run
+Baidu translation API access document: https://api.fanyi.baidu.com/product/113
+
+Baidu Map API document: https://lbs.baidu.com/faq/api
+
+Access document of weather forecast API: https://www.weatherapi.com/docs/
+
+```yaml
+spring:
+  ai:
+    alibaba:
+      toolcalling:
+        baidu:
+          translate:
+            enabled: true
+            app-id: ${BAIDU_TRANSLATE_APP_ID}
+            secret-key: ${BAIDU_TRANSLATE_SECRET_KEY}
+          map:
+            enabled: true
+            apiKey: ${BAIDU_MAP_API_KEY}
+
+        time:
+          enabled: true
+
+        weather:
+          enabled: true
+          api-key: ${WEATHER_API_KEY}
+
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+
+```
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:40:51*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:51:02*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*

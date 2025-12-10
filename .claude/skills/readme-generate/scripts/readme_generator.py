@@ -7,6 +7,7 @@ Usage: python readme_generator.py <module_path> [output_file]
 import os
 import sys
 import re
+import shutil
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 from datetime import datetime
@@ -326,8 +327,184 @@ class ReadmeGenerator:
 
         return content
 
-    def generate_module_readme(self, module_path: Path, output_file: Optional[str] = None) -> str:
-        """Generate README.md for a specific module"""
+    def backup_existing_readme(self, output_path: Path) -> bool:
+        """Create backup of existing README.md if it exists"""
+        if output_path.exists():
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_path = output_path.parent / f"README_backup_{timestamp}.md"
+            try:
+                shutil.copy2(output_path, backup_path)
+                print(f"📋 Created backup: {backup_path}")
+                return True
+            except Exception as e:
+                print(f"⚠️  Warning: Could not create backup: {e}")
+                return False
+        return False
+
+    def parse_existing_readme(self, readme_path: Path) -> Dict:
+        """Parse existing README.md to extract and preserve content sections"""
+        if not readme_path.exists():
+            return {'sections': {}, 'raw_content': ''}
+
+        try:
+            with open(readme_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except Exception as e:
+            print(f"⚠️  Warning: Could not read existing README: {e}")
+            return {'sections': {}, 'raw_content': ''}
+
+        sections = {}
+        current_section = None
+        current_content = []
+
+        lines = content.split('\n')
+
+        for line in lines:
+            # Detect section headers
+            if line.startswith('#'):
+                if current_section:
+                    sections[current_section] = '\n'.join(current_content).strip()
+
+                current_section = line.strip()
+                current_content = []
+            else:
+                current_content.append(line)
+
+        # Add the last section
+        if current_section:
+            sections[current_section] = '\n'.join(current_content).strip()
+
+        return {
+            'sections': sections,
+            'raw_content': content,
+            'has_manual_content': self._has_manual_content(sections)
+        }
+
+    def _has_manual_content(self, sections: Dict) -> bool:
+        """Check if README contains substantial manual content"""
+        manual_indicators = [
+            '## 背景', '## 架构设计', '## 快速开始', '## 部署指南',
+            '## 开发指南', '## 贡献指南', '## 常见问题', '## 配置说明',
+            '## 环境要求', '## 安装步骤', '## 使用指南'
+        ]
+
+        for section_title in sections.keys():
+            for indicator in manual_indicators:
+                if indicator in section_title:
+                    return True
+
+        # Check for substantial content in non-generated sections
+        for section_title, content in sections.items():
+            if not any(keyword in section_title.lower() for keyword in ['接口文档', '模块说明', '技术实现', '测试指导', '注意事项']):
+                if len(content) > 200:  # Substantial content
+                    return True
+
+        return False
+
+    def merge_content(self, existing_data: Dict, generated_content: str, module_info: Dict) -> str:
+        """Merge existing content with generated content using intelligent fusion strategy"""
+
+        if not existing_data['has_manual_content']:
+            # No significant manual content, use generated content
+            return generated_content
+
+        sections = existing_data['sections']
+        merged_content = []
+
+        # Parse generated content into sections for easier processing
+        generated_lines = generated_content.split('\n')
+        generated_sections = self._parse_sections(generated_lines)
+
+        # Keep existing header if it exists
+        main_title = None
+        for section_title in sections.keys():
+            if section_title.startswith('# ') and not any(keyword in section_title.lower() for keyword in ['模块', '说明', '接口文档', '技术实现', '测试指导', '注意事项']):
+                main_title = section_title
+                merged_content.append(section_title)
+                merged_content.append(sections[section_title])
+                break
+
+        if not main_title:
+            # Use generated header
+            for section_title, content in generated_sections.items():
+                if section_title.startswith('# '):
+                    merged_content.append(section_title)
+                    merged_content.append(content)
+                    break
+
+        # Preserve existing manual sections first
+        priority_sections = [
+            '## 背景', '## 架构设计', '## 快速开始', '## 部署指南',
+            '## 开发指南', '## 贡献指南', '## 常见问题', '## 配置说明',
+            '## 环境要求', '## 安装步骤', '## 使用指南', '## 功能特性'
+        ]
+
+        for section_title in priority_sections:
+            for existing_title in sections.keys():
+                if section_title in existing_title:
+                    merged_content.append(existing_title)
+                    merged_content.append(sections[existing_title])
+                    break
+
+        # Add generated module description if not present
+        has_module_desc = any('模块说明' in title or '模块介绍' in title for title in sections.keys())
+        if not has_module_desc and '## 模块说明' in generated_sections:
+            merged_content.append('## 模块说明')
+            merged_content.append(generated_sections['## 模块说明'])
+
+        # Add generated technical sections (including content)
+        tech_sections = ['## 接口文档', '## 技术实现', '## 测试指导', '## 注意事项']
+        for section_title in tech_sections:
+            if section_title in generated_sections:
+                merged_content.append(section_title)
+                merged_content.append(generated_sections[section_title])
+
+        # Add any remaining existing sections that weren't processed
+        processed_sections = set()
+        for section in merged_content:
+            if section.startswith('##'):
+                processed_sections.add(section.strip())
+
+        for section_title, content in sections.items():
+            if section_title.startswith('##') and section_title.strip() not in processed_sections:
+                merged_content.append(section_title)
+                merged_content.append(content)
+                merged_content.append('')
+
+        # Add generation footer
+        merged_content.append('---')
+        merged_content.append('')
+        merged_content.append(f"*此 README.md 由自动化工具融合更新于 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*")
+        merged_content.append('')
+        merged_content.append("*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*")
+
+        return '\n'.join(merged_content)
+
+    def _parse_sections(self, lines: List[str]) -> Dict[str, str]:
+        """Parse lines into a dictionary of sections"""
+        sections = {}
+        current_section = None
+        current_content = []
+
+        for line in lines:
+            # 只处理 ## 开头的主要章节，不包括 ### 和 ####
+            if line.startswith('## '):
+                if current_section:
+                    sections[current_section] = '\n'.join(current_content).strip()
+                current_section = line.strip()
+                current_content = []
+            else:
+                current_content.append(line)
+
+        # Add the last section
+        if current_section:
+            sections[current_section] = '\n'.join(current_content).strip()
+
+        return sections
+
+    def generate_module_readme(self, module_path: Path, output_file: Optional[str] = None,
+                              force_overwrite: bool = False) -> str:
+        """Generate README.md for a specific module with intelligent content fusion"""
         if not module_path.exists():
             raise ValueError(f"Module path does not exist: {module_path}")
 
@@ -340,46 +517,108 @@ class ReadmeGenerator:
         for controller in module_info['controllers']:
             print(f"  - {controller['name']}: {len(controller['methods'])} methods")
 
-        # Generate content
-        content = self.generate_readme_content(module_info)
-
         # Determine output file
         if not output_file:
-            output_file = module_path / "README.md"
+            output_path = module_path / "README.md"
         else:
-            output_file = Path(output_file)
+            output_path = Path(output_file)
+
+        # Generate new content
+        generated_content = self.generate_readme_content(module_info)
+
+        # Check if file exists and decide on merge strategy
+        if output_path.exists() and not force_overwrite:
+            print(f"📄 Existing README.md found at: {output_path}")
+
+            # Parse existing content
+            existing_data = self.parse_existing_readme(output_path)
+
+            if existing_data['has_manual_content']:
+                print("🔄 Merging existing content with generated API documentation...")
+                final_content = self.merge_content(existing_data, generated_content, module_info)
+
+                # Create backup before merging
+                self.backup_existing_readme(output_path)
+            else:
+                print("📝 No significant manual content found, using generated content...")
+                final_content = generated_content
+
+                # Still create backup for safety
+                self.backup_existing_readme(output_path)
+        else:
+            if force_overwrite:
+                print("⚠️  Force overwrite mode - creating backup and regenerating...")
+                self.backup_existing_readme(output_path)
+            else:
+                print("📄 No existing README.md found, generating new content...")
+
+            final_content = generated_content
 
         # Write to file
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write(content)
-
-        print(f"README.md generated: {output_file}")
-        return str(output_file)
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(final_content)
+            print(f"✅ README.md generated successfully: {output_path}")
+            return str(output_path)
+        except Exception as e:
+            print(f"❌ Error writing README.md: {e}")
+            raise
 
 def main():
     # Get arguments
     if len(sys.argv) < 2:
-        print("Usage: python readme_generator.py <module_path> [output_file]")
-        print("Example: python readme_generator.py basic/chat")
-        print("Example: python readme_generator.py basic/chat custom_README.md")
+        print("Usage: python readme_generator.py <module_path> [output_file] [--force]")
+        print("")
+        print("Parameters:")
+        print("  module_path    Path to the Spring Boot module directory")
+        print("  output_file    Optional custom output file path")
+        print("  --force        Force overwrite existing README.md")
+        print("")
+        print("Examples:")
+        print("  python readme_generator.py basic/chat")
+        print("  python readme_generator.py basic/chat custom_README.md")
+        print("  python readme_generator.py basic/chat --force")
+        print("")
+        print("Behavior:")
+        print("  - If README.md exists and contains manual content, will MERGE by default")
+        print("  - Creates timestamped backup before any modification")
+        print("  - Use --force to completely regenerate content")
         sys.exit(1)
 
     module_path = Path(sys.argv[1])
-    output_file = sys.argv[2] if len(sys.argv) > 2 else None
+    output_file = None
+    force_overwrite = False
+
+    # Parse additional arguments
+    for arg in sys.argv[2:]:
+        if arg == '--force':
+            force_overwrite = True
+        else:
+            output_file = arg
 
     if not module_path.exists():
-        print(f"Error: Module path does not exist: {module_path}")
+        print(f"❌ Error: Module path does not exist: {module_path}")
         sys.exit(1)
 
-    print(f"Generating README.md for module: {module_path}")
+    print(f"🚀 Processing module: {module_path}")
+    if force_overwrite:
+        print("⚠️  Force overwrite mode enabled")
 
-    # Generate README
+    # Generate README with intelligent fusion
     generator = ReadmeGenerator()
     try:
-        output_path = generator.generate_module_readme(module_path, output_file)
-        print(f"✅ README.md generated successfully: {output_path}")
+        output_path = generator.generate_module_readme(module_path, output_file, force_overwrite)
+        print(f"🎉 README.md processed successfully: {output_path}")
+
+        # Show backup info if created
+        output_path_obj = Path(output_path)
+        backup_files = list(output_path_obj.parent.glob("README_backup_*.md"))
+        if backup_files:
+            latest_backup = max(backup_files, key=os.path.getctime)
+            print(f"📋 Backup created: {latest_backup}")
+
     except Exception as e:
-        print(f"❌ Error generating README.md: {e}")
+        print(f"❌ Error processing README.md: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
