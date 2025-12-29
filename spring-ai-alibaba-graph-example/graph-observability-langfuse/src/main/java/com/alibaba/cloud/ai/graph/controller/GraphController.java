@@ -19,6 +19,7 @@ package com.alibaba.cloud.ai.graph.controller;
 import com.alibaba.cloud.ai.graph.CompiledGraph;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
+import com.alibaba.cloud.ai.graph.observation.metric.SpringAiAlibabaObservationMetricAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,28 +59,74 @@ public class GraphController {
 	 * @return processing result with success status and output
 	 */
 	@GetMapping("/execute")
-	public Mono<Map<String, Object>> execute(@RequestParam(value = "prompt", defaultValue = "Hello World") String input) {
+	public Mono<Map<String, Object>> execute(
+			@RequestParam(value = "prompt", defaultValue = "Hello World") String input) {
+		// Capture HTTP span in the main request thread
+		final io.opentelemetry.api.trace.Span httpSpan = io.opentelemetry.api.trace.Span.current();
+		final String httpSpanId = httpSpan != null ? httpSpan.getSpanContext().getSpanId() : "unknown";
+		logger.info("Captured HTTP span ID: {}", httpSpanId);
+
 		return Mono.fromCallable(() -> {
-					// Create initial state
-					Map<String, Object> initialState = Map.of("input", input);
-					RunnableConfig runnableConfig = RunnableConfig.builder().build();
+			// Create initial state with input
+			Map<String, Object> initialState = new HashMap<>();
+			initialState.put("input", input);
 
-					// Execute graph
-					OverAllState result = compiledGraph.call(initialState, runnableConfig).get();
+			try {
+				RunnableConfig runnableConfig = RunnableConfig.builder().build();
 
-					// Return result
-					Map<String, Object> response = new HashMap<>();
-					response.put("success", true);
-					response.put("input", input);
-					response.put("output", result.value("end_output").orElse("No output"));
-					response.put("logs", result.value("logs").orElse("No logs"));
+				// Execute graph
+				OverAllState result = compiledGraph.invoke(initialState, runnableConfig).get();
 
-					logger.info("分析成功：{}", response);
-					return response;
-				})
+				// Get final output
+				Object finalOutput = result.value("end_output").orElse("No output");
+
+				// Return result
+				Map<String, Object> response = new HashMap<>();
+				response.put("success", true);
+				response.put("input", input);
+				response.put("output", finalOutput);
+				response.put("logs", result.value("logs").orElse("No logs"));
+
+				logger.info("Graph execution completed successfully");
+				return response;
+			} catch (Exception e) {
+				logger.error("Graph execution failed inside callable", e);
+				throw e;
+			}
+		})
 				.subscribeOn(Schedulers.boundedElastic())
+				.doOnSuccess(response -> {
+					// Set HTTP observation input/output attributes using captured span
+					try {
+						if (httpSpan != null && response != null) {
+							// Set HTTP-level input
+							httpSpan.setAttribute(
+									SpringAiAlibabaObservationMetricAttributes.LANGFUSE_INPUT.value(),
+									input);
+							httpSpan.setAttribute(
+									SpringAiAlibabaObservationMetricAttributes.GEN_AI_PROMPT.value(),
+									input);
+
+							// Set HTTP-level output
+							Object output = response.get("output");
+							if (output != null) {
+								String outputText = output.toString();
+								httpSpan.setAttribute(
+										SpringAiAlibabaObservationMetricAttributes.LANGFUSE_OUTPUT.value(),
+										outputText);
+								httpSpan.setAttribute(
+										SpringAiAlibabaObservationMetricAttributes.GEN_AI_COMPLETION.value(),
+										outputText);
+								logger.info("Set HTTP span {} attributes - input: {}, output: {} chars",
+										httpSpanId, input, outputText.length());
+							}
+						}
+					} catch (Exception e) {
+						logger.warn("Failed to set HTTP span attributes: {}", e.getMessage());
+					}
+				})
 				.onErrorResume(e -> {
-					logger.error("异常结束 [{}]", e.getMessage(), e);
+					logger.error("Graph execution failed: {}", e.getMessage(), e);
 					Map<String, Object> errorResponse = new HashMap<>();
 					errorResponse.put("success", false);
 					errorResponse.put("error", e.getMessage());

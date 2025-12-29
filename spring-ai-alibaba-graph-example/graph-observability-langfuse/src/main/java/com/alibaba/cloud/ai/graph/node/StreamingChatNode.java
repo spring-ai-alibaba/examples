@@ -16,11 +16,8 @@
 
 package com.alibaba.cloud.ai.graph.node;
 
-import com.alibaba.cloud.ai.graph.GraphResponse;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
-import com.alibaba.cloud.ai.graph.streaming.FluxConverter;
-import com.alibaba.cloud.ai.graph.streaming.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -88,6 +85,7 @@ public class StreamingChatNode implements NodeAction {
 
 		try {
 			// Create streaming chat response
+			// 框架会自动将 Flux<ChatResponse> 转换为 StreamingOutput
 			Flux<ChatResponse> chatResponseFlux = chatClient.prompt()
 				.user(fullPrompt)
 				.stream()
@@ -96,25 +94,15 @@ public class StreamingChatNode implements NodeAction {
 				.doOnNext(resp -> logger.info("{}: chatResponseFlux emit: {}", nodeName, resp))
 				.doOnError(e -> logger.error("{}: chatResponseFlux error", nodeName, e))
 				.doOnComplete(() -> logger.info("{}: chatResponseFlux complete", nodeName))
-				.timeout(java.time.Duration.ofMinutes(2)) // 添加超时处理
+				.timeout(java.time.Duration.ofMinutes(2))
 				.onErrorResume(e -> {
 					logger.error("{}: chatResponseFlux timeout or error, using fallback", nodeName, e);
 					return Flux.empty();
 				});
 
-			// Wrap streaming response with StreamingChatGenerator
-			Flux<GraphResponse<StreamingOutput>> generator = FluxConverter.builder()
-					.startingNode(nodeName + "_stream")
-					.startingState(state)
-					.mapResult(resp -> {
-						String content = resp.getResult().getOutput().getText();
-						logger.info("{} mapResult emit content: {}", nodeName, content);
-						return Map.of(outputKey, content);
-					})
-					.build(chatResponseFlux);
-
 			logger.info("{} streaming processing setup completed", nodeName);
-			return Map.of(outputKey, generator);
+			// 直接返回 Flux，框架会自动处理流式输出
+			return Map.of(outputKey, chatResponseFlux);
 
 		}
 		catch (Exception e) {

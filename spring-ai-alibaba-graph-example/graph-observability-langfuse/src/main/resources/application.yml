@@ -13,6 +13,14 @@ spring:
       graph:
         observation:
           enabled: true
+    # 启用 ChatClient 观测配置
+    chat:
+      client:
+        observations:
+          # 启用 prompt 内容记录（输入）
+          log-prompt: true
+          # 启用 completion 内容记录（输出）
+          log-completion: true
 
 
 management:
@@ -53,3 +61,11 @@ otel:
       headers:
         Authorization: "Basic ${YOUR_BASE64_ENCODED_CREDENTIALS}"
       protocol: http/protobuf
+
+# 日志配置
+logging:
+  level:
+    com.alibaba.cloud.ai: INFO
+    com.alibaba.cloud.ai.graph.advisor: DEBUG
+    org.springframework.ai.chat.client: DEBUG
+    io.micrometer.observation: DEBUG
