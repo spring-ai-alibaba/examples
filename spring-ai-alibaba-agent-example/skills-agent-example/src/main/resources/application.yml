@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: skills-agent-example
+  ai:
+    dashscope:
+      api-key: sk-7c0bdbf6347d43139c2893e8992258e1
+
+server:
+  port: 8080
+
+logging:
+    level:
+      com.alibaba.cloud.ai.graph.agent.interceptor.skills: DEBUG
+      com.alibaba.cloud.ai.graph.agent: INFO
