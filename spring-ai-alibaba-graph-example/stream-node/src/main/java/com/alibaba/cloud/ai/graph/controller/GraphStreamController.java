@@ -55,7 +55,7 @@ public class GraphStreamController {
     }
 
     @GetMapping(value = "/expand", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<String>> expand(@RequestParam(value = "query", defaultValue = "你好，很高兴认识你，能简单介绍一下自己吗？", required = false) String query,
+    public Flux<ServerSentEvent<GraphProcess.ChatMessage>> expand(@RequestParam(value = "query", defaultValue = "你好，很高兴认识你，能简单介绍一下自己吗？", required = false) String query,
                                                 @RequestParam(value = "expander_number", defaultValue = "3", required = false) Integer  expanderNumber,
                                                 @RequestParam(value = "thread_id", defaultValue = "yingzi", required = false) String threadId) throws GraphRunnerException {
         RunnableConfig runnableConfig = RunnableConfig.builder().threadId(threadId).build();
@@ -64,8 +64,8 @@ public class GraphStreamController {
         objectMap.put("expander_number", expanderNumber);
 
         GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
-        Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
-        Flux<NodeOutput> nodeOutputFlux = compiledGraph.fluxStream(objectMap, runnableConfig);
+        Sinks.Many<ServerSentEvent<GraphProcess.ChatMessage>> sink = Sinks.many().unicast().onBackpressureBuffer();
+        Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream(objectMap, runnableConfig);
         graphProcess.processStream(nodeOutputFlux, sink);
 
         return sink.asFlux()
