@@ -18,6 +18,8 @@ package com.alibaba.cloud.ai.example.chat.dashscope.controller;
 
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,10 +57,9 @@ public class DashScopeChatModelController {
 	 */
 	@GetMapping("/simple/chat")
 	public String simpleChat() {
-
 		return dashScopeChatModel.call(new Prompt(DEFAULT_PROMPT, DashScopeChatOptions
 				.builder()
-				.withModel(DashScopeApi.ChatModel.QWEN_PLUS.getValue())
+				.withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
 				.build())).getResult().getOutput().getText();
 	}
 
@@ -74,7 +75,7 @@ public class DashScopeChatModelController {
 
 		Flux<ChatResponse> stream = dashScopeChatModel.stream(new Prompt(DEFAULT_PROMPT, DashScopeChatOptions
 				.builder()
-				.withModel(DashScopeApi.ChatModel.QWEN_PLUS.getValue())
+				.withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
 				.build()));
 		return stream.map(resp -> resp.getResult().getOutput().getText());
 	}
@@ -87,7 +88,7 @@ public class DashScopeChatModelController {
 
 		ChatResponse chatResponse = dashScopeChatModel.call(new Prompt(DEFAULT_PROMPT, DashScopeChatOptions
 				.builder()
-				.withModel(DashScopeApi.ChatModel.QWEN_PLUS.getValue())
+				.withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
 				.build()));
 
 		Map<String, Object> res = new HashMap<>();
@@ -157,7 +158,7 @@ public class DashScopeChatModelController {
 		String prompt = "搜索下关于 Spring AI 的介绍";
 		response.setCharacterEncoding("UTF-8");
 
-		var searchOptions = DashScopeApi.SearchOptions.builder()
+		var searchOptions = DashScopeApiSpec.SearchOptions.builder()
 				.forcedSearch(true)
 				.enableSource(true)
 				.searchStrategy("pro")
@@ -167,7 +168,7 @@ public class DashScopeChatModelController {
 
 		var options = DashScopeChatOptions.builder()
 				.withEnableSearch(true)
-				.withModel(DashScopeApi.ChatModel.DEEPSEEK_V3.getValue())
+				.withModel(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
 				.withSearchOptions(searchOptions)
 				.withTemperature(0.7)
 				.build();
@@ -182,7 +183,7 @@ public class DashScopeChatModelController {
 		String prompt = "搜索下关于 Spring AI 的介绍";
 		response.setCharacterEncoding("UTF-8");
 
-		var searchOptions = DashScopeApi.SearchOptions.builder()
+		var searchOptions = DashScopeApiSpec.SearchOptions.builder()
 				.forcedSearch(true)
 				.enableSource(true)
 				.searchStrategy("pro")
@@ -192,7 +193,7 @@ public class DashScopeChatModelController {
 
 		var options = DashScopeChatOptions.builder()
 				.withEnableSearch(true)
-				.withModel(DashScopeApi.ChatModel.DEEPSEEK_V3.getValue())
+				.withModel(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
 				.withSearchOptions(searchOptions)
 				.withTemperature(0.7)
 				.build();
@@ -223,7 +224,7 @@ public class DashScopeChatModelController {
 		headers.put("X-DashScope-DataInspection", new ObjectMapper().writeValueAsString(headerParams));
 
 		var options = DashScopeChatOptions.builder()
-				.withModel(DashScopeApi.ChatModel.DEEPSEEK_V3.getValue())
+				.withModel(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
 				.withTemperature(0.7)
 				.withHttpHeaders(headers)
 				.build();
