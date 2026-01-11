@@ -17,6 +17,7 @@ package com.alibaba.cloud.ai.mcp.server.filter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -30,7 +31,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class McpServerFilter implements WebFilter {
 
-    private static final String TOKEN_HEADER = "token-yingzi-1";
+    private static final String TOKEN_HEADER = "token-1";
     private static final String TOKEN_VALUE = "yingzi-1";
 
     private static final Logger logger = LoggerFactory.getLogger(McpServerFilter.class);
@@ -38,10 +39,16 @@ public class McpServerFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         // 获取请求头中的token值
-        String token = exchange.getRequest().getHeaders().getFirst(TOKEN_HEADER);
+        HttpHeaders headers = exchange.getRequest().getHeaders();
+        // 打印所有请求头信息
+        for (String headerName : headers.keySet()) {
+            logger.info("Header {}: {}", headerName, headers.getFirst(headerName));
+        }
 
+        String token = headers.getFirst(TOKEN_HEADER);
         // 检查token是否存在且值正确
         if (TOKEN_VALUE.equals(token)) {
+            logger.info("preHandle: 验证通过");
             logger.info("preHandle: 请求的URL: {}", exchange.getRequest().getURI());
             logger.info("preHandle: 请求的TOKEN: {}", token);
             // token验证通过，继续处理请求

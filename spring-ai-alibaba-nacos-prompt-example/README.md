@@ -1,17 +1,71 @@
 # Spring AI Alibaba 动态 Prompt 最佳实践
-
 Spring AI Alibaba 使用 Nacos 的配置中心能力来动态管理 AI 应用的 Prompt。以此来实现动态更新 Prompt 的功能。
+## 接口文档
+### PromptController 接口
+
+#### 1. generateJoke 方法
+
+**接口路径：** `GET /nacos/books`
+
+**功能描述：** 提供 generateJoke 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/nacos/books
+```
+## 技术实现
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-boot-starter-web**: 核心依赖
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-ai-alibaba-starter-nacos-prompt**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+## 测试指导
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[spring-ai-alibaba-nacos-prompt-example.http](./spring-ai-alibaba-nacos-prompt-example.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# generateJoke 接口测试
+curl "http://localhost:8080/nacos/books"
+```
+## 注意事项
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-11 00:51:02*
+## 模块说明
+Spring AI Alibaba 使用 Nacos 的配置中心能力来动态管理 AI 应用的 Prompt。以此来实现动态更新 Prompt 的功能。。
 
 ## 环境准备
-
 Nacos: 具备配置中心能力的 Nacos，本例中使用 Nacos 2.3.0。最新版本的 Nacos 3.X 亦可。
 
 ## AI 工程创建
-
 Example 工程地址：https://github.com/springaialibaba/spring-ai-alibaba-nacos-prompt-example
 
 ### Pom.xml
-
 > Tips: 项目中已经引入了 Spring AI Alibaba Bom 和 Spring Boot Bom。因此这里省略了版本号。有关 bom 定义参考如上的 Github 仓库地址。
 
 ```xml
@@ -32,7 +86,6 @@ Example 工程地址：https://github.com/springaialibaba/spring-ai-alibaba-naco
 ```
 
 ### Application.yml
-
 在配置文件中加入 Nacos 监听的 DataID 以及 Nacos Server 的用户名和密码等信息。
 
 ```yml
@@ -61,7 +114,6 @@ spring:
 ```
 
 ### Controller
-
 ```java
 @RestController
 @RequestMapping("/nacos")
@@ -104,7 +156,6 @@ public class PromptController {
 ```
 
 ## Nacos 配置添加
-
 1. 启动 Nacos 服务；
 2. 写入配置，dataId 为：spring.ai.alibaba.configurable.prompt
 3. 在配置中写入如下配置：
@@ -122,7 +173,6 @@ public class PromptController {
     ```
 
 ## 功能演示
-
 完成上述配置之后，启动项目：
 
 1. 在启动日志中，可以看到如下输出，表明已经开始监听此 DataID 的配置：
@@ -271,3 +321,15 @@ public class PromptController {
    ```text
    介绍 鲁迅，列出其生平经历和文学成就
    ```
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:41:32*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:51:02*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*

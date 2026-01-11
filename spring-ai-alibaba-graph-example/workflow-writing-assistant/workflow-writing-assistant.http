@@ -1,0 +1,4 @@
+# GraphController类的mock方法
+GET http://localhost:8080/api/graph/mock/http
+
+###

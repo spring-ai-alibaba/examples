@@ -1,0 +1,14 @@
+# OceanBaseController类的importData方法
+GET http://localhost:8080/oceanbase/import
+
+###
+# OceanBaseController类的search方法
+GET http://localhost:8080/oceanbase/search
+
+###
+# OceanBaseController类的importData方法
+GET http://localhost:8080/oceanbase/import
+
+###
+# OceanBaseController类的search方法
+GET http://localhost:8080/oceanbase/search

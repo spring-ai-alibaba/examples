@@ -10,13 +10,6 @@ spring:
       client:
         stdio:
           servers-configuration: classpath:/mcp-servers-config.json
-          # 直接配置
-          # connections:
-          #   server1:
-          #     command: java
-          #     args:
-          #       - -jar
-          #       - /Users/xiadong/mcp-stdio-server-exmaple-0.0.1-SNAPSHOT.jar  # 放一个绝对路径，修改为server jar包所在位置
   mandatory-file-encoding: UTF-8
 
 # 调试日志
@@ -26,10 +19,3 @@ logging:
       modelcontextprotocol:
         client: DEBUG
         spec: DEBUG
-
-server:
-  servlet:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true

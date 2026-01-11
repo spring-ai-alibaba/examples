@@ -1,21 +1,108 @@
 # Spring AI Alibaba 多平台和多模型使用示例
 
-## 示例说明
+## 接口文档
+### MorePlatformController 接口
 
+#### 1. chat 方法
+
+**接口路径：** `GET /no-platform/{platform}/{prompt}`
+
+**功能描述：** 提供 chat 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/no-platform/{platform}/{prompt}
+```
+
+
+### MoreModelCallController 接口
+
+#### 1. modelChat 方法
+
+**接口路径：** `GET /no-model/{model}/{prompt}`
+
+**功能描述：** 提供 modelChat 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- AI 对话交互
+- 智能问答系统
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/no-model/{model}/{prompt}
+```
+## 技术实现
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-boot-starter-web**: 核心依赖
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-ai-starter-model-ollama**: 核心依赖
+- **spring-ai-starter-model-openai**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+## 测试指导
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[spring-ai-alibaba-more-platform-and-model-example.http](./spring-ai-alibaba-more-platform-and-model-example.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# chat 接口测试
+curl "http://localhost:8080/no-platform/{platform}/{prompt}"
+```
+
+```bash
+# modelChat 接口测试
+curl "http://localhost:8080/no-model/{model}/{prompt}"
+```
+## 注意事项
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-11 00:51:02*
+## 模块说明
+本示例展示如何在 Spring AI Alibaba 中使用多个不同的模型平台和平台上的不同模型。。
+
+## 示例说明
 本示例展示如何在 Spring AI Alibaba 中使用多个不同的模型平台和平台上的不同模型。
 
 > 此示例项目已经完成代码编写，不需要任何改动！
 > 关于如何部署 ollama 及模型，请参考 [Ollama Docker 部署](../docker-compose/ollama/README.md)
 
 ## 名词解释
-
 > 注意区分开概念。
 
 * 平台：DashScope，OpenAI，Ollama 等
 * 模型：DashScope 上的 Deepseek-r1 qwen-plug 等
 
 ## 多平台示例
-
 在 pom.xml 中引入 Spring AI 和 Spring AI Alibaba Starter 依赖。
 
 > **注意指定版本，此示例项目版本已经在根 pom 中指定。**
@@ -42,7 +129,7 @@ private final ChatModel dashScopeChatModel;
 private final ChatModel ollamaChatModel;
 
 public MoreClientController(
-        @Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel,
+        @Qualifier("dashScopeChatModel") ChatModel dashScopeChatModel,
         @Qualifier("ollamaChatModel") ChatModel OllamaChatModel
 ) {
     this.dashScopeChatModel = dashScopeChatModel;
@@ -54,7 +141,7 @@ public MoreClientController(
 
 ```java
 @Autowired
-@Qualifier("dashscopeChatModel")
+@Qualifier("dashScopeChatModel")
 private ChatModel getDashScopeChatModel;
 ```
 
@@ -73,7 +160,6 @@ Hello! How can I assist you today?
 ```
 
 ## 多模型示例
-
 此示例以 DashScope 平台中的模型为例。
 
 ```java
@@ -117,7 +203,7 @@ public class MoreModelCallController {
 	private final ChatModel dashScopeChatModel;
 
 	public MoreModelCallController(
-			@Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel
+			@Qualifier("dashScopeChatModel") ChatModel dashScopeChatModel
 	) {
 		this.dashScopeChatModel = dashScopeChatModel;
 	}
@@ -152,35 +238,25 @@ public class MoreModelCallController {
 发起请求：
 
 ```shell
-# 错误模型请求
-$ curl 127.0.0.1:10014/no-model/qwen-xxx/hi
-
-model not exist
-
-# deepseek-r1 模型请求
-$ curl 127.0.0.1:10014/no-model/deepseek-r1/hi
-
-Hello! How can I assist you today?
-
-# qwen-plus 模型请求
-$ curl 127.0.0.1:10014/no-model/qwen-plus/hi
-
-Hello! How can I assist you today?
-
-# qwen-max 模型请求
-$ curl 127.0.0.1:10014/no-model/qwen-max/hi
-
-Hello! How can I assist you today?
-```
-
-至此，我们便完成了如何在 Spring AI Alibaba 中使用多个不同的模型平台和平台上的不同模型的示例。
 
 ## ChatClient 多模型和多平台示例
 
-### 多模型
 
+### 多模型
 ```shell
 curl -G "http://localhost:10014/more-model-chat-client" \
      --data-urlencode "prompt=你好" \
      --header "models=deepseek-r1"
 ```
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:41:32*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:51:02*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*

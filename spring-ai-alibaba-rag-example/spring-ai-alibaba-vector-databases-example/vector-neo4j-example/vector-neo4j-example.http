@@ -1,0 +1,10 @@
+# Neo4jController类的add方法
+GET http://localhost:8080/vector/neo4j/add
+
+###
+# Neo4jController类的search方法
+GET http://localhost:8080/vector/neo4j/search
+
+###
+# Neo4jController类的deleteFilter方法
+GET http://localhost:8080/vector/neo4j/delete-filter

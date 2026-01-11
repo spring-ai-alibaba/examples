@@ -13,7 +13,7 @@ GET http://localhost:8080/advisor/memory/sqlite/messages?conversation_id=yingzi
 ### Mysql Memory API
 GET http://localhost:8080/advisor/memory/mysql/call?query=你好，我的外号是影子，请记住呀&conversation_id=yingzi
 ### 信息
-http://localhost:8080/advisor/memory/mysql/messages?conversation_id=yingzi
+GET http://localhost:8080/advisor/memory/mysql/messages?conversation_id=yingzi
 
 ### Redis Memory API
 GET http://localhost:8080/advisor/memory/redis/call?query=你好，我的外号是影子，请记住呀&conversation_id=yingzi

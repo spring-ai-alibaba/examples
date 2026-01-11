@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * @author yuluo
@@ -40,10 +43,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class SAARAGController {
 
-	private final ISAARAGService ragService;
+	private final Map<String,ISAARAGService> ragServiceMap;
 
-	public SAARAGController(@Qualifier("SAARAGService4Bailian") ISAARAGService ragService) {
-		this.ragService = ragService;
+	@Value("${spring.ai.alibaba.playground.bailian.enable:false}")
+	private Boolean enable;
+
+	public SAARAGController(Map<String,ISAARAGService> ragServiceMap) {
+		this.ragServiceMap = ragServiceMap;
 	}
 
 	@GetMapping("/rag")
@@ -54,6 +60,12 @@ public class SAARAGController {
 			@RequestHeader(value = "chatId", required = false, defaultValue = "spring-ai-alibaba-playground-rag") String chatId
 	) {
 
+		ISAARAGService ragService;
+		if (enable) {
+			ragService = ragServiceMap.get("SAARAGService4Bailian");
+		} else {
+			ragService = ragServiceMap.get("SAARAGService4VectorStore");
+		}
 		response.setCharacterEncoding("UTF-8");
 		return ragService.ragChat(chatId, prompt);
 	}

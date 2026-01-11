@@ -1,23 +1,114 @@
 # Spring AI Alibaba 可观测性最佳实践
-
 > 以下最佳实践基于 Spring AI 1.0.0 和 Spring AI Alibaba 1.0.0.2 版本。
+## 接口文档
+### EmbeddingModelController 接口
+
+#### 1. embeddingGenericOpts 方法
+
+**接口路径：** `GET /observability/embedding/generic`
+
+**功能描述：** 提供 embeddingGenericOpts 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/observability/embedding/generic
+```
+
+
+### ImageModelController 接口
+
+#### 1. image 方法
+
+**接口路径：** `GET /observability/image/generate`
+
+**功能描述：** 提供 image 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/observability/image/generate
+```
+
+
+### ImageModelController 接口
+
+#### 1. image 方法
+
+**接口路径：** `GET /observability/image/generate`
+
+**功能描述：** 提供 image 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/observability/image/generate
+```
+## 技术实现
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-boot-starter-web**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+## 测试指导
+### 使用 curl 测试
+```bash
+# embeddingGenericOpts 接口测试
+curl "http://localhost:8080/observability/embedding/generic"
+```
+## 注意事项
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-11 00:51:02*
+## 模块说明
+> 以下最佳实践基于 Spring AI 1.0.0 和 Spring AI Alibaba 1.0.0.2 版本。。
 
 ## 可观测背景
-
 软件的可观测性（Observability）是指通过系统输出（如日志、指标、跟踪等）来推断其内部状态的能力。在 Spring AI 中基于 Spring 生态集成可观测性功能。包括 `ChatClient（包含 ChatModel 和 Advisor，ToolCall 等）` 、`EmbeddingModel`、`ImageModel` 和 VectorStore 。
 
 ## Spring AI Alibaba 可观测性
-
 > Tips: Spring AI 一些输出内容较大且为了数据安全，在默认情况下没有开启打印开关，需要手动开启。
 >
 > 参考：https://docs.spring.io/spring-ai/reference/observability/index.html#_prompt_content
 
 ### 创建 Spring AI Alibaba 项目
-
 下文中的所有项目代码都在：https://github.com/springaialibaba/spring-ai-alibaba-examples/tree/main/spring-ai-alibaba-observability-example/observability-example
 
 ####  引入依赖
-
 项目中在跟 pom 中提前引入了 `spring-ai-alibaba-bom`，下文中没有列出。
 
 1. spring-ai-alibaba-starter-dashscope： dashscope starter
@@ -67,7 +158,6 @@
 ```
 
 #### application.yml 配置
-
 1. 开启 spring ai 的观测性功能
 2. 开启 spring ai alibaba weather tool 功能
 
@@ -133,7 +223,6 @@ management:
 ```
 
 #### Controller
-
 此部分为 ai 服务的具体实现，以 ChatClient 为例，Embedding 和 Image 类似：
 
 ```java
@@ -157,7 +246,6 @@ public class ChatModelController {
 ```
 
 ### 启动依赖项
-
 此 demo 中将数据导入到 zipkin 展示，因此需要启动一个 zipkin：
 
 ```yml
@@ -170,19 +258,15 @@ services:
 
 ### 可观测输出
 
+
 #### ChatClient
-
-
-
 登录 zipkin 的控制台，默认情况为 http://localhost:9411/zipkin/ ,点击对应的 trace，可以看到 chatClient 相关的信息：
 
 详细指标介绍请参考 https://docs.spring.io/spring-ai/reference/observability/index.html#_chat_client
 
 ![image-chatclient-1](./images/observe-1.png)
 
-
 #### ToolCalling
-
 在 zipkin 的控制台查看 ToolCalling 对应的信息。
 
 ![image-tool-calling-1](./images/observe-2.png)
@@ -197,7 +281,6 @@ services:
 详细指标介绍请参考 ：https://docs.spring.io/spring-ai/reference/observability/index.html#_tool_calling
 
 #### Embedding Client
-
 在 zipkin 的控制台查看 ToolCalling 对应的信息。
 
 ![image-embedding-1](./images/observe-5.png)
@@ -207,11 +290,9 @@ services:
 详细指标介绍请参考 ：https://docs.spring.io/spring-ai/reference/observability/index.html#_embeddingmodel
 
 ### 扩展 Spring AI 指标
-
 Spring AI 提供了 `ObservationHandler<ChatModelObservationContext>` 机制来扩展可观测信息，您可以加入或者改变观测数据。
 
 #### pom
-
 pom 中只需引入 spring-ai-alibaba-starter-dashscope ，此 starter 会间接引入相关的依赖。
 
 ```xml
@@ -224,7 +305,6 @@ pom 中只需引入 spring-ai-alibaba-starter-dashscope ，此 starter 会间接
 ```
 
 #### application.yml
-
 ```yml
 spring:
   application:
@@ -249,7 +329,6 @@ management:
 ```
 
 #### CustomerObservationHandler
-
 扩展实现
 
 ```java
@@ -284,7 +363,6 @@ public class CustomerObservationHandler implements ObservationHandler<ChatModelO
 ```
 
 #### Chat Controller
-
 ```java
 @RestController
 @RequestMapping("/custom/observation/chat")
@@ -321,5 +399,16 @@ exec CustomerObservationHandler onStop function! ChatModelObservationContext: na
 ![image-custom-handler](./images/observe-7.png)
 
 ## 参考文档
-
 - https://docs.spring.io/spring-ai/reference/observability/index.html
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:41:20*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:51:02*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*

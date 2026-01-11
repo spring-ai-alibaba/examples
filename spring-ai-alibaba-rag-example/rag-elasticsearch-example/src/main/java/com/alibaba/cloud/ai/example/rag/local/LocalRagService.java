@@ -147,7 +147,7 @@ public class LocalRagService implements RagService {
             // Maybe using json directly?
             Map<String, Property> properties = new HashMap<>();
             properties.put(vectorField, Property.of(property -> property.denseVector(
-                    DenseVectorProperty.of(dense -> dense.index(true).dims(dimsLength).similarity(similarityAlgo)))));
+                    DenseVectorProperty.of(dense -> dense.index(true).dims(dimsLength).similarity(DenseVectorSimilarity.valueOf(similarityAlgo))))));
             properties.put(textField, Property.of(property -> property.text(TextProperty.of(t -> t))));
 
             Map<String, Property> metadata = new HashMap<>();

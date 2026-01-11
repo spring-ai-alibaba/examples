@@ -1,0 +1,10 @@
+# McpConfigController类的getDiscoveryType方法
+GET http://localhost:8080/discovery-type
+
+###
+# McpConfigController类的getMcpServices方法
+GET http://localhost:8080/file/services
+
+###
+# McpConfigController类的getMcpServiceInfo方法
+GET http://localhost:8080/query/{serviceName}

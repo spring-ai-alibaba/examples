@@ -16,7 +16,7 @@
 
 package com.alibaba.cloud.ai.application.modulerag;
 
-import com.alibaba.cloud.ai.application.entity.IQSSearchResponse;
+import com.alibaba.cloud.ai.application.entity.iqs.IQSSearchResponse;
 import com.alibaba.cloud.ai.application.exception.SAAAppException;
 import com.alibaba.cloud.ai.application.modulerag.core.IQSSearchEngine;
 import com.alibaba.cloud.ai.application.modulerag.data.DataClean;

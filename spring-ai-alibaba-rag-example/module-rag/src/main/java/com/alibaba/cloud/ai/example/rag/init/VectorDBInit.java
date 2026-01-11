@@ -24,6 +24,7 @@ import java.util.Map;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.DenseVectorProperty;
+import co.elastic.clients.elasticsearch._types.mapping.DenseVectorSimilarity;
 import co.elastic.clients.elasticsearch._types.mapping.KeywordProperty;
 import co.elastic.clients.elasticsearch._types.mapping.ObjectProperty;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
@@ -125,7 +126,7 @@ public class VectorDBInit {
 			// Maybe using json directly?
 			Map<String, Property> properties = new HashMap<>();
 			properties.put(vectorField, Property.of(property -> property.denseVector(
-					DenseVectorProperty.of(dense -> dense.index(true).dims(dimsLength).similarity(similarityAlgo)))));
+					DenseVectorProperty.of(dense -> dense.index(true).dims(dimsLength).similarity(DenseVectorSimilarity.valueOf(similarityAlgo))))));
 			properties.put(textField, Property.of(property -> property.text(TextProperty.of(t -> t))));
 
 			Map<String, Property> metadata = new HashMap<>();

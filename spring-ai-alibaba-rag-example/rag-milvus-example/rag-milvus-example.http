@@ -1,0 +1,6 @@
+# RagController类的generation方法
+GET http://localhost:8080/ai/chat
+
+###
+# RagController类的search方法
+GET http://localhost:8080/ai/select

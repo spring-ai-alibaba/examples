@@ -89,7 +89,7 @@ public class GraphStreamController {
 
 		// Get streaming output
 //		AsyncGenerator<NodeOutput> resultStream = compiledGraph.stream(initialState, runnableConfig);
-		Flux<NodeOutput> resultStream = compiledGraph.fluxStream(initialState, runnableConfig);
+		Flux<NodeOutput> resultStream = compiledGraph.stream(initialState, runnableConfig);
 
 
 		// 直接返回 Reactor 风格的 Flux，保证 trace context 传播

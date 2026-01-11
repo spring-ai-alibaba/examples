@@ -1,0 +1,10 @@
+server:
+  port: 10000
+
+spring:
+  application:
+    name: issue-clarify-example
+  ai:
+    dashscope:
+      index-name: test_knowledge
+      api-key: ${DASHSCOPE_API_KEY}

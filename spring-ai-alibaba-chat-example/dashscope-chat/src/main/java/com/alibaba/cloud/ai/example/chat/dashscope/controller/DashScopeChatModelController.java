@@ -99,6 +99,36 @@ public class DashScopeChatModelController {
 		return res;
 	}
 
+	// stream 下获取 usage，将以下代码放在 main 方法中
+	//DashScopeChatModel chatModel = DashScopeChatModel.builder()
+	//        .dashScopeApi(DashScopeApi.builder()
+	//                .apiKey("sk-xxxx")
+	//                .build()
+	//        ).defaultOptions(DashScopeChatOptions.builder()
+	//                .model("qwen-plus")
+	//                .build())
+	//        .build();
+	//
+	//Flux<ChatResponse> stream = chatModel.stream(new Prompt("hi, who are u?"));
+	//
+	//stream.subscribe(
+	//    response -> {
+	//        System.out.println("Response: " + response.getResult().getOutput().getText());
+	//
+	//        System.out.println("Usage 1: " + response.getMetadata().getUsage().getCompletionTokens());
+	//        System.out.println("Usage 2: " + response.getMetadata().getUsage().getPromptTokens());
+	//        System.out.println("Usage 3: " + response.getMetadata().getUsage().getTotalTokens());
+	//    },
+	//    error -> System.err.println("Error: " + error.getMessage()),
+	//    () -> System.out.println("Stream completed")
+	//);
+	//
+	//try {
+	//    Thread.sleep(10000);
+	//} catch (InterruptedException e) {
+	//    Thread.currentThread().interrupt();
+	//}
+
 	/**
 	 * 使用编程方式自定义 LLMs ChatOptions 参数， {@link com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions}
 	 * 优先级高于在 application.yml 中配置的 LLMs 参数！

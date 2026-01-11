@@ -1,0 +1,6 @@
+# GraphRunController类的stream方法
+POST http://localhost:18080/stream
+
+###
+# GraphRunController类的invoke方法
+POST http://localhost:18080/invoke

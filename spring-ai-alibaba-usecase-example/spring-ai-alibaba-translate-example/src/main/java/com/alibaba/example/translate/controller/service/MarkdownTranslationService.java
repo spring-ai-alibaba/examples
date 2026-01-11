@@ -16,9 +16,9 @@
 
 package com.alibaba.example.translate.controller.service;
 
-import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,7 +80,7 @@ public class MarkdownTranslationService {
 
     private DashScopeChatOptions buildTranslationOptions() {
         return DashScopeChatOptions.builder()
-                .withModel(DashScopeApi.ChatModel.QWEN_PLUS.getValue())
+                .withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
                 .withTopP(0.7)
                 .withTopK(50)
                 .withTemperature(0.3)

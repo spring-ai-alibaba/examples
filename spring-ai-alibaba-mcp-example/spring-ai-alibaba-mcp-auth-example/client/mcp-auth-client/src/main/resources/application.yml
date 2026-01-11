@@ -1,5 +1,5 @@
 server:
-  port: 19101
+  port: 19100
 
 spring:
   application:
@@ -9,9 +9,7 @@ spring:
   ai:
     dashscope:
       api-key: ${AI_DASHSCOPE_API_KEY}
-      chat:
-        options:
-          model: qwen-max
+
     mcp:
       client:
         enabled: true
@@ -19,10 +17,8 @@ spring:
         version: 1.0.0
         request-timeout: 600s
         type: ASYNC  # or ASYNC for reactive applications
-        sse:
+        streamable-http:
           connections:
             server1:
-              url: http://localhost:19000 # 本地
-              headers:
-                token-yingzi-1: yingzi-1
-                token-yingzi-2: yingzi-2
+              url: http://localhost:20000
+              endpoint: /mcp

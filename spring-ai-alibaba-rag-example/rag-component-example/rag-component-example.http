@@ -1,0 +1,34 @@
+# RagComponentController类的retrievalHybrid方法
+GET http://localhost:8080/rag/component/retrieval/hybrid
+
+###
+# RagComponentController类的retrievalHyde方法
+GET http://localhost:8080/rag/component/retrieval/hyde
+
+###
+# RagComponentController类的retrievalHydeWithFilter方法
+GET http://localhost:8080/rag/component/retrieval/hyde/filter
+
+###
+# RagComponentController类的transformHyde方法
+GET http://localhost:8080/rag/component/transform/hyde
+
+###
+# RagComponentController类的retrievalHybridWithFilter方法
+GET http://localhost:8080/rag/component/retrieval/hybrid/filter
+
+###
+# RagComponentController类的retrievalHybridWithEsQuery方法
+GET http://localhost:8080/rag/component/retrieval/hybrid/esquery
+
+###
+# RagComponentController类的rerankDocuments方法
+GET http://localhost:8080/rag/component/rerank/documents
+
+###
+# RagComponentController类的callHybridAdvisor方法
+GET http://localhost:8080/rag/component/call/hybrid/advisor?message=what is hybrid search?
+
+###
+# RagComponentController类的callMultiQueryRetrieverAdvisor方法
+GET http://localhost:8080/rag/component/call/multiquery/advisor?message=what is hybrid search?

@@ -1,0 +1,30 @@
+# TimeController类的simpleChat方法
+GET http://localhost:8080/time/chat?query=请告诉我现在北京时间几点了
+
+###
+# TimeController类的chatWithTimeFunction方法
+GET http://localhost:8080/time/chat-tool-method?query=请告诉我现在北京时间几点了
+
+###
+# AddressController类的chat方法
+GET http://localhost:8080/address/chat?address=北京
+
+###
+# AddressController类的chatWithBaiduMap方法
+GET http://localhost:8080/address/chat-method-tool-callback?address=北京
+
+###
+# BaiduTranslateController类的simpleChat方法
+GET http://localhost:8080/translate/chat?query=帮我把以下内容翻译成英文：你好，世界。
+
+###
+# BaiduTranslateController类的chatTranslateFunction方法
+GET http://localhost:8080/translate/chat-tool-function-callback?query=帮我把以下内容翻译成英文：你好，世界。
+
+###
+# WeatherController类的simpleChat方法
+GET http://localhost:8080/weather/chat?query=请告诉我北京1天以后的天气
+
+###
+# WeatherController类的chatWithWeatherFunction方法
+GET http://localhost:8080/weather/chat-tool-function-name?query=请告诉我北京1天以后的天气

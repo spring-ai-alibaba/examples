@@ -1,8 +1,91 @@
-本案例基于Spring AI Alibaba Graph框架实现
+# Human-Node 模块
 
-在实际业务场景中，经常会遇到人类介入的场景，人类的不同操作将影响工作流不同的走向
+## 模块说明
 
-以下实现一个简单案例：包含三个节点，扩展节点、人类节点、翻译节点
-- 扩展节点：AI模型流式对问题进行扩展输出
-- 人类节点：通过对用户的反馈，决定是直接结束，还是接着执行翻译节点
-- 翻译节点：将问题翻译为其他英文
+在实际业务场景中，经常会遇到人类介入的场景，人类的不同操作将影响工作流不同的走向。
+
+## 接口文档
+
+### GraphHumanController 接口
+
+#### 1. expand 方法
+
+**接口路径：** `GET /graph/human/expand`
+
+**功能描述：** 提供 expand 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/graph/human/expand
+```
+
+#### 2. resume 方法
+
+**接口路径：** `GET /graph/human/resume`
+
+**功能描述：** 提供 resume 相关功能
+
+**主要特性：**
+- 基于 Spring Boot REST API 实现
+- 返回 JSON 格式响应
+- 支持 UTF-8 编码
+
+**使用场景：**
+- 数据处理和响应
+- API 集成测试
+
+**示例请求：**
+```bash
+GET http://localhost:8080/graph/human/resume
+```
+
+
+## 技术实现
+
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-ai-autoconfigure-model-chat-client**: 核心依赖
+- **spring-ai-alibaba-graph-core**: 核心依赖
+- **spring-boot-starter-web**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+
+## 测试指导
+
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[human-node.http](./human-node.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+```bash
+# expand 接口测试
+curl "http://localhost:8080/graph/human/expand"
+```
+
+## 注意事项
+
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-11 00:41:59*

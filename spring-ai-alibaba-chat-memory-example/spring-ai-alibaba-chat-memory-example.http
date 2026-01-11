@@ -1,0 +1,30 @@
+# SqliteMemoryController类的call方法
+GET http://localhost:8080/advisor/memory/sqlite/call?query=你好，我的外号是影子，请记住呀&conversation_id=yingzi
+
+###
+# SqliteMemoryController类的messages方法
+GET http://localhost:8080/advisor/memory/sqlite/messages?conversation_id=yingzi
+
+###
+# RedisMemoryController类的call方法
+GET http://localhost:8080/advisor/memory/redis/call?query=你好，我的外号是影子，请记住呀&conversation_id=yingzi
+
+###
+# RedisMemoryController类的messages方法
+GET http://localhost:8080/advisor/memory/redis/messages?conversation_id=yingzi
+
+###
+# InMemoryController类的call方法
+GET http://localhost:8080/advisor/memory/in/call?query=你好，我的外号是影子，请记住呀&conversation_id=yingzi
+
+###
+# InMemoryController类的messages方法
+GET http://localhost:8080/advisor/memory/in/messages?conversation_id=yingzi
+
+###
+# MysqlMemoryController类的call方法
+GET http://localhost:8080/advisor/memory/mysql/call?query=你好，我的外号是影子，请记住呀&conversation_id=yingzi
+
+###
+# MysqlMemoryController类的messages方法
+GET http://localhost:8080/advisor/memory/mysql/messages?conversation_id=yingzi

@@ -17,6 +17,7 @@
 package com.alibaba.cloud.ai.application.service;
 
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import com.alibaba.cloud.ai.dashscope.video.VideoModel;
 import com.alibaba.cloud.ai.dashscope.video.VideoPrompt;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -47,8 +48,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.alibaba.cloud.ai.dashscope.api.DashScopeApi.ChatModel.QWEN_VL_MAX;
-
 /**
  * @author huangzhen
  */
@@ -63,7 +62,7 @@ public class SAAVideoService  {
 
     public SAAVideoService(
             VideoModel videoModel,
-            @Qualifier("dashscopeChatModel") ChatModel chatModel
+            @Qualifier("dashScopeChatModel") ChatModel chatModel
     ) {
 
         this.videoModel = videoModel;
@@ -110,7 +109,7 @@ public class SAAVideoService  {
                         new Prompt(
                                 message,
                                 DashScopeChatOptions.builder()
-                                        .withModel(QWEN_VL_MAX.getValue())
+                                        .withModel(DashScopeModel.ChatModel.QWEN_VL_MAX.getValue())
                                         .withMultiModel(true)
                                         .build()
                         ))

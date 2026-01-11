@@ -6,7 +6,7 @@ spring:
     mcp:
       server:
         name: my-weather-server
-        version: 0.0.1
+        stdio: true
 
 # NOTE: You must disable the banner and the console logging 
 # to allow the STDIO transport to work !!!

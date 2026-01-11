@@ -16,7 +16,7 @@
 
 package com.alibaba.cloud.ai.application.modulerag.data;
 
-import com.alibaba.cloud.ai.application.entity.IQSSearchResponse;
+import com.alibaba.cloud.ai.application.entity.iqs.IQSSearchResponse;
 import org.springframework.ai.document.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -46,13 +46,15 @@ public class DataClean {
 			IQSSearchResponse.PageItem pageItem = respData.pageItems().get(i);
 			Map<String, Object> pageItemMetadata = getPageItemMetadata(pageItem);
 
+			metadata.putAll(pageItemMetadata);
+
 			if (!StringUtils.hasText(pageItem.mainText()) || pageItem.mainText().length() < 10) {
 				// Skip items with main text that is too short
 				continue;
 			}
-			Document document = new Document.Builder()
+
+			Document document = Document.builder()
 					.metadata(metadata)
-					.metadata(pageItemMetadata)
 					.text(pageItem.mainText())
 					.score(pageItem.rerankScore())
 					.build();

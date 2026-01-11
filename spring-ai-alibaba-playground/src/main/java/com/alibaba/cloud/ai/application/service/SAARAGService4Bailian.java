@@ -50,7 +50,7 @@ public class SAARAGService4Bailian implements ISAARAGService {
             DashScopeApi dashscopeApi,
             SimpleLoggerAdvisor simpleLoggerAdvisor,
             MessageChatMemoryAdvisor messageChatMemoryAdvisor,
-            @Qualifier("dashscopeChatModel") ChatModel chatModel,
+            @Qualifier("dashScopeChatModel") ChatModel chatModel,
             @Qualifier("systemPromptTemplate") PromptTemplate systemPromptTemplate
     ) {
 

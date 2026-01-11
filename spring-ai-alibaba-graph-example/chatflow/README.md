@@ -1,12 +1,45 @@
 # SAA ChatFlow Demo
-
 本demo基于 [Spring AI Alibaba Graph (SAA-Graph)](https://github.com/alibaba/spring-ai-alibaba-graph) 实现了一个*
 *智能待办事项助手**，具备**多轮对话**、**意图识别**和**任务管理**能力，适合多轮会话场景的设计与落地参考。
 
 ------
+## 接口文档
+
+## 技术实现
+### 核心组件
+- **Spring Boot**: 应用框架
+- **Spring AI Alibaba**: AI 功能集成
+- **REST Controller**: HTTP 接口处理
+- **spring-ai-alibaba-starter-dashscope**: 核心依赖
+- **spring-ai-autoconfigure-model-chat-client**: 核心依赖
+- **spring-ai-alibaba-graph-core**: 核心依赖
+- **spring-boot-starter-web**: 核心依赖
+
+### 配置要点
+- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
+- 默认端口：8080
+- 默认上下文路径：/basic
+## 测试指导
+### 使用 HTTP 文件测试
+模块根目录下提供了 **[chatflow.http](./chatflow.http)** 文件，包含所有接口的测试用例：
+- 可在 IDE 中直接执行
+- 支持参数自定义
+- 提供默认示例参数
+
+### 使用 curl 测试
+## 注意事项
+1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
+2. **网络连接**: 需要能够访问阿里云 DashScope 服务
+3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
+4. **端口配置**: 确保端口 8080 未被占用
+
+---
+
+*此 README.md 由自动化工具生成于 2025-12-11 00:51:03*
+## 模块说明
+本demo基于 [Spring AI Alibaba Graph (SAA-Graph)](https://github.com/alibaba/spring-ai-alibaba-graph) 实现了一个*。
 
 ## 1. 设计思路
-
 - **图驱动对话编排**：以 StateGraph + Node 的方式显式建模每一轮对话的流程与节点；
 - **主流程/子图解耦**：主流程负责整体对话逻辑与意图判定，任务类操作交由独立子图处理，互不干扰；
 - **动态变量与状态管理**：所有对话变量依赖 OverAllState 进行存取，主流程与子图通过 threadId 隔离上下文，实现变量池与任务池隔离；
@@ -16,7 +49,6 @@
 ------
 
 ## 2. Flow 流程说明
-
 **主流程（主 StateGraph）**
 
 1. **意图识别节点**（QuestionClassifierNode）
@@ -43,7 +75,6 @@
 ------
 
 ## 3. 实现的功能
-
 - **多轮记忆**：每个 sessionId 独立维护待办池，轮轮追加，跨轮问“我有哪些待办”会自动返回所有累计任务
 - **AI 智能分流**：自动识别“创建待办”意图，非待办内容走闲聊分支
 - **子图隔离/合并**：主流程与子图变量池完全隔离，任务输出精准合并
@@ -53,7 +84,6 @@
 ------
 
 ## 4. 重点注意事项
-
 - **lambda 构建动态节点**
   不要全局 new LlmNode/AssignerNode，否则多轮参数会卡死。
 - **传递动态变量时，params 用 "null" 占位符**，保证 LlmNode 能从 OverAllState 动态拉取本轮输入。
@@ -63,13 +93,12 @@
 ------
 
 ## 5. 具体演示示例
-
 服务启动后访问，`http://127.0.0.1:8080/assistant/chat`，带如下参数：
 
 ### （一）多轮任务追加
 
-#### 第1轮
 
+#### 第1轮
 ```
 POST /assistant/chat?sessionId=123&userInput=待办：学习TypeScript
 ```
@@ -86,7 +115,6 @@ POST /assistant/chat?sessionId=123&userInput=待办：学习TypeScript
 ```
 
 #### 第2轮
-
 ```
 POST /assistant/chat?sessionId=123&userInput=待办：用Ts做一个小demo"
 ```
@@ -104,7 +132,6 @@ POST /assistant/chat?sessionId=123&userInput=待办：用Ts做一个小demo"
 ```
 
 #### 第3轮（普通闲聊）
-
 ```
 POST /assistant/chat?sessionId=123&userInput=简单介绍下Spring Cloud"
 ```
@@ -124,6 +151,16 @@ POST /assistant/chat?sessionId=123&userInput=简单介绍下Spring Cloud"
 - 可见待办累计，闲聊能力并存
 
 ### （二）多用户/多会话隔离
-
 用不同 sessionId (`456` 等) 测试，每个会话的任务池互不影响。
 
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:41:59*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
+
+---
+
+*此 README.md 由自动化工具融合更新于 2025-12-11 00:51:03*
+
+*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*

@@ -48,7 +48,7 @@ public class MoreModelChatClientController {
 	private final ChatClient chatClient;
 
 	public MoreModelChatClientController(
-			@Qualifier("dashscopeChatModel") DashScopeChatModel chatModel
+			@Qualifier("dashScopeChatModel") DashScopeChatModel chatModel
 	) {
 
 		// 构建 chatClient

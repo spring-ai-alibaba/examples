@@ -1,0 +1,91 @@
+### ========================================
+### Issue Clarify Graph Example - API 测试
+### ========================================
+
+### -----------------------------------------
+### 1. 知识库管理
+### -----------------------------------------
+
+### 导入知识库文档到 DashScope 云端向量存储
+GET http://localhost:10000/knowledge/import
+
+### -----------------------------------------
+### 2. 知识问答场景 (KNOWLEDGE 意图)
+### -----------------------------------------
+
+### 询问退票规则
+GET http://localhost:10000/booking/call?query=退票要收多少手续费&chatId=knowledge-001
+
+###
+
+### 询问行李规定
+GET http://localhost:10000/booking/call?query=托运行李有什么规定&chatId=knowledge-002
+
+###
+
+### 询问儿童票
+GET http://localhost:10000/booking/call?query=儿童票怎么购买&chatId=knowledge-003
+
+###
+
+### 询问值机时间
+GET http://localhost:10000/booking/call?query=提前多久可以网上值机&chatId=knowledge-004
+
+###
+
+### 询问改签规则
+GET http://localhost:10000/booking/call?query=机票可以改签吗&chatId=knowledge-005
+
+###
+
+### -----------------------------------------
+### 3. 机票预订场景 (BOOKING 意图) - 多轮对话
+### -----------------------------------------
+
+### === 场景 A: 完整信息一次性提供 ===
+
+### 用户提供完整预订信息，直接订票成功
+GET http://localhost:10000/booking/call?query=我要订明天从北京到上海的机票&chatId=booking-complete-001
+
+###
+
+### === 场景 B: 分步补充信息（3轮对话） ===
+
+### B-1: 用户仅表达预订意图，缺少所有槽位
+GET http://localhost:10000/booking/call?query=我想订机票&chatId=booking-step-001
+
+###
+
+### B-2: 用户补充出发城市和日期
+GET http://localhost:10000/booking/call?query=明天从北京出发&chatId=booking-step-001
+
+###
+
+### B-3: 用户补充到达城市，完成预订
+GET http://localhost:10000/booking/call?query=去上海&chatId=booking-step-001
+
+###
+
+### === 场景 C: 缺少日期信息 ===
+
+### C-1: 用户提供出发地和目的地，缺少日期
+GET http://localhost:10000/booking/call?query=我要从广州飞成都&chatId=booking-date-001
+
+###
+
+### C-2: 用户补充日期信息
+GET http://localhost:10000/booking/call?query=后天出发&chatId=booking-date-001
+
+###
+
+### === 场景 D: 缺少目的地信息 ===
+
+### D-1: 用户提供出发地和日期，缺少目的地
+GET http://localhost:10000/booking/call?query=12月20号从深圳出发&chatId=booking-dest-001
+
+###
+
+### D-2: 用户补充目的地信息
+GET http://localhost:10000/booking/call?query=去杭州&chatId=booking-dest-001
+
+###

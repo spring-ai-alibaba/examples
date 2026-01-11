@@ -16,7 +16,8 @@
 
 package com.alibaba.cloud.ai.example.video;
 
-import com.alibaba.cloud.ai.dashscope.api.DashScopeVideoApi;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import com.alibaba.cloud.ai.dashscope.video.DashScopeVideoOptions;
 import com.alibaba.cloud.ai.dashscope.video.VideoModel;
 import com.alibaba.cloud.ai.dashscope.video.VideoPrompt;
@@ -67,9 +68,9 @@ public class VideoController {
     public String videoTmpl() {
 
         return videoModel.call(new VideoPrompt(DashScopeVideoOptions.builder()
-                                .model(DashScopeVideoApi.VideoModel.WANX2_1_I2V_TURBO.getValue())
+                                .model(DashScopeModel.VideoModel.WANX2_1_I2V_TURBO.getValue())
                                 .imageUrl("https://help-static-aliyun-doc.aliyuncs.com/assets/img/zh-CN/6431807371/p906901.png")
-                                .template(DashScopeVideoApi.VideoTemplate.FLYING)
+                                .template(DashScopeApiSpec.VideoTemplate.FLYING)
                                 .build()
                         )
                 ).getResult()
@@ -90,7 +91,7 @@ public class VideoController {
         return videoModel.call(new VideoPrompt(
                                 "一只小猫在草地奔跑",
                                 DashScopeVideoOptions.builder()
-                                        .model(DashScopeVideoApi.VideoModel.WANX2_1_I2V_TURBO.getValue())
+                                        .model(DashScopeModel.VideoModel.WANX2_1_I2V_TURBO.getValue())
                                         .imageUrl("https://help-static-aliyun-doc.aliyuncs.com/assets/img/zh-CN/6431807371/p906901.png")
                                         .build()
                         )
@@ -109,7 +110,7 @@ public class VideoController {
         return videoModel.call(new VideoPrompt(
                                 "写实风格，一只黑色小猫好奇地看向天空，镜头从平视逐渐上升，最后俯拍小猫好奇的眼神。",
                                 DashScopeVideoOptions.builder()
-                                        .model(DashScopeVideoApi.VideoModel.WANX2_1_KF2V_PLUS.getValue())
+                                        .model(DashScopeModel.VideoModel.WANX2_1_KF2V_PLUS.getValue())
                                         .firstFrameUrl("https://help-static-aliyun-doc.aliyuncs.com/assets/img/zh-CN/8239161571/p944793.png")
                                         .lastFrameUrl("https://help-static-aliyun-doc.aliyuncs.com/assets/img/zh-CN/9239161571/p944794.png")
                                         .build()

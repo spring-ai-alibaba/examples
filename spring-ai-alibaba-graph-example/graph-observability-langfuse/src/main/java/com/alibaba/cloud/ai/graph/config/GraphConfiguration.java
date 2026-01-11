@@ -98,23 +98,9 @@ public class GraphConfiguration {
 	 */
 	@Bean
 	public ChatClient chatClient(ChatModel chatModel) {
-		// 添加 AI 模型可用性测试
-		try {
-			logger.info("Testing AI model availability...");
-			logger.info("ChatModel type: {}", chatModel.getClass().getSimpleName());
-			logger.info("ChatModel default options: {}", chatModel.getDefaultOptions());
-
-			// 尝试一个简单的同步调用测试
-			ChatClient testClient = ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
-			String testResponse = testClient.prompt().user("Hello").call().content();
-			logger.info("AI model test successful, response: {}",
-					testResponse.substring(0, Math.min(50, testResponse.length())));
-		}
-		catch (Exception e) {
-			logger.error("AI model test failed: {}", e.getMessage(), e);
-		}
-
-		return ChatClient.builder(chatModel).defaultAdvisors(new SimpleLoggerAdvisor()).build();
+		return ChatClient.builder(chatModel)
+				.defaultAdvisors(new SimpleLoggerAdvisor())
+				.build();
 	}
 
 	/**
@@ -145,7 +131,7 @@ public class GraphConfiguration {
 		MergeNode mergeNode = new MergeNode(Lists.newArrayList("parallel_output1", "parallel_output2"), "sub_input");
 
 		// Streaming node - real-time AI response
-		StreamingChatNode streamingNode = StreamingChatNode.create("StreamingNode", "final_output", "streaming_output",
+		StreamingChatNode streamingNode = StreamingChatNode.create("StreamingNode", "subgraph_final_output", "streaming_output",
 				chatClient, "Please perform detailed analysis on the subgraph results:");
 
 		// End node - final output formatting
@@ -164,13 +150,11 @@ public class GraphConfiguration {
 				.addPatternStrategy("sub_input", new ReplaceStrategy())
 				.addPatternStrategy("sub_output1", new ReplaceStrategy())
 				.addPatternStrategy("sub_output2", new ReplaceStrategy())
-				.addPatternStrategy("_subgraph", new ReplaceStrategy())
 				.addPatternStrategy("subgraph_final_output", new ReplaceStrategy())
-				.addPatternStrategy("final_output", new ReplaceStrategy())
 				.addPatternStrategy("streaming_output", new ReplaceStrategy())
-				.addPatternStrategy("summary_output", new ReplaceStrategy())
 				.addPatternStrategy("end_output", new ReplaceStrategy())
 				.addPatternStrategy("logs", new AppendStrategy())
+				.addPatternStrategy("_graph_execution_id_", new ReplaceStrategy())
 				.build();
 
 		// Build the main graph
@@ -232,8 +216,8 @@ public class GraphConfiguration {
 			throws GraphStateException {
 		// 为子图添加 checkpoint saver 配置，确保子图能正确接收输入
 		CompileConfig subgraphCompileConfig = CompileConfig.builder(observationCompileConfig)
-			.saverConfig(SaverConfig.builder().register(SaverEnum.MEMORY.getValue(), new MemorySaver()).build())
-			.build();
+				.saverConfig(SaverConfig.builder().register(MemorySaver.builder().build()).build())
+				.build();
 
 		return observabilityGraph.compile(subgraphCompileConfig);
 	}

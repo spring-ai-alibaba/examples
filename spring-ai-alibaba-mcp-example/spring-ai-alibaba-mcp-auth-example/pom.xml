@@ -15,8 +15,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>client/mcp-auth-client</module>
-        <module>server/mcp-auth-server</module>
-        <module>restful-example</module>
+
         <module>server/mcp-auth-web-server</module>
     </modules>
 

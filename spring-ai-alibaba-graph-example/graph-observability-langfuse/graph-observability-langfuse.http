@@ -1,0 +1,4 @@
+# GraphStreamController类的testStream方法
+GET http://localhost:8080/graph/observation/test-stream
+
+###

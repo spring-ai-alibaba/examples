@@ -1,0 +1,2 @@
+# TodoChatflowController类的chat方法
+POST http://localhost:8080/assistant/chat

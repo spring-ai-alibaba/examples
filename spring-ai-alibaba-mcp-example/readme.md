@@ -2,7 +2,7 @@
 
 > Model Context Protocol (MCP) 综合示例集合
 >
-> Spring AI Alibaba Version: 1.0.0.4 | Spring AI Version: 1.1.0-M3
+> Spring AI Alibaba Version: 1.0.0.4 | Spring AI Version: 1.1.0-M4
 
 本目录包含了完整的 MCP (Model Context Protocol) 示例，涵盖了从基础到高级的各种使用场景和实现模式。
 

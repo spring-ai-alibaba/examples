@@ -44,6 +44,8 @@
         <module>spring-ai-alibaba-vector-databases-example</module>
         <module>rag-etl-pipeline-example</module>
         <module>rag-openai-dashscope-pgvector-example</module>
+        <module>rag-elasticsearch-autoconfigure-example</module>
+        <module>rag-component-example</module>
     </modules>
 
     <build>

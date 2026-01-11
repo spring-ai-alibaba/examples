@@ -17,8 +17,10 @@
 package com.alibaba.cloud.ai.application.service;
 
 import com.alibaba.cloud.ai.application.entity.dashscope.ChatResponseDTO;
-import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
+import com.alibaba.cloud.ai.application.enums.WebSearchEnum;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
+import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
@@ -33,8 +35,8 @@ import reactor.core.publisher.Flux;
  * @author <a href="mailto:yuluo08290126@gmail.com">yuluo</a>
  */
 
-@Service("dashscopeWebSearchServiceImpl")
-public class SAADashScopeWebSearchService implements ISAAWebSearchService{
+@Service
+public class SAADashScopeWebSearchService implements ISAAWebSearchService {
 
     private final ChatClient chatClient;
 
@@ -42,7 +44,7 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService{
 
     public SAADashScopeWebSearchService(
             SimpleLoggerAdvisor simpleLoggerAdvisor,
-            @Qualifier("dashscopeChatModel")ChatModel chatModel)
+            @Qualifier("dashScopeChatModel")ChatModel chatModel)
     {
         this.simpleLoggerAdvisor = simpleLoggerAdvisor;
         this.chatClient = ChatClient.builder(chatModel)
@@ -50,8 +52,13 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService{
                 .build();
     }
 
+    @Override
+    public WebSearchEnum type() {
+        return WebSearchEnum.DashScope;
+    }
+
     public Flux<ChatResponseDTO> chat(String prompt) {
-        var searchOptions = DashScopeApi.SearchOptions.builder()
+        var searchOptions = DashScopeApiSpec.SearchOptions.builder()
                 .forcedSearch(true)
                 .enableSource(true)
                 .searchStrategy("pro")
@@ -61,7 +68,7 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService{
 
         var options = DashScopeChatOptions.builder()
                 .withEnableSearch(true)
-                .withModel(DashScopeApi.ChatModel.DEEPSEEK_V3.getValue())
+                .withModel(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
                 .withSearchOptions(searchOptions)
                 .withTemperature(0.7)
                 .build();
@@ -71,6 +78,7 @@ public class SAADashScopeWebSearchService implements ISAAWebSearchService{
             // Call the chat client and retrieve the chat response
             ChatResponse chatResponse = this.chatClient
                     .prompt(new Prompt(prompt, options))
+                    .advisors(simpleLoggerAdvisor)
                     .call()
                     .chatResponse();
 

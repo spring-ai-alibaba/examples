@@ -1,0 +1,2 @@
+# McpController类的call方法
+GET http://localhost:8080/graph/mcp/call

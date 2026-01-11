@@ -1,0 +1,62 @@
+# SAAToolsController类的toolCallChat方法
+GET http://localhost:8080/api/v1/tool-call
+
+###
+# SAAVideoController类的videoQuestionAnswering方法
+POST http://localhost:8080/api/v1/video-qa?prompt=请总结这个视频的主要内容
+
+###
+# SAAVideoController类的genVideo方法
+GET http://localhost:8080/api/v1/video-gen
+
+###
+# SAAAudioController类的audioToText方法
+POST http://localhost:8080/api/v1//audio2text
+
+###
+# SAAAudioController类的textToAudio方法
+GET http://localhost:8080/api/v1//text2audio
+
+###
+# SAAMcpController类的mcpChat方法
+GET http://localhost:8080/api/v1/inner/mcp
+
+###
+# SAAMcpController类的mcpRun方法
+GET http://localhost:8080/api/v1/mcp-list
+
+###
+# SAAMcpController类的mcpRun方法
+POST http://localhost:8080/api/v1/mcp-run
+
+###
+# SAAImageController类的image2text方法
+POST http://localhost:8080/api/v1/image2text?prompt=请总结图片内容
+
+###
+# SAAImageController类的text2Image方法
+GET http://localhost:8080/api/v1/text2image?resolution=1080*1080
+
+###
+# SAABaseController类的health方法
+GET http://localhost:8080/api/v1/health
+
+###
+# SAAChatController类的chat方法
+POST http://localhost:8080/api/v1/chat
+
+###
+# SAAChatController类的deepThinkingChat方法
+POST http://localhost:8080/api/v1/deep-thinking/chat
+
+###
+# SAASummarizerController类的summary方法
+POST http://localhost:8080/api/v1/summarizer
+
+###
+# SAAWebSearchController类的search方法
+POST http://localhost:8080/api/v1/search
+
+###
+# SAARAGController类的ragChat方法
+GET http://localhost:8080/api/v1/rag

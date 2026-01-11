@@ -1,0 +1,26 @@
+# RagPgVectorController类的importDocument方法
+GET http://localhost:8080/ai/rag/importDocument
+
+###
+# RagPgVectorController类的insertText方法
+GET http://localhost:8080/ai/rag/importText
+
+###
+# RagPgVectorController类的insertFiles方法
+POST http://localhost:8080/ai/rag/importFile
+
+###
+# RagPgVectorController类的generate方法
+GET http://localhost:8080/ai/rag?message=how to get start with spring ai alibaba?
+
+###
+# RagPgVectorController类的importFileV2方法
+POST http://localhost:8080/ai/rag/importFileV2
+
+###
+# RagPgVectorController类的search方法
+GET http://localhost:8080/ai/rag/searchV2?message=what is blibaba?
+
+###
+# RagPgVectorController类的deleteFiles方法
+POST http://localhost:8080/ai/rag/deleteFilesV2

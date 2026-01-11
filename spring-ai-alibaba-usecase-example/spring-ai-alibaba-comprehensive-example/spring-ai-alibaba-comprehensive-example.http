@@ -1,0 +1,36 @@
+# ProcurementTestController类的testExamplePage方法
+POST http://localhost:8080/procurement/test/example
+
+###
+# ProcurementTestController类的healthCheck方法
+GET http://localhost:8080/procurement/test/health
+
+###
+# ProcurementTestController类的getSystemInfo方法
+GET http://localhost:8080/procurement/test/info
+
+###
+# PdfController类的download方法
+GET http://localhost:8080/ai/pdf/file/{chatId}
+
+###
+# ProcurementController类的startCrawling方法
+POST http://localhost:8080/procurement/crawl/start
+
+###
+# ProcurementController类的crawlSinglePage方法
+POST http://localhost:8080/procurement/crawl/single
+
+###
+# ProcurementController类的getProjectById方法
+GET http://localhost:8080/procurement/projects/{id}
+
+###
+# ProcurementController类的analyzeProject方法
+POST http://localhost:8080/procurement/analyze
+
+###
+# ProcurementController类的getTrends方法
+GET http://localhost:8080/procurement/trends
+
+###

@@ -1,0 +1,2 @@
+# ReactController类的simpleChat方法
+GET http://localhost:8080/react/chat
