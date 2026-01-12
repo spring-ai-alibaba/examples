@@ -17,19 +17,23 @@
 package com.alibaba.example.controller;
 
 import com.alibaba.cloud.ai.graph.CompiledGraph;
+import com.alibaba.cloud.ai.graph.NodeOutput;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.example.conf.TodoChatFlowFactory;
 import com.alibaba.example.conf.TodoSubGraphFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/assistant")
@@ -47,19 +51,22 @@ public class TodoChatflowController {
 
     @PostMapping("/chat")
     public Map<String, Object> chat(
-            @RequestParam("sessionId") String sessionId,
-            @RequestParam("userInput") String userInput
+            @RequestParam(value = "sessionId", defaultValue = "chat-id-001") String sessionId,
+            @RequestParam(value = "userInput", defaultValue = "你可以做什么") String userInput
     ) {
         Map<String, Object> input = new HashMap<>();
         input.put("session_id", sessionId);
         input.put("user_input", userInput);
 
-        var stateOpt = mainGraph.call(input, RunnableConfig.builder().threadId(sessionId).build());
-        OverAllState state = stateOpt.orElseThrow();
+        Optional<OverAllState> invoke = mainGraph.invoke(input, RunnableConfig.builder().threadId(sessionId).build());
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("reply", state.value("answer").orElse(""));
-        result.put("tasks", state.value("tasks").orElse(List.of()));
-        return result;
+        if (invoke.isPresent()){
+            OverAllState state = invoke.get();
+            Map<String, Object> result = new HashMap<>();
+            result.put("reply", state.value("answer").orElse(""));
+            result.put("tasks", state.value("tasks").orElse(List.of()));
+            return result;
+        }
+        return Map.of("reply", "");
     }
 }

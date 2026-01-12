@@ -16,18 +16,16 @@
  */
 package com.alibaba.example.conf;
 
-import com.alibaba.cloud.ai.graph.KeyStrategy;
+import com.alibaba.cloud.ai.graph.CompiledGraph;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
 import com.alibaba.cloud.ai.graph.StateGraph;
-import com.alibaba.cloud.ai.graph.CompiledGraph;
-import com.alibaba.cloud.ai.graph.node.LlmNode;
-import com.alibaba.cloud.ai.graph.node.AnswerNode;
-import com.alibaba.cloud.ai.graph.node.AssignerNode;
 import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
+import com.alibaba.example.node.AnswerNode;
+import com.alibaba.example.node.AssignerNode;
+import com.alibaba.example.node.LlmNode;
 import org.springframework.ai.chat.client.ChatClient;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.alibaba.cloud.ai.graph.action.AsyncNodeAction.node_async;

@@ -16,16 +16,23 @@
  */
 package com.alibaba.example.conf;
 
-import com.alibaba.cloud.ai.graph.*;
+import com.alibaba.cloud.ai.graph.CompiledGraph;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
+import com.alibaba.cloud.ai.graph.KeyStrategyFactoryBuilder;
+import com.alibaba.cloud.ai.graph.OverAllState;
+import com.alibaba.cloud.ai.graph.RunnableConfig;
+import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
-import com.alibaba.cloud.ai.graph.node.*;
 import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
+import com.alibaba.example.node.AnswerNode;
+import com.alibaba.example.node.LlmNode;
+import com.alibaba.example.node.QuestionClassifierNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -93,8 +100,8 @@ public class TodoChatFlowFactory {
                 } else if (createdTaskObj != null) {
                     createdTask = createdTaskObj.toString();
                 }
-                List<String> tasks = (List<String>) state.value("tasks").orElse(new java.util.ArrayList<>());
-                tasks = new java.util.ArrayList<>(tasks);
+                List<String> tasks = (List<String>) state.value("tasks").orElse(List.of());
+                tasks = new ArrayList<>(tasks);
                 if (createdTask != null && !createdTask.isBlank()) {
                     tasks.add(createdTask);
                 }
