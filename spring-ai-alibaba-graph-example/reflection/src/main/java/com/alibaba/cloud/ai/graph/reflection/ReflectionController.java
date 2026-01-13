@@ -16,9 +16,6 @@
 package com.alibaba.cloud.ai.graph.reflection;
 
 import com.alibaba.cloud.ai.graph.CompiledGraph;
-import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
-import com.alibaba.cloud.ai.graph.exception.GraphStateException;
-import com.alibaba.cloud.ai.graph.agent.ReflectAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.messages.Message;
@@ -46,9 +43,9 @@ public class ReflectionController {
 
 	@GetMapping("/chat")
 	public String simpleChat(String query) {
-		return compiledGraph.call(Map.of(ReflectAgent.MESSAGES, List.of(new UserMessage(query))))
+		return compiledGraph.invoke(Map.of("messages", List.of(new UserMessage(query))))
 			.get()
-			.<List<Message>>value(ReflectAgent.MESSAGES)
+			.<List<Message>>value("messages")
 			.orElseThrow()
 			.stream()
 			.filter(message -> message.getMessageType() == MessageType.ASSISTANT)
