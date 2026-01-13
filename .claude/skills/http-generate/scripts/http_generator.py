@@ -12,8 +12,18 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 
 class HttpMethodGenerator:
-    def __init__(self, base_url: str = "http://localhost:8080"):
-        self.base_url = base_url
+    def __init__(self, base_url: Optional[str] = None, module_path: Optional[Path] = None):
+        # If base_url is provided, use it directly
+        if base_url:
+            self.base_url = base_url
+        else:
+            # Try to read port from application.yml
+            port = self.read_port_from_config(module_path) if module_path else None
+            if port:
+                self.base_url = f"http://localhost:{port}"
+            else:
+                self.base_url = "http://localhost:8080"
+
         self.method_patterns = {
             'GET': r'@GetMapping\([^)]*["\']([^"\']+)["\']',
             'POST': r'@PostMapping\([^)]*["\']([^"\']+)["\']',
@@ -26,10 +36,81 @@ class HttpMethodGenerator:
             'path_variable': r'@PathVariable\(\s*["\']?([^"\']+)["\']?\s*\)',
         }
 
+    def read_port_from_config(self, module_path: Path) -> Optional[int]:
+        """Read server port from application.yml or application.properties"""
+        if not module_path:
+            return None
+
+        # Look for application.yml or application.properties in src/main/resources
+        resources_dir = module_path / "src" / "main" / "resources"
+        if not resources_dir.exists():
+            return None
+
+        # Try application.yml first
+        yml_file = resources_dir / "application.yml"
+        if yml_file.exists():
+            try:
+                with open(yml_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    # Use regex to find server.port in YAML
+                    # Matches patterns like:
+                    # server:
+                    #   port: 8080
+                    # or
+                    # server.port: 8080
+                    patterns = [
+                        r'server:\s*\n\s*port:\s*(\d+)',  # YAML format with line break
+                        r'server\.port:\s*(\d+)',         # YAML inline format
+                    ]
+                    for pattern in patterns:
+                        match = re.search(pattern, content)
+                        if match:
+                            return int(match.group(1))
+            except Exception:
+                pass
+
+        # Try application.yaml
+        yaml_file = resources_dir / "application.yaml"
+        if yaml_file.exists():
+            try:
+                with open(yaml_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    patterns = [
+                        r'server:\s*\n\s*port:\s*(\d+)',
+                        r'server\.port:\s*(\d+)',
+                    ]
+                    for pattern in patterns:
+                        match = re.search(pattern, content)
+                        if match:
+                            return int(match.group(1))
+            except Exception:
+                pass
+
+        # Try application.properties
+        props_file = resources_dir / "application.properties"
+        if props_file.exists():
+            try:
+                with open(props_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith('server.port='):
+                            port_str = line.split('=', 1)[1].strip()
+                            return int(port_str)
+            except Exception:
+                pass
+
+        return None
+
     def extract_base_path(self, content: str) -> str:
-        """Extract base path from @RequestMapping annotation"""
+        """Extract base path from @RequestMapping annotation and normalize it"""
         match = re.search(r'@RequestMapping\(["\']([^"\']+)["\']', content)
-        return match.group(1) if match else ""
+        if match:
+            path = match.group(1)
+            # Normalize path: ensure it starts with "/" if not empty
+            if path and not path.startswith('/'):
+                path = '/' + path
+            return path
+        return ""
 
     def extract_method_mappings(self, content: str) -> List[Tuple[str, str, str]]:
         """Extract method mappings and return (method, path, method_name)"""
@@ -117,11 +198,20 @@ class HttpMethodGenerator:
                             method_path: str, method_name: str,
                             controller_name: str, params: Dict[str, str]) -> str:
         """Generate HTTP request example according to task specification"""
-        # Construct full URL
-        if method_path.startswith('/'):
-            full_path = base_path + method_path
+        # Normalize method_path: ensure it starts with "/"
+        if method_path and not method_path.startswith('/'):
+            method_path = '/' + method_path
+
+        # Construct full URL by concatenating base_path and method_path
+        # Both paths should already start with "/" (if non-empty) after normalization
+        # We need to avoid double slashes, so we strip the leading "/" from method_path if base_path is not empty
+        if base_path:
+            if method_path.startswith('/'):
+                full_path = base_path + method_path
+            else:
+                full_path = base_path + '/' + method_path
         else:
-            full_path = f"{base_path}/{method_path}" if base_path else f"/{method_path}"
+            full_path = method_path if method_path else "/"
 
         url = f"{self.base_url}{full_path}"
 
@@ -310,7 +400,6 @@ def discover_all_submodules_with_controllers(project_path: Path) -> List[Path]:
 def generate_all_modules(project_path: Path) -> List[str]:
     """Generate HTTP files for all modules with controllers"""
     modules = discover_all_submodules_with_controllers(project_path)
-    generator = HttpMethodGenerator()
     generated_files = []
 
     print(f"Discovered {len(modules)} modules with controllers:")
@@ -322,6 +411,8 @@ def generate_all_modules(project_path: Path) -> List[str]:
     for module in modules:
         try:
             print(f"\nProcessing module: {module}")
+            # Create a new generator for each module to read the correct port
+            generator = HttpMethodGenerator(module_path=module)
             output_path = generator.generate_module_http_file(module)
             if output_path:
                 generated_files.append(output_path)
@@ -367,8 +458,8 @@ def main():
 
         print(f"Generating HTTP requests for module: {module_path}")
 
-        # Generate HTTP file
-        generator = HttpMethodGenerator()
+        # Generate HTTP file with module_path to read the correct port
+        generator = HttpMethodGenerator(module_path=module_path)
         try:
             output_path = generator.generate_module_http_file(module_path, output_file)
             print(f"✅ HTTP file generated successfully: {output_path}")
