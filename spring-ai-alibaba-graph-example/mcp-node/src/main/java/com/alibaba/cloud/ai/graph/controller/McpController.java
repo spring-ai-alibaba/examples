@@ -56,7 +56,7 @@ public class McpController {
         RunnableConfig runnableConfig = RunnableConfig.builder().threadId(threadId).build();
         Map<String, Object> objectMap = new HashMap<>();
         objectMap.put("query", query);
-        Optional<OverAllState> invoke = this.compiledGraph.call(objectMap, runnableConfig);
+        Optional<OverAllState> invoke = this.compiledGraph.invoke(objectMap, runnableConfig);
         return invoke.map(OverAllState::data).orElse(new HashMap<>());
     }
 

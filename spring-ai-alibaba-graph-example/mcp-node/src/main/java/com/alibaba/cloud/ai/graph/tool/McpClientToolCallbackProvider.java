@@ -17,8 +17,6 @@
 package com.alibaba.cloud.ai.graph.tool;
 
 import com.alibaba.cloud.ai.graph.config.McpNodeProperties;
-import org.apache.commons.compress.utils.Lists;
-import org.glassfish.jersey.internal.guava.Sets;
 import org.springframework.ai.mcp.McpToolUtils;
 import org.springframework.ai.mcp.client.common.autoconfigure.properties.McpClientCommonProperties;
 import org.springframework.ai.tool.ToolCallback;
@@ -26,6 +24,8 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -50,13 +50,13 @@ public class McpClientToolCallbackProvider {
     }
 
     public Set<ToolCallback> findToolCallbacks(String nodeName) {
-        Set<ToolCallback> defineCallback = Sets.newHashSet();
+        Set<ToolCallback> defineCallback = new HashSet<>();
         Set<String> mcpClients = mcpNodeProperties.getNode2servers().get(nodeName);
         if (mcpClients == null || mcpClients.isEmpty()) {
             return defineCallback;
         }
 
-        List<String> exceptMcpClientNames = Lists.newArrayList();
+        List<String> exceptMcpClientNames = new ArrayList<>();
         for (String mcpClient : mcpClients) {
             // my-mcp-client
             String name = commonProperties.getName();
