@@ -15,22 +15,14 @@
  */
 package com.alibaba.cloud.ai.graph.node;
 
-import com.alibaba.cloud.ai.graph.GraphResponse;
-import com.alibaba.cloud.ai.graph.NodeOutput;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
-import com.alibaba.cloud.ai.graph.async.AsyncGenerator;
 import com.alibaba.cloud.ai.graph.model.NodeStatus;
-import com.alibaba.cloud.ai.graph.streaming.FluxConverter;
-import com.alibaba.cloud.ai.graph.streaming.StreamingChatGenerator;
-import com.alibaba.cloud.ai.graph.streaming.StreamingOutput;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import reactor.core.publisher.Flux;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,15 +56,6 @@ public class ExpanderNode implements NodeAction {
 
         Flux<ChatResponse> chatResponseFlux = this.chatClient.prompt().user((user) -> user.text(DEFAULT_PROMPT_TEMPLATE.getTemplate()).param("number", expanderNumber).param("query", query)).stream().chatResponse();
 
-        Flux<GraphResponse<StreamingOutput>> generator = FluxConverter.builder()
-                .startingNode("expander_llm_stream")
-                .startingState(state)
-                .mapResult(response -> {
-                    String text = response.getResult().getOutput().getText();
-                    List<String> queryVariants = Arrays.asList(text.split("\n"));
-                    node2Status.put(NODE_NAME, NodeStatus.COMPLETED);
-                    return Map.of("expander_content", queryVariants);
-                }).build(chatResponseFlux);
-        return Map.of("expander_content", generator);
+        return Map.of("expander_content", chatResponseFlux);
     }
 }

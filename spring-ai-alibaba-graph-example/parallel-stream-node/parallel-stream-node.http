@@ -1,0 +1,4 @@
+### Single expander node
+GET http://localhost:8080/graph/parallel-stream/expand-translate?query=简单介绍一下Spring AI&expander_number=1&thread_id=parallel-1
+
+###
