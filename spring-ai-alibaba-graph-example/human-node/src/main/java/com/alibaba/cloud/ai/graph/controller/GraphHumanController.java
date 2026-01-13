@@ -44,6 +44,7 @@ import reactor.core.publisher.Sinks;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author yingzi
@@ -59,22 +60,22 @@ public class GraphHumanController {
 
     @Autowired
     public GraphHumanController(@Qualifier("humanGraph") StateGraph stateGraph) throws GraphStateException {
-        SaverConfig saverConfig = SaverConfig.builder().register(SaverEnum.MEMORY.getValue(), new MemorySaver()).build();
+        SaverConfig saverConfig = SaverConfig.builder().register(new MemorySaver()).build();
         this.compiledGraph = stateGraph
                 .compile(CompileConfig.builder().saverConfig(saverConfig).interruptBefore("human_feedback").build());    }
 
     @GetMapping(value = "/expand", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<String>> expand(@RequestParam(value = "query", defaultValue = "你好，很高兴认识你，能简单介绍一下自己吗？", required = false) String query,
-                                                @RequestParam(value = "expander_number", defaultValue = "3", required = false) Integer expanderNumber,
-                                                @RequestParam(value = "thread_id", defaultValue = "yingzi", required = false) String threadId) throws GraphRunnerException {
+    public Flux<ServerSentEvent<GraphProcess.ChatMessage>> expand(@RequestParam(value = "query", defaultValue = "你好，很高兴认识你，能简单介绍一下自己吗？", required = false) String query,
+                                                                  @RequestParam(value = "expander_number", defaultValue = "3", required = false) Integer expanderNumber,
+                                                                  @RequestParam(value = "thread_id", defaultValue = "yingzi", required = false) String threadId) throws GraphRunnerException {
         RunnableConfig runnableConfig = RunnableConfig.builder().threadId(threadId).build();
         Map<String, Object> objectMap = new HashMap<>();
         objectMap.put("query", query);
         objectMap.put("expander_number", expanderNumber);
 
         GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
-        Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
-        Flux<NodeOutput> nodeOutputFlux = compiledGraph.fluxStream(objectMap, runnableConfig);
+        Sinks.Many<ServerSentEvent<GraphProcess.ChatMessage>> sink = Sinks.many().unicast().onBackpressureBuffer();
+        Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream(objectMap, runnableConfig);
         graphProcess.processStream(nodeOutputFlux, sink);
 
         return sink.asFlux()
@@ -83,25 +84,28 @@ public class GraphHumanController {
     }
 
     @GetMapping(value = "/resume", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<String>> resume(@RequestParam(value = "thread_id", defaultValue = "yingzi", required = false) String threadId,
+    public Flux<ServerSentEvent<GraphProcess.ChatMessage>> resume(@RequestParam(value = "thread_id", defaultValue = "yingzi", required = false) String threadId,
                                       @RequestParam(value = "feed_back", defaultValue = "true", required = false) boolean feedBack) throws GraphRunnerException {
-        RunnableConfig runnableConfig = RunnableConfig.builder().threadId(threadId).build();
-        StateSnapshot stateSnapshot = this.compiledGraph.getState(runnableConfig);
-        OverAllState state = stateSnapshot.state();
-        state.withResume();
+        RunnableConfig config = RunnableConfig.builder().threadId(threadId).build();
+        Optional<StateSnapshot> stateSnapshot = this.compiledGraph.stateOf(config);
 
-        Map<String, Object> objectMap = new HashMap<>();
-        objectMap.put("feed_back", feedBack);
+        return stateSnapshot.map(state -> {
+            try {
+                RunnableConfig runnableConfig = this.compiledGraph.updateState(config, Map.of(
+                        "feed_back", feedBack
+                ), null);
+                // 从中断点继续执行工作流
+                GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
+                Sinks.Many<ServerSentEvent<GraphProcess.ChatMessage>> sink = Sinks.many().unicast().onBackpressureBuffer();
+                Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream(null, runnableConfig);
+                graphProcess.processStream(nodeOutputFlux, sink);
 
-        state.withHumanFeedback(new OverAllState.HumanFeedback(objectMap, ""));
-
-        // Create a unicast sink to emit ServerSentEvents
-        Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().unicast().onBackpressureBuffer();
-        GraphProcess graphProcess = new GraphProcess(this.compiledGraph);
-        Flux<NodeOutput> resultFuture = compiledGraph.fluxStreamFromInitialNode(state, runnableConfig);
-        graphProcess.processStream(resultFuture, sink);
-
-        return sink.asFlux()
-                .doOnCancel(() -> logger.info("Client disconnected from stream"))
-                .doOnError(e -> logger.error("Error occurred during streaming", e));    }
+                return sink.asFlux()
+                        .doOnCancel(() -> logger.info("Client disconnected from stream"))
+                        .doOnError(e -> logger.error("Error occurred during streaming", e));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).orElseThrow(() -> new GraphRunnerException("State not found for thread ID: " + threadId));
+    }
 }

@@ -40,7 +40,7 @@ public class HumanFeedbackNode implements NodeAction {
         HashMap<String, Object> resultMap = new HashMap<>();
         String nextStep = StateGraph.END;
 
-        Map<String, Object> feedBackData = state.humanFeedback().data();
+        Map<String, Object> feedBackData = state.data();
         boolean feedback = (boolean) feedBackData.getOrDefault("feed_back", true);
         if (feedback) {
             nextStep = "translate";

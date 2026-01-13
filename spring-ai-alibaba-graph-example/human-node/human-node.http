@@ -1,0 +1,160 @@
+### Human Feedback Workflow - Graph with Human-in-the-Loop
+
+### Scenario 1: Basic Expand and Resume Workflow
+
+### Step 1: Start expand process with default parameters
+GET http://localhost:8080/graph/human/expand
+
+###
+
+### Step 2: Resume with positive feedback (true)
+GET http://localhost:8080/graph/human/resume?feed_back=true
+
+###
+
+### Scenario 2: Custom Query with Expansion
+
+### Step 1: Expand with custom query and more expander nodes
+GET http://localhost:8080/graph/human/expand?query=请详细解释什么是人工智能？&expander_number=5&thread_id=thread-1
+
+###
+
+### Step 2: Resume with negative feedback (false)
+GET http://localhost:8080/graph/human/resume?feed_back=false&thread_id=thread-1
+
+###
+
+### Scenario 3: Multiple Concurrent Threads
+
+### Thread 1: Self introduction
+GET http://localhost:8080/graph/human/expand?query=你好，我是小明，很高兴认识你&thread_id=thread-user-1
+
+###
+
+### Thread 2: Technical question
+GET http://localhost:8080/graph/human/expand?query=什么是Spring AI？&expander_number=3&thread_id=thread-user-2
+
+###
+
+### Thread 3: Casual conversation
+GET http://localhost:8080/graph/human/expand?query=今天天气怎么样？&expander_number=2&thread_id=thread-user-3
+
+###
+
+### Resume thread 1 with positive feedback
+GET http://localhost:8080/graph/human/resume?feed_back=true&thread_id=thread-user-1
+
+###
+
+### Resume thread 2 with negative feedback
+GET http://localhost:8080/graph/human/resume?feed_back=false&thread_id=thread-user-2
+
+###
+
+### Resume thread 3 with positive feedback
+GET http://localhost:8080/graph/human/resume?feed_back=true&thread_id=thread-user-3
+
+###
+
+### Scenario 4: Iterative Feedback Loop
+
+### Initial expand
+GET http://localhost:8080/graph/human/expand?query=帮我写一个Java方法的文档&expander_number=3&thread_id=iteration-1
+
+###
+
+### First resume - approve for more detail
+GET http://localhost:8080/graph/human/resume?feed_back=true&thread_id=iteration-1
+
+###
+
+### Scenario 5: Different Expander Numbers
+
+### Single expander node
+GET http://localhost:8080/graph/human/expand?query=简单介绍一下Spring Boot&expander_number=1&thread_id=expander-1
+
+###
+
+### Three expander nodes (default)
+GET http://localhost:8080/graph/human/expand?query=解释微服务架构&expander_number=3&thread_id=expander-2
+
+###
+
+### Five expander nodes
+GET http://localhost:8080/graph/human/expand?query=详细介绍RESTful API设计原则&expander_number=5&thread_id=expander-3
+
+###
+
+### Resume with approval
+GET http://localhost:8080/graph/human/resume?feed_back=true&thread_id=expander-1
+
+###
+
+GET http://localhost:8080/graph/human/resume?feed_back=true&thread_id=expander-2
+
+###
+
+GET http://localhost:8080/graph/human/resume?feed_back=true&thread_id=expander-3
+
+###
+
+### Scenario 6: Complex Queries
+
+### Technical documentation request
+GET http://localhost:8080/graph/human/expand?query=请解释什么是LangGraph以及它的核心概念&expander_number=4&thread_id=complex-1
+
+###
+
+### Code explanation request
+GET http://localhost:8080/graph/human/expand?query=解释这段代码的作用：public void hello() { System.out.println("Hello"); }&expander_number=3&thread_id=complex-2
+
+###
+
+### Architecture design question
+GET http://localhost:8080/graph/human/expand?query=如何设计一个高可用的分布式系统&expander_number=5&thread_id=complex-3
+
+###
+
+### Scenario 7: Edge Cases
+
+### Empty query
+GET http://localhost:8080/graph/human/expand?query=&expander_number=1&thread_id=edge-1
+
+###
+
+### Very long query
+GET http://localhost:8080/graph/human/expand?query=请详细解释人工智能、机器学习、深度学习之间的关系和区别，并分别介绍它们的应用场景、发展历程、主要技术特点、优缺点以及未来发展趋势&expander_number=3&thread_id=edge-2
+
+###
+
+### Maximum expander number
+GET http://localhost:8080/graph/human/expand?query=什么是图数据库？&expander_number=10&thread_id=edge-3
+
+###
+
+### Zero expander number
+GET http://localhost:8080/graph/human/expand?query=测试查询&expander_number=0&thread_id=edge-4
+
+###
+
+### Scenario 8: Feedback Variations
+
+### Start process
+GET http://localhost:8080/graph/human/expand?query=请评价这个方案&expander_number=3&thread_id=feedback-1
+
+###
+
+### Resume with explicit true
+GET http://localhost:8080/graph/human/resume?feed_back=true&thread_id=feedback-1
+
+###
+
+### Start another process
+GET http://localhost:8080/graph/human/expand?query=请分析这个问题的优缺点&expander_number=3&thread_id=feedback-2
+
+###
+
+### Resume with explicit false
+GET http://localhost:8080/graph/human/resume?feed_back=false&thread_id=feedback-2
+
+###
