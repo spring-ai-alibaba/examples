@@ -53,7 +53,6 @@ public class ReactAutoconfiguration {
 			.name("React Agent Demo")
 			.chatClient(chatClient)
 			.resolver(resolver)
-			.maxIterations(10)
 			.build();
 	}
 
