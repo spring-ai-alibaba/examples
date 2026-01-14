@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,11 +47,17 @@ public class OceanBaseController {
         HashMap<String, Object> map = new HashMap<>();
         map.put("id", "12345");
         map.put("year", "2025");
-        map.put("name", "yingzi");
+        map.put("name", "zhangsan");
+        HashMap<String, Object> map1 = new HashMap<>();
+        map.put("id", "12345");
+        map.put("year", "2025");
+        map.put("name", "lisi");
         List<Document> documents = List.of(
                 new Document("The World is Big and Salvation Lurks Around the Corner"),
                 new Document("You walk forward facing the past and you turn back toward the future.", Map.of("year", 2024)),
-                new Document("Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!!", map));
+                new Document("Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!!", map),
+                new Document("Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!!", map1)
+        );
         oceanBaseVectorStore.add(documents);
     }
 
@@ -62,5 +69,32 @@ public class OceanBaseController {
                 .query("Spring")
                 .topK(2)
                 .build());
+    }
+
+    @GetMapping("/filter")
+    public List<Document> filter() {
+        logger.info("start search data");
+        Filter.Expression filter = new Filter.Expression(
+                   Filter.ExpressionType.EQ,
+                   new Filter.Key("name"),
+                   new Filter.Value("lisi")
+                );
+        return oceanBaseVectorStore.similaritySearch(SearchRequest
+                .builder()
+                .query("Spring")
+                .filterExpression(filter)
+                .topK(2)
+                .build());
+    }
+
+    @GetMapping("/delete")
+    public String delete(String id){
+        try {
+            oceanBaseVectorStore.delete(List.of(id));
+            return "delete success";
+        } catch (Exception e) {
+            logger.error("delete failed", e);
+            return "delete failed: " + e.getMessage();
+        }
     }
 }

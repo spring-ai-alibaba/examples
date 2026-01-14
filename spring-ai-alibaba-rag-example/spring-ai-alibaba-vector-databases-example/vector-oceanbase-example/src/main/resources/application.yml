@@ -14,3 +14,5 @@ spring:
         username: ${OCEANBASE_USERNAME:root@test}
         password: ${OCEANBASE_PASSWORD:test}
         tableName: test_ai
+        dimension: 1024  # Optional default 1024
+        hybrid-search-type: fulltext #Optional, full-text indexes will be automatically created when enabled and support full-text + vector hybrid search

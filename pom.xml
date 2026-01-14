@@ -47,8 +47,8 @@
 
 		<!-- Spring AI Alibaba -->
 		<!-- Install Spring AI Alibaba in your local. -->
-		<spring-ai-alibaba.version>1.1.0.0</spring-ai-alibaba.version>
-		<spring-ai-alibaba-extensions.version>1.1.0.0</spring-ai-alibaba-extensions.version>
+		<spring-ai-alibaba.version>1.1.2.0</spring-ai-alibaba.version>
+		<spring-ai-alibaba-extensions.version>1.1.2.0</spring-ai-alibaba-extensions.version>
 
 		<!-- maven plugin -->
 		<maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
