@@ -17,6 +17,7 @@
 package com.alibaba.cloud.ai.example.chat.dashscope.controller;
 
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
@@ -102,35 +103,60 @@ public class DashScopeChatModelController {
 		return res;
 	}
 
-	// stream 下获取 usage，将以下代码放在 main 方法中
-	//DashScopeChatModel chatModel = DashScopeChatModel.builder()
-	//        .dashScopeApi(DashScopeApi.builder()
-	//                .apiKey("sk-xxxx")
-	//                .build()
-	//        ).defaultOptions(DashScopeChatOptions.builder()
-	//                .model("qwen-plus")
-	//                .build())
-	//        .build();
-	//
-	//Flux<ChatResponse> stream = chatModel.stream(new Prompt("hi, who are u?"));
-	//
-	//stream.subscribe(
-	//    response -> {
-	//        System.out.println("Response: " + response.getResult().getOutput().getText());
-	//
-	//        System.out.println("Usage 1: " + response.getMetadata().getUsage().getCompletionTokens());
-	//        System.out.println("Usage 2: " + response.getMetadata().getUsage().getPromptTokens());
-	//        System.out.println("Usage 3: " + response.getMetadata().getUsage().getTotalTokens());
-	//    },
-	//    error -> System.err.println("Error: " + error.getMessage()),
-	//    () -> System.out.println("Stream completed")
-	//);
-	//
-	//try {
-	//    Thread.sleep(10000);
-	//} catch (InterruptedException e) {
-	//    Thread.currentThread().interrupt();
-	//}
+    /**
+     * $ curl http://localhost:10000/model/search/info/streams
+     * 近期量子物理领域取得了多项重要研究进展。2026年初，以色列魏茨曼研究所首次在实验中观测到能通过交换顺序“记住”量子态的非阿贝尔任意子，这一发现为拓扑量子计算机提供了物理载体，其信息存储受拓扑保护，抗环境干扰能力显著优于传统量子比特[4]。与此同时，中国科 学技术大学潘建伟院士团队在《自然》杂志发表的研究指出，中国量子计算系统的相干时间已突破5分钟，相较于2020年提升了60倍，这主要得益于对量子环境的精密控制技术而非单纯依赖人的专注力[1]。
+     *
+     * 此外，北京计算科学研究中心的薛鹏教授团队在非厄米系统中捕捉到了两种截然不同的动力学量子相变，挑战了传统上追求封闭系统的观念，提出应在开放和损耗中寻找新的秩序，并强调了使用“双正交”基底来观察非厄米系统内部复杂动态的重要性[6]。波兰科学院团队则从量子力 学基本法则层面揭示了极端碰撞中量子信息的守恒本质，在大型强子对撞机的数据分析中发现了高能碰撞下信息完美守恒的现象，支持了量子力学幺正性原理[4]。
+     *
+     * 在中国，王亚愚团队成功改善了器件质量与可重复性，在7层MnBi2Te4器件中获得了零场量子化霍尔电阻平台，揭示了二维反铁磁体系特有的多种自旋构型对拓扑输运的调制作用[2]。同时，中国科学院高能物理研究所岩斌副研究员团队利用Belle实验数据首次验证了轻味夸克之间可 能存在的量子纠缠现象，并在6.2的高置信度水平上确认了量子非局域性[5]。这些成果共同推动着量子科技的发展，预示着未来在量子计算、通信以及材料科学等领域的广泛应用潜力[3]。%
+     */
+	@GetMapping("/search/info/streams")
+	public Flux<String> searchInfoStreams(HttpServletResponse response) {
+
+		response.setCharacterEncoding("UTF-8");
+		
+		var searchOptions = DashScopeApiSpec.SearchOptions.builder()
+				.forcedSearch(true)
+				.enableSource(true)
+				.searchStrategy("pro")
+				.enableCitation(true)
+				.citationFormat("[<number>]")
+				.build();
+		
+		var options = DashScopeChatOptions.builder()
+				.enableSearch(true)
+				.model(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
+				.searchOptions(searchOptions)
+				.temperature(0.7)
+				.build();
+		
+		String prompt = "hi, 搜索下关于量子物理的最新研究进展";
+		
+		Flux<ChatResponse> stream = dashScopeChatModel.stream(new Prompt(prompt, options));
+		
+		return stream.map(resp -> {
+			String text = resp.getResult().getOutput().getText();
+			// 打印调试信息到控制台
+			System.out.println("Response: " + text);
+			
+			// 打印使用量信息
+            //if (resp.getMetadata() != null && resp.getMetadata().getUsage() != null) {
+            //    System.out.println("Usage - Completion: " + resp.getMetadata().getUsage().getCompletionTokens());
+            //    System.out.println("Usage - Prompt: " + resp.getMetadata().getUsage().getPromptTokens());
+            //    System.out.println("Usage - Total: " + resp.getMetadata().getUsage().getTotalTokens());
+            //}
+
+			if (resp.getResult().getOutput().getMetadata() != null) {
+				Object searchInfo = resp.getResult().getOutput().getMetadata().get("search_info");
+				if (searchInfo != null) {
+					System.out.println("Search info: " + searchInfo);
+				}
+			}
+			
+			return text;
+		});
+	}
 
 	/**
 	 * 使用编程方式自定义 LLMs ChatOptions 参数， {@link com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions}

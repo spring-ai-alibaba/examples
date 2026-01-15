@@ -40,3 +40,6 @@ GET http://localhost:10000/model/dashscope/web-search/2
 ###
 # DashScopeChatModelController类的customHttpHeaders方法
 GET http://localhost:10000/model/custom/http-headers
+
+###
+GET http://localhost:10000/model/search/info/streams

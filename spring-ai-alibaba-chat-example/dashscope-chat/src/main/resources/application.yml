@@ -15,4 +15,3 @@ logging:
     org.springframework.ai: debug
     com.alibaba.dashscope.api: debug
     com.alibaba.cloud.ai.dashscope.chat: debug
-
