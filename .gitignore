@@ -44,3 +44,4 @@ logs/
 spring-ai-alibaba-multi-model-example/dashscope-multi-model/src/main/resources/multimodel/frame/*.png
 
 .bash_profilesource
+/spring-ai-alibaba-chat-example/dashscope-chat/src/main/java/com/alibaba/cloud/ai/example/chat/dashscope/network/.venv/

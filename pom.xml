@@ -47,7 +47,7 @@
 
 		<!-- Spring AI Alibaba -->
 		<!-- Install Spring AI Alibaba in your local. -->
-		<spring-ai-alibaba.version>1.1.2.0</spring-ai-alibaba.version>
+		<spring-ai-alibaba.version>1.1.0.0</spring-ai-alibaba.version>
 		<spring-ai-alibaba-extensions.version>1.1.2.0</spring-ai-alibaba-extensions.version>
 
 		<!-- maven plugin -->
@@ -77,7 +77,7 @@
 		<module>spring-ai-alibaba-nl2sql-example</module>
 		<module>spring-ai-alibaba-graph-example</module>
 		<module>spring-ai-alibaba-bailian-example</module>
-    <module>spring-ai-alibaba-evaluation-example</module>
+        <module>spring-ai-alibaba-evaluation-example</module>
         <!-- For mem0, this is on saa snapshot version, if use, please install saa in local -->
         <!-- <module>spring-ai-alibaba-mem0-example</module> -->
 	</modules>
