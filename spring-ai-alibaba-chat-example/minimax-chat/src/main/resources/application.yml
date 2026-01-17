@@ -1,0 +1,8 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: minimax-chat-example
+  ai:
+    minimax:
+      api-key: ${MINIMAX_API_KEY}

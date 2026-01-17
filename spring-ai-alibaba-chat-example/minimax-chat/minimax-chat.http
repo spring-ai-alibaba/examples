@@ -1,0 +1,18 @@
+# MiniMaxChatClientController类的simpleChat方法
+GET http://localhost:8080/minimax/chat-client/simple/chat
+
+###
+# MiniMaxChatClientController类的streamChat方法
+GET http://localhost:8080/minimax/chat-client/stream/chat
+
+###
+# MiniMaxChatModelController类的simpleChat方法
+GET http://localhost:8080/minimax/chat-model/simple/chat
+
+###
+# MiniMaxChatModelController类的streamChat方法
+GET http://localhost:8080/minimax/chat-model/stream/chat
+
+###
+# MiniMaxChatModelController类的customChat方法
+GET http://localhost:8080/minimax/chat-model/custom/chat
