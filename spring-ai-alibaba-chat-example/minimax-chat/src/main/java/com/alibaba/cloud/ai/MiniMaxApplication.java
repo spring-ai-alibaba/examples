@@ -5,8 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * @author wangx
- * @description
- * @create 2026/1/17 16:44
  */
 @SpringBootApplication
 public class MiniMaxApplication {
