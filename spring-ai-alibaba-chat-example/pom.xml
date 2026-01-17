@@ -44,6 +44,7 @@
 		<module>dashscope-chat</module>
 		<module>azure-openai-chat</module>
 		<module>vllm-chat</module>
+		<module>minimax-chat</module>
 	</modules>
 
 	<build>
