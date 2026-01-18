@@ -1,7 +1,6 @@
 # Spring AI Alibaba Chat Memory Example
 本示例演示如何使用 Mem0 Memory 聊天记忆功能。
 
-> 包含此依赖的 Spring AI Alibaba 版本尚未发布，如果需要体验此 Demo，需要本地 install。如果不体验可正常跳过，不影响其他 example 启动。
 ## 接口文档
 ### Mem0MemoryController 接口
 
