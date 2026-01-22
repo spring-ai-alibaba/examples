@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: rag-agent-example
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:your-dashscope-api-key}
+  thymeleaf:
+    cache: false
+
+logging:
+  level:
+    com.cloud.alibaba.ai.example: DEBUG
+    com.alibaba.cloud.ai.graph: DEBUG
+
+# RAG Agent Configuration
+rag:
+  knowledge:
+    sources:
+      - https://java2ai.com/docs/quick-start
+      - https://java2ai.com/docs/basics/chat-model
