@@ -1,14 +1,58 @@
-# VideoController类的textToVideo方法
-GET http://localhost:10081/ai/video/text
-
-###
-# VideoController类的videoTmpl方法
-GET http://localhost:10081/ai/video/tmpl
-
-###
-# VideoController类的firstFrame方法
+# VideoController类的first方法 - 通义万相-图生视频-基于首帧
 GET http://localhost:10081/ai/video/first
 
 ###
-# VideoController类的firstAndLastFrame方法
-GET http://localhost:10081/ai/video/fl
+# VideoController类的firstLast方法 - 通义万相-图生视频-基于首尾帧
+GET http://localhost:10081/ai/video/first-last
+
+###
+# VideoController类的videoEffects方法 - 通义万相-图声视频-视频特效
+GET http://localhost:10081/ai/video/video-effects
+
+###
+# VideoController类的referenceVideo方法 - 通义万相-参考生视频
+GET http://localhost:10081/ai/video/reference-video
+
+###
+# VideoController类的t2vMultiShot方法 - 通义万相-文生视频（多镜头叙事）
+GET http://localhost:10081/ai/video/t2v-multi-shot
+
+###
+# VideoController类的imageReference方法 - 通义万相-通用视频编辑
+GET http://localhost:10081/ai/video/image-reference
+
+###
+# VideoController类的animateMove方法 - 通义万相-图生动作
+GET http://localhost:10081/ai/video/animate-move
+
+###
+# VideoController类的animateMix方法 - 通义万相-视频换人
+GET http://localhost:10081/ai/video/animate-mix
+
+###
+# VideoController类的s2v方法 - 通义万相-数字人
+GET http://localhost:10081/ai/video/s2v
+
+###
+# VideoController类的animateAnyone方法 - 图生舞蹈视频-舞动人像（AnimateAnyone）
+GET http://localhost:10081/ai/video/animate-anyone
+
+###
+# VideoController类的emo方法 - 图生演唱视频-悦动人像EMO
+GET http://localhost:10081/ai/video/emo
+
+###
+# VideoController类的livePortrait方法 - 图生播报视频-灵动人像
+GET http://localhost:10081/ai/video/liveportrait
+
+###
+# VideoController类的videoRetalk方法 - 视频口型替换-声动人像
+GET http://localhost:10081/ai/video/videoretalk
+
+###
+# VideoController类的emoji方法 - 图生表情包视频-表情包Emoji
+GET http://localhost:10081/ai/video/emoji
+
+###
+# VideoController类的videoStyleTransform方法 - 视频风格重绘
+GET http://localhost:10081/ai/video/video-style-transform

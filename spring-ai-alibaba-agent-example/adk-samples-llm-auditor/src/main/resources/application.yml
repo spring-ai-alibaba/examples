@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: spring-ai-alibaba-llm-auditor
+
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+      chat:
+        options:
+          model: qwen-plus
+      embedding:
+        options:
+          model: text-embedding-v3
+
+search:
+  tavily:
+    api-key: ${WEB_SEARCH_KEY}
+
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor: debug
+    com.alibaba.cloud.ai.example.evaluation.controller: debug

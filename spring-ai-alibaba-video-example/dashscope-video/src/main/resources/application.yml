@@ -4,3 +4,12 @@ server:
 spring:
   application:
     name: spring-ai-alibaba-video-example
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+
+  ## 配置调用AI模型时的HTTP请求时间
+  http:
+    client:
+      readTimeout: 60s
+      connect-timeout: 120s
