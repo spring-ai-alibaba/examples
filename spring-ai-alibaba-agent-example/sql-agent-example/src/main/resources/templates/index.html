@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring AI Alibaba - SQL Agent Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a5276 0%, #2e86ab 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #0d3b66 0%, #1a5276 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .db-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+        .db-info code {
+            background: rgba(0,0,0,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message.user {
+            align-items: flex-end;
+        }
+        .message.assistant {
+            align-items: flex-start;
+        }
+        .message-content {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, #1a5276 0%, #2e86ab 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+        .message-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .input-container {
+            display: flex;
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .input-container input:focus {
+            border-color: #1a5276;
+        }
+        .input-container button {
+            margin-left: 12px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1a5276 0%, #2e86ab 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .input-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 82, 118, 0.4);
+        }
+        .input-container button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            color: #666;
+        }
+        .loading-dots {
+            display: flex;
+            margin-left: 8px;
+        }
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: #1a5276;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        .example-queries {
+            padding: 16px;
+            background: #e8f4f8;
+            border-top: 1px solid #e0e0e0;
+        }
+        .example-queries h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .example-queries button {
+            margin: 4px;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #1a5276;
+            color: #1a5276;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .example-queries button:hover {
+            background: #1a5276;
+            color: white;
+        }
+        .sql-result {
+            font-family: 'Courier New', monospace;
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Spring AI Alibaba SQL Agent</h1>
+            <p>Natural Language to SQL - Ask questions about your database in plain language</p>
+            <div class="db-info">
+                Database: <code>E-commerce</code> |
+                Tables: <code>customers</code>, <code>products</code>, <code>orders</code>, <code>order_items</code>, <code>categories</code>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message assistant">
+                <span class="message-label">SQL Agent</span>
+                <div class="message-content">
+Hello! I'm a SQL Agent powered by Spring AI Alibaba. I can answer questions about the e-commerce database using natural language.
+
+You can ask me questions like:
+- "What are the top 5 best-selling products?"
+- "Show me customers from Beijing"
+- "What's the total revenue by category?"
+
+I'll analyze the database, generate SQL queries, and provide you with answers!
+                </div>
+            </div>
+        </div>
+
+        <div class="example-queries">
+            <h3>Try asking:</h3>
+            <button onclick="askExample('What tables are in the database?')">List all tables</button>
+            <button onclick="askExample('Show me the top 5 customers by order amount')">Top customers</button>
+            <button onclick="askExample('What are the best-selling products?')">Best sellers</button>
+            <button onclick="askExample('How many orders are in each status?')">Order status</button>
+            <button onclick="askExample('What is the average order value by city?')">Avg order by city</button>
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Ask a question about the database..."
+                   onkeypress="if(event.key==='Enter')sendMessage()">
+            <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let threadId = null;
+
+        function askExample(query) {
+            document.getElementById('messageInput').value = query;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatContainer = document.getElementById('chatContainer');
+
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            input.disabled = true;
+            sendButton.disabled = true;
+
+            // Add loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant';
+            loadingDiv.innerHTML = `
+                <span class="message-label">SQL Agent</span>
+                <div class="loading">
+                    Analyzing database<div class="loading-dots"><span></span><span></span><span></span></div>
+                </div>
+            `;
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const response = await fetch('/api/sql/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        threadId: threadId
+                    })
+                });
+
+                const data = await response.json();
+                threadId = data.threadId;
+
+                // Remove loading indicator
+                chatContainer.removeChild(loadingDiv);
+
+                // Add assistant response
+                addMessage(data.response, 'assistant');
+            } catch (error) {
+                chatContainer.removeChild(loadingDiv);
+                addMessage('Sorry, an error occurred. Please try again.', 'assistant');
+            }
+
+            input.disabled = false;
+            sendButton.disabled = false;
+            input.focus();
+        }
+
+        function addMessage(content, role) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.innerHTML = `
+                <span class="message-label">${role === 'user' ? 'You' : 'SQL Agent'}</span>
+                <div class="message-content">${escapeHtml(content)}</div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: sql-agent-example
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:your-dashscope-api-key}
+  thymeleaf:
+    cache: false
+  datasource:
+    url: jdbc:sqlite:./ecommerce.db
+    driver-class-name: org.sqlite.JDBC
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+logging:
+  level:
+    com.cloud.alibaba.ai.example: DEBUG
+    com.alibaba.cloud.ai.graph: DEBUG
+
+# SQL Agent Configuration
+sql-agent:
+  max-results: 10
