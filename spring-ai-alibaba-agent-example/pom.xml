@@ -41,6 +41,7 @@
 		<module>rag-agent-example</module>
 		<module>sql-agent-example</module>
 		<module>adk-samples-llm-auditor</module>
+		<module>voice-agent-dashscope-sdk-example</module>
 	</modules>
 
 	<build>

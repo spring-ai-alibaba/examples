@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #38ef7d, #11998e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mic-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 0;
+        }
+
+        .mic-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #fff;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(56, 239, 125, 0.3);
+        }
+
+        .mic-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(56, 239, 125, 0.4);
+        }
+
+        .mic-btn.recording {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            box-shadow: 0 4px 20px rgba(255, 65, 108, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 0 25px rgba(255, 65, 108, 0);
+            }
+        }
+
+        .status {
+            text-align: center;
+            color: #38ef7d;
+            margin: 1.5rem 0;
+            font-size: 1.1rem;
+            min-height: 1.5rem;
+        }
+
+        .status.error {
+            color: #ff4b2b;
+        }
+
+        .transcript {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            min-height: 80px;
+        }
+
+        .transcript-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .transcript-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #ccc;
+        }
+
+        .transcript-text.user {
+            color: #38ef7d;
+        }
+
+        .transcript-text.agent {
+            color: #fff;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff4b2b;
+        }
+
+        .connection-dot.connected {
+            background: #38ef7d;
+        }
+
+        .log-container {
+            margin-top: 1.5rem;
+        }
+
+        .log-toggle {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .log {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.8rem;
+            border-radius: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            color: #666;
+            font-family: monospace;
+            display: none;
+        }
+
+        .log.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎤 语音助手</h1>
+    <p class="subtitle">按住说话 → AI 回复</p>
+
+    <div class="container">
+        <div class="connection-status">
+            <span class="connection-dot" id="connDot"></span>
+            <span id="connText">未连接</span>
+        </div>
+
+        <div class="mic-area">
+            <button class="mic-btn" id="micBtn">🎤</button>
+            <p class="status" id="status">点击麦克风开始</p>
+        </div>
+
+        <div class="transcript">
+            <div class="transcript-label">对话</div>
+            <div class="transcript-text" id="transcript"></div>
+        </div>
+
+        <div class="log-container">
+            <button class="log-toggle" onclick="toggleLog()">显示日志 ▼</button>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        const micBtn = document.getElementById('micBtn');
+        const status = document.getElementById('status');
+        const transcript = document.getElementById('transcript');
+        const logEl = document.getElementById('log');
+        const connDot = document.getElementById('connDot');
+        const connText = document.getElementById('connText');
+
+        let ws = null;
+        let audioContext = null;
+        let mediaStream = null;
+        let processor = null;
+        let isRecording = false;
+        let isProcessing = false;
+        let isPlaying = false;
+        let canCancel = false; // Can user cancel processing
+        let activeSources = [];
+        let processingTimeout = null;
+        let cancelCooldown = null;
+
+        // Reset to idle state
+        function resetState() {
+            // Stop recording resources if active
+            if (isRecording) {
+                isRecording = false;
+                if (processor) {
+                    processor.disconnect();
+                    processor = null;
+                }
+                if (audioContext) {
+                    audioContext.close();
+                    audioContext = null;
+                }
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(t => t.stop());
+                    mediaStream = null;
+                }
+            }
+
+            isProcessing = false;
+            isPlaying = false;
+            canCancel = false;
+            if (processingTimeout) {
+                clearTimeout(processingTimeout);
+                processingTimeout = null;
+            }
+            if (cancelCooldown) {
+                clearTimeout(cancelCooldown);
+                cancelCooldown = null;
+            }
+            // Stop any playing audio
+            activeSources.forEach(s => { try { s.stop(); } catch (e) { } });
+            activeSources = [];
+            nextStartTime = 0;
+            lastAudioEndTime = 0;
+            // Reset UI
+            micBtn.style.opacity = '1';
+            micBtn.style.cursor = 'pointer';
+            micBtn.classList.remove('recording');
+            micBtn.textContent = '🎤';
+            status.textContent = '点击麦克风开始';
+            status.classList.remove('error');
+        }
+
+        // 连接 WebSocket
+        function connect() {
+            const wsHost = location.port === '8081' ? location.host : 'localhost:8081';
+            ws = new WebSocket('ws://' + wsHost + '/ws/voice');
+            ws.binaryType = 'arraybuffer';
+
+            ws.onopen = () => {
+                log('WebSocket 已连接');
+                connDot.classList.add('connected');
+                connText.textContent = '已连接';
+                status.textContent = '点击麦克风开始';
+            };
+
+            ws.onclose = () => {
+                log('WebSocket 断开');
+                connDot.classList.remove('connected');
+                connText.textContent = '未连接';
+                setTimeout(connect, 3000);
+            };
+
+            ws.onerror = (e) => {
+                log('WebSocket 错误');
+                status.textContent = '连接错误';
+                status.classList.add('error');
+            };
+
+            ws.onmessage = handleMessage;
+        }
+
+        // 处理服务器消息
+        function handleMessage(event) {
+            if (event.data instanceof ArrayBuffer) {
+                // 音频数据
+                log('收到音频: ' + event.data.byteLength + ' bytes');
+                playAudio(event.data);
+            } else {
+                // JSON 事件
+                try {
+                    const data = JSON.parse(event.data);
+                    handleEvent(data);
+                } catch (e) {
+                    log('消息: ' + event.data);
+                }
+            }
+        }
+
+        // Handle events
+        function handleEvent(event) {
+            log('事件: ' + event.type);
+
+            // Clear timeout on any valid event
+            if (processingTimeout) {
+                clearTimeout(processingTimeout);
+                processingTimeout = null;
+            }
+
+            switch (event.type) {
+                case 'stt_chunk':
+                    status.textContent = '识别中: ' + event.transcript;
+                    break;
+                case 'stt_output':
+                    status.textContent = '你说: ' + event.transcript;
+                    transcript.innerHTML = '<span class="user">你: ' + event.transcript + '</span><br>';
+                    break;
+                case 'agent_chunk':
+                    const agentSpan = document.getElementById('agentResponse') ||
+                        (() => {
+                            const span = document.createElement('span');
+                            span.id = 'agentResponse';
+                            span.className = 'agent';
+                            transcript.appendChild(document.createTextNode('AI: '));
+                            transcript.appendChild(span);
+                            return span;
+                        })();
+                    agentSpan.textContent += event.text;
+                    status.textContent = 'AI 回复中...';
+                    break;
+                case 'agent_end':
+                    status.textContent = '语音合成中...';
+                    break;
+                case 'tts_chunk':
+                    break;
+                case 'error':
+                    status.textContent = '错误: ' + event.message;
+                    status.classList.add('error');
+                    resetState();
+                    break;
+            }
+        }
+
+        // ------ 音频播放逻辑 (PCM流式播放) ------
+        let nextStartTime = 0;
+        let pcmAudioCtx = null;
+        let lastAudioEndTime = 0; // 跟踪最后一段音频结束时间
+
+        function initAudioContext() {
+            if (!pcmAudioCtx) {
+                pcmAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+            }
+            if (pcmAudioCtx.state === 'suspended') {
+                pcmAudioCtx.resume();
+            }
+        }
+
+        function playAudio(arrayBuffer) {
+            initAudioContext();
+            isPlaying = true;
+            canCancel = true; // Allow interrupt during playback
+            status.textContent = 'AI 播放中...（点击打断）';
+            micBtn.style.opacity = '0.7';
+            micBtn.style.cursor = 'pointer';
+
+            // Convert ArrayBuffer (Int16 PCM) to Float32
+            const int16Data = new Int16Array(arrayBuffer);
+            const float32Data = new Float32Array(int16Data.length);
+            for (let i = 0; i < int16Data.length; i++) {
+                float32Data[i] = int16Data[i] / 32768.0;
+            }
+
+            // Create AudioBuffer
+            const audioBuffer = pcmAudioCtx.createBuffer(1, float32Data.length, 16000);
+            audioBuffer.getChannelData(0).set(float32Data);
+
+            // Create source node
+            const source = pcmAudioCtx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(pcmAudioCtx.destination);
+
+            // Calculate start time for seamless playback
+            const currentTime = pcmAudioCtx.currentTime;
+            if (nextStartTime < currentTime) {
+                nextStartTime = currentTime + 0.05;
+            }
+
+            source.start(nextStartTime);
+            activeSources.push(source);
+
+            nextStartTime += audioBuffer.duration;
+            lastAudioEndTime = nextStartTime;
+
+            // When audio ends
+            source.onended = () => {
+                // Remove from active sources
+                const idx = activeSources.indexOf(source);
+                if (idx > -1) activeSources.splice(idx, 1);
+
+                // If all audio finished naturally
+                if (activeSources.length === 0 && pcmAudioCtx.currentTime >= lastAudioEndTime - 0.1) {
+                    isProcessing = false;
+                    isPlaying = false;
+                    canCancel = false;
+
+                    if (isRecording) {
+                        status.textContent = '说话中...松开结束';
+                    } else {
+                        status.textContent = '点击麦克风开始';
+                    }
+
+                    micBtn.style.opacity = '1';
+                    micBtn.style.cursor = 'pointer';
+                    // Clean up agentResponse span
+                    const agentSpan = document.getElementById('agentResponse');
+                    if (agentSpan) {
+                        agentSpan.removeAttribute('id');
+                    }
+                }
+            };
+        }
+
+        // Toggle recording
+        async function toggleRecording() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                status.textContent = '未连接，请稍候';
+                return;
+            }
+
+            // If processing or playing, clicking mic cancels (only if cooldown passed)
+            if (isProcessing || isPlaying) {
+                if (canCancel) {
+                    log('用户取消，重置状态');
+                    resetState();
+                } else {
+                    log('请等待发送完成...');
+                }
+                return;
+            }
+
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        let bytesSent = 0; // Track sent audio bytes
+
+        // 开始录音（流式发送 PCM）
+        async function startRecording() {
+            try {
+                log('请求麦克风权限...');
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        sampleRate: 16000,
+                        channelCount: 1,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    }
+                });
+
+                audioContext = new AudioContext({ sampleRate: 16000 });
+                const source = audioContext.createMediaStreamSource(mediaStream);
+
+                bytesSent = 0; // Reset counter
+
+                // 创建 ScriptProcessor 处理音频
+                processor = audioContext.createScriptProcessor(4096, 1, 1);
+                processor.onaudioprocess = (e) => {
+                    if (!isRecording) return;
+
+                    const input = e.inputBuffer.getChannelData(0);
+                    // 转换为 16-bit PCM
+                    const pcm = new Int16Array(input.length);
+                    for (let i = 0; i < input.length; i++) {
+                        pcm[i] = Math.max(-32768, Math.min(32767, input[i] * 32768));
+                    }
+
+                    // 发送 PCM 数据
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(pcm.buffer);
+                        bytesSent += pcm.byteLength;
+                    }
+                };
+
+                source.connect(processor);
+                processor.connect(audioContext.destination);
+
+                isRecording = true;
+                micBtn.classList.add('recording');
+                micBtn.textContent = '⏹';
+                status.textContent = '说话中...松开结束';
+                status.classList.remove('error');
+                log('开始录音 (PCM 16kHz 16-bit)');
+
+            } catch (err) {
+                log('麦克风错误: ' + err.message);
+                status.textContent = '无法访问麦克风';
+                status.classList.add('error');
+            }
+        }
+
+        // 停止录音
+        function stopRecording() {
+            isRecording = false;
+
+            if (processor) {
+                processor.disconnect();
+                processor = null;
+            }
+
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(t => t.stop());
+                mediaStream = null;
+            }
+
+            micBtn.classList.remove('recording');
+            micBtn.textContent = '🎤';
+            log('停止录音');
+
+            // Check if we actually sent enough data
+            if (bytesSent < 1000) {
+                log('录音过短或为空，取消处理');
+                status.textContent = '录音过短';
+                setTimeout(() => {
+                    status.textContent = '点击麦克风开始';
+                }, 1500);
+                return;
+            }
+
+            // Start processing state (no cancel allowed during first 3 seconds)
+            isProcessing = true;
+            canCancel = false;
+            micBtn.style.opacity = '0.5';
+            micBtn.style.cursor = 'not-allowed';
+
+            // Send end marker
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'audio_end' }));
+            }
+
+            status.textContent = '发送中...';
+
+            // Allow cancel after 3 seconds
+            cancelCooldown = setTimeout(() => {
+                if (isProcessing && !isPlaying) {
+                    canCancel = true;
+                    micBtn.style.cursor = 'pointer';
+                    status.textContent = '处理中...（点击取消）';
+                }
+            }, 3000);
+
+            // Set timeout to reset state if no response in 20 seconds
+            processingTimeout = setTimeout(() => {
+                log('处理超时，重置状态');
+                status.textContent = '未收到响应，请重试';
+                resetState();
+            }, 20000);
+        }
+
+        // 日志
+        function log(msg) {
+            const time = new Date().toLocaleTimeString();
+            logEl.innerHTML += time + ' ' + msg + '\n';
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(msg);
+        }
+
+        function toggleLog() {
+            logEl.classList.toggle('show');
+        }
+
+        // 事件绑定
+        micBtn.addEventListener('click', toggleRecording);
+
+        // 初始化
+        connect();
+    </script>
+</body>
+
+</html>
