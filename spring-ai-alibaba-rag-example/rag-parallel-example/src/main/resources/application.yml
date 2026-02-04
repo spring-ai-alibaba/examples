@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: rag-parallel
+  ai:
+    chat:
+      client:
+        enabled: true
+    dashscope:
+      api-key: ${API_KEY}
+      chat:
+        enabled: true
+  autoconfigure:
+    exclude:
+      - com.alibaba.cloud.ai.autoconfigure.dashscope.DashScopeAudioSpeechAutoConfiguration
+      - com.alibaba.cloud.ai.autoconfigure.dashscope.DashScopeAudioTranscriptionAutoConfiguration
+knowledge-base:
+  configs:
+    - workspace-id: ${WORKSPACE_ID1}
+      api-key: ${RAG_API_KEY1}
+      scope: business
+      score: 0.7
+      top-num: 5
+      index-names:
+        - 业务知识库
+    - workspace-id: ${WORKSPACE_ID2}
+      api-key: ${RAG_API_KEY2}
+      scope: common
+      score: 0.7
+      top-num: 5
+      index-names:
+        - 通用知识库
+    - workspace-id: ${WORKSPACE_ID3}
+      api-key: ${RAG_API_KEY3}
+      scope: product
+      score: 0.7
+      top-num: 5
+      index-names:
+        - 产品知识库
+    - workspace-id: ${WORKSPACE_ID4}
+      api-key: ${RAG_API_KEY4}
+      scope: server
+      score: 0.7
+      top-num: 5
+      index-names:
+        - 服务信息知识库
+

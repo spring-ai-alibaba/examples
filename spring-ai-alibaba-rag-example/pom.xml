@@ -47,6 +47,7 @@
         <module>rag-elasticsearch-autoconfigure-example</module>
         <module>rag-component-example</module>
         <module>langgraph-custom-rag-example</module>
+        <module>rag-parallel-example</module>
     </modules>
 
     <build>

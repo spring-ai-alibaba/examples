@@ -1,0 +1,14 @@
+###
+@placeholder = "总结一下知识内容"
+
+### retrieve
+GET http://localhost:8080/retrieve/retrieve?
+    question={{placeholder}}
+
+### retrieveByParallelThread
+GET http://localhost:8080/retrieve/retrieveByParallelThread?
+    question={{placeholder}}
+
+### advisor
+GET http://localhost:8080/retrieve/advisor?
+    question={{placeholder}}
