@@ -1,10 +1,54 @@
-# AudioSpeechController类的streamTTS方法
-GET http://localhost:10009/ai/speech/stream
+# TTSController类的sambertStream方法
+GET http://localhost:10009/ai/video/tts/sambert/stream
 
 ###
-# AudioTranscriptionController类的callSTT方法
-GET http://localhost:10009/ai/transcription/call
+# TTSController类的sambertComplete方法
+GET http://localhost:10009/ai/video/tts/sambert/complete
 
 ###
-# AudioTranscriptionController类的streamSTT方法
-GET http://localhost:10009/ai/transcription/stream
+# TTSController类的qwen3TtsCall方法
+GET http://localhost:10009/ai/video/tts/qwen3-tts/call
+
+###
+# TTSController类的qwen3TtsStream方法
+GET http://localhost:10009/ai/video/tts/qwen3-tts/stream
+
+###
+# TranscriptionController类的qwen3Call方法
+GET http://localhost:10009/ai/video/transcription/qwen3-call
+
+###
+# TranscriptionController类的qwen3LiveTranslateStream方法
+GET http://localhost:10009/ai/video/transcription/qwen3-livetranslate/stream
+
+###
+# TranscriptionController类的websocketShort方法
+GET http://localhost:10009/ai/video/transcription/websocket/short
+
+###
+# TranscriptionController类的websocketLong方法
+GET http://localhost:10009/ai/video/transcription/websocket/long
+
+###
+# TranscriptionController类的websocketParaformer方法
+GET http://localhost:10009/ai/video/transcription/websocket/paraformer
+
+###
+# TranscriptionController类的websocketFunAsr方法
+GET http://localhost:10009/ai/video/transcription/websocket/funasr
+
+###
+# TranscriptionController类的asrParaformerCall方法
+GET http://localhost:10009/ai/video/transcription/asr/paraformer/call
+
+###
+# TranscriptionController类的asrFunAsrCall方法
+GET http://localhost:10009/ai/video/transcription/asr/funasr/call
+
+###
+# TranscriptionController类的asrQwenCall方法
+GET http://localhost:10009/ai/video/transcription/asr/qwen/call
+
+###
+# TranscriptionController类的asrQwenStream方法
+GET http://localhost:10009/ai/video/transcription/asr/qwen/stream
