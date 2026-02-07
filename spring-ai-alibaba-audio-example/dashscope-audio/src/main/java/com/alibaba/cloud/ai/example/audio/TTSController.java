@@ -1,7 +1,7 @@
 package com.alibaba.cloud.ai.example.audio;
 
 import com.alibaba.cloud.ai.dashscope.audio.tts.DashScopeAudioSpeechOptions;
-import com.alibaba.cloud.ai.dashscope.audio.tts.TTSReqRes;
+import com.alibaba.cloud.ai.dashscope.audio.tts.DashScopeTTSApiSpec;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import com.alibaba.cloud.ai.example.audio.util.AudioUtils;
 import org.slf4j.Logger;
@@ -146,8 +146,8 @@ public class TTSController {
         TextToSpeechPrompt prompt = new TextToSpeechPrompt(TEST_TEXT, options);
         TextToSpeechResponse response = textToSpeechModel.call(prompt);
 
-        TTSReqRes.DashScopeAudioTTSResponse dashScopeResponse =
-                (TTSReqRes.DashScopeAudioTTSResponse) response;
+        DashScopeTTSApiSpec.DashScopeAudioTTSResponse dashScopeResponse =
+                (DashScopeTTSApiSpec.DashScopeAudioTTSResponse) response;
 
         logger.info("Qwen3-tts-flash call test passed");
         logger.info("Audio URL: {}", dashScopeResponse.getOutput().audio().url());
@@ -185,9 +185,9 @@ public class TTSController {
         Flux<TextToSpeechResponse> result = textToSpeechModel.stream(prompt);
 
         return result.map(response -> {
-            TTSReqRes.DashScopeAudioTTSResponse r = (TTSReqRes.DashScopeAudioTTSResponse) response;
+            DashScopeTTSApiSpec.DashScopeAudioTTSResponse r = (DashScopeTTSApiSpec.DashScopeAudioTTSResponse) response;
 
-            TTSReqRes.DashScopeAudioTTSResponse.TTSAudio audio = r.getOutput().audio();
+            DashScopeTTSApiSpec.DashScopeAudioTTSResponse.TTSAudio audio = r.getOutput().audio();
             StringBuilder sb = new StringBuilder();
             sb.append("Request ID: ").append(r.getRequestId()).append("\n");
 

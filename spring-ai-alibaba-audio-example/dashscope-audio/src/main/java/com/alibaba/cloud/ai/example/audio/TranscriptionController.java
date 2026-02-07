@@ -1,11 +1,13 @@
 package com.alibaba.cloud.ai.example.audio;
 
-import com.alibaba.cloud.ai.dashscope.audio.transcription.AsrTranscriptionReqRes;
 import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeAudioTranscriptionModel;
 import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeAudioTranscriptionOptions;
 import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeAudioTranscriptionPrompt;
+import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeAsrTranscriptionApiSpec;
+import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeTranscriptionApiSpec;
 import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeTranscriptionResponse;
-import com.alibaba.cloud.ai.dashscope.audio.transcription.TranscriptionReqRes;
+import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeTranscriptionResponse.DashScopeAudioTranscription;
+import com.alibaba.cloud.ai.dashscope.metadata.audio.DashScopeAudioTranscriptionResponseMetadata;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +81,8 @@ public class TranscriptionController {
 
         // Act
         AudioTranscriptionResponse response = transcriptionModel.call(prompt);
-        TranscriptionReqRes.DashScopeAudioTranscriptionResponse dashScopeResponse =
-                (TranscriptionReqRes.DashScopeAudioTranscriptionResponse) response;
+        DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse dashScopeResponse =
+                (DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse) response;
 
         logger.info("LiveTranslate call test passed");
         logger.info("Response ID: {}", dashScopeResponse.getId());
@@ -138,8 +140,8 @@ public class TranscriptionController {
         Flux<AudioTranscriptionResponse> result = transcriptionModel.stream(prompt);
 
         return result.map(response -> {
-            TranscriptionReqRes.DashScopeAudioTranscriptionResponse r =
-                    (TranscriptionReqRes.DashScopeAudioTranscriptionResponse) response;
+            DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse r =
+                    (DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse) response;
 
             StringBuilder sb = new StringBuilder();
             sb.append("Request ID: ").append(r.getId()).append("\n");
@@ -188,14 +190,14 @@ public class TranscriptionController {
             DashScopeTranscriptionResponse r = (DashScopeTranscriptionResponse) response;
             StringBuilder sb = new StringBuilder();
 
-            DashScopeTranscriptionResponse.Transcription transcription = r.getTranscription();
+            DashScopeAudioTranscription transcription = r.getResult();
             if (transcription != null) {
-                sb.append("Transcription: ").append(transcription.text()).append("\n");
+                sb.append("Transcription: ").append(transcription.getText()).append("\n");
             }
 
-            List<DashScopeTranscriptionResponse.Translation> translations = r.getTranslations();
+            List<DashScopeAudioTranscriptionResponseMetadata.Translation> translations = r.getMetadata().getTranslations();
             if (translations != null) {
-                for (DashScopeTranscriptionResponse.Translation translation : translations) {
+                for (DashScopeAudioTranscriptionResponseMetadata.Translation translation : translations) {
                     sb.append("Translation: ").append(translation.text()).append("\n");
                 }
             }
@@ -229,14 +231,14 @@ public class TranscriptionController {
             DashScopeTranscriptionResponse r = (DashScopeTranscriptionResponse) response;
             StringBuilder sb = new StringBuilder();
 
-            DashScopeTranscriptionResponse.Transcription transcription = r.getTranscription();
+            DashScopeAudioTranscription transcription = r.getResult();
             if (transcription != null) {
-                sb.append("Transcription: ").append(transcription.text()).append("\n");
+                sb.append("Transcription: ").append(transcription.getText()).append("\n");
             }
 
-            List<DashScopeTranscriptionResponse.Translation> translations = r.getTranslations();
+            List<DashScopeAudioTranscriptionResponseMetadata.Translation> translations = r.getMetadata().getTranslations();
             if (translations != null) {
-                for (DashScopeTranscriptionResponse.Translation translation : translations) {
+                for (DashScopeAudioTranscriptionResponseMetadata.Translation translation : translations) {
                     sb.append("Translation: ").append(translation.text()).append("\n");
                 }
             }
@@ -269,7 +271,7 @@ public class TranscriptionController {
 
         return result.map(response -> {
             DashScopeTranscriptionResponse r = (DashScopeTranscriptionResponse) response;
-            DashScopeTranscriptionResponse.Sentence sentence = r.getSentence();
+            DashScopeAudioTranscriptionResponseMetadata.Sentence sentence = r.getMetadata().getSentence();
             String text = sentence != null ? sentence.text() : "";
             logger.info("WebSocket Paraformer response: {}", text);
             return "Transcription: " + text + "\n";
@@ -296,7 +298,7 @@ public class TranscriptionController {
 
         return result.map(response -> {
             DashScopeTranscriptionResponse r = (DashScopeTranscriptionResponse) response;
-            DashScopeTranscriptionResponse.Sentence sentence = r.getSentence();
+            DashScopeAudioTranscriptionResponseMetadata.Sentence sentence = r.getMetadata().getSentence();
             String text = sentence != null ? sentence.text() : "";
             logger.info("WebSocket FunASR response: {}", text);
             return "Transcription: " + text + "\n";
@@ -323,16 +325,16 @@ public class TranscriptionController {
         AudioTranscriptionPrompt prompt = new DashScopeAudioTranscriptionPrompt(options, fileUrls);
 
         AudioTranscriptionResponse response = transcriptionModel.call(prompt);
-        AsrTranscriptionReqRes.DashScopeAudioAsrTranscriptionResponse asrResponse =
-                (AsrTranscriptionReqRes.DashScopeAudioAsrTranscriptionResponse) response;
+        DashScopeAsrTranscriptionApiSpec.DashScopeAudioAsrTranscriptionResponse asrResponse =
+                (DashScopeAsrTranscriptionApiSpec.DashScopeAudioAsrTranscriptionResponse) response;
 
         StringBuilder sb = new StringBuilder();
         sb.append("Paraformer ASR call result:\n");
 
-        for (AsrTranscriptionReqRes.DashScopeAudioAsrTranscriptionResponse.TranscriptionResult result : asrResponse.getTranscriptionResults()) {
+        for (DashScopeAsrTranscriptionApiSpec.DashScopeAudioAsrTranscriptionResponse.TranscriptionResult result : asrResponse.getTranscriptionResults()) {
             sb.append("File URL: ").append(result.fileUrl()).append("\n");
-            for (DashScopeTranscriptionResponse.Transcription transcript : result.transcripts()) {
-                logger.info("  - Channel: {}, Text: {}", transcript.channelId(), transcript.text());
+            for (DashScopeAudioTranscription transcript : result.transcripts()) {
+                logger.info("  - Channel: {}, Text: {}", transcript.getMetadata().channelId(), transcript.getText());
             }
         }
 
@@ -356,16 +358,16 @@ public class TranscriptionController {
         AudioTranscriptionPrompt prompt = new DashScopeAudioTranscriptionPrompt(options, fileUrls);
 
         AudioTranscriptionResponse response = transcriptionModel.call(prompt);
-        AsrTranscriptionReqRes.DashScopeAudioAsrTranscriptionResponse asrResponse =
-                (AsrTranscriptionReqRes.DashScopeAudioAsrTranscriptionResponse) response;
+        DashScopeAsrTranscriptionApiSpec.DashScopeAudioAsrTranscriptionResponse asrResponse =
+                (DashScopeAsrTranscriptionApiSpec.DashScopeAudioAsrTranscriptionResponse) response;
 
         StringBuilder sb = new StringBuilder();
         sb.append("Fun-ASR call result:\n");
 
-        for (AsrTranscriptionReqRes.DashScopeAudioAsrTranscriptionResponse.TranscriptionResult result : asrResponse.getTranscriptionResults()) {
+        for (DashScopeAsrTranscriptionApiSpec.DashScopeAudioAsrTranscriptionResponse.TranscriptionResult result : asrResponse.getTranscriptionResults()) {
             sb.append("File URL: ").append(result.fileUrl()).append("\n");
-            for (DashScopeTranscriptionResponse.Transcription transcript : result.transcripts()) {
-                logger.info("  - Channel: {}, Text: {}", transcript.channelId(), transcript.text());
+            for (DashScopeAudioTranscription transcript : result.transcripts()) {
+                logger.info("  - Channel: {}, Text: {}", transcript.getMetadata().channelId(), transcript.getText());
             }
         }
 
@@ -397,8 +399,8 @@ public class TranscriptionController {
         AudioTranscriptionPrompt prompt = new DashScopeAudioTranscriptionPrompt(options, message);
 
         AudioTranscriptionResponse response = transcriptionModel.call(prompt);
-        TranscriptionReqRes.DashScopeAudioTranscriptionResponse dashScopeResponse =
-                (TranscriptionReqRes.DashScopeAudioTranscriptionResponse) response;
+        DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse dashScopeResponse =
+                (DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse) response;
 
         String finalContent = dashScopeResponse.getChoices().get(0).message().content();
 
@@ -441,8 +443,8 @@ public class TranscriptionController {
         Flux<AudioTranscriptionResponse> result = transcriptionModel.stream(prompt);
 
         return result.map(response -> {
-            TranscriptionReqRes.DashScopeAudioTranscriptionResponse r =
-                    (TranscriptionReqRes.DashScopeAudioTranscriptionResponse) response;
+            DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse r =
+                    (DashScopeTranscriptionApiSpec.DashScopeAudioTranscriptionResponse) response;
 
             StringBuilder sb = new StringBuilder();
             sb.append("Request ID: ").append(r.getId()).append("\n");
