@@ -36,7 +36,7 @@ public class BailianAutoconfiguration {
 	@Bean
 	public DashScopeApi dashScopeApi() {
 		
-		return DashScopeApi.builder().apiKey(System.getenv("${AI_DASHSCOPE_API_KET}")).build();
+		return DashScopeApi.builder().apiKey(System.getenv("${AI_DASHSCOPE_API_KEY}")).build();
 	}
 
 }
