@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sandbox-simple-tool-example
+  ai:
+    dashscope:
+      # API Key:
+      # 1) Environment variable (recommended): AI_DASHSCOPE_API_KEY
+      # 2) Plain text in this file: api-key: "your-real-key"
+      api-key: ${AI_DASHSCOPE_API_KEY:your-key-here}
+      chat:
+        options:
+          model: qwen-max
+          temperature: 0.7
+
+# Sandbox Configuration
+sandbox:
+  docker:
+    # Docker host - default uses Unix socket
+    host: "unix:///var/run/docker.sock"
+  pool:
+    # Number of warm sandbox containers to maintain
+    # 0 means sandboxes are created on-demand
+    size: 0
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.alibaba.cloud.ai: DEBUG
+    com.alibaba.cloud.ai.examples.sandbox: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
