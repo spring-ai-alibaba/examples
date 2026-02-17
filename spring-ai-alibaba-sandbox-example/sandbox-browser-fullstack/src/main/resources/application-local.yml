@@ -1,0 +1,11 @@
+# Local Development Configuration
+# This file is not committed to version control
+# Copy this file to application-local.yml and add your API key
+
+spring:
+  ai:
+    dashscope:
+      api-key: your-api-key-here
+
+# Or use environment variable
+# api-key: ${AI_DASHSCOPE_API_KEY}

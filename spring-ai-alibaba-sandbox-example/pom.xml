@@ -38,6 +38,7 @@
 
     <modules>
         <module>sandbox-simple-tool</module>
+        <module>sandbox-browser-fullstack</module>
     </modules>
 
     <build>
