@@ -1,2 +1,0 @@
-ID,Title,Content,Acceptance Criteria,Review Requirements,State,Labels,Related Files
-1,项目结构与sandbox能力盘点,分析当前项目文件结构及职责并识别sandbox能力,输出后端/前端关键文件作用清单与sandbox能力映射并标注已知风险,核对文件引用准确性与能力描述完整性,待评审,"analysis,sandbox",docs/feature/feature-01-项目结构与sandbox能力盘点.md

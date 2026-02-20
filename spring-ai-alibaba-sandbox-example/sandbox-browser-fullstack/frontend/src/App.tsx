@@ -34,7 +34,7 @@ function App() {
   const [rightPanelExpanded, setRightPanelExpanded] = useState(true)
   const [rightPanelWidth, setRightPanelWidth] = useState(EXPANDED_RIGHT_PANEL_WIDTH)
   const [isDraggingSplitter, setIsDraggingSplitter] = useState(false)
-  const [language, setLanguage] = useState<Language>('en')
+  const [language, setLanguage] = useState<Language>('zh')
   const splitLayoutRef = useRef<HTMLDivElement>(null)
 
   const text = useMemo(() => copy[language], [language])

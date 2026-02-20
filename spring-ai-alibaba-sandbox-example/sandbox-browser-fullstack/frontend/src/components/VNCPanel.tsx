@@ -85,14 +85,6 @@ function VNCPanel({ browserInfo, language, compact = false }: Props) {
       const url = new URL(browserInfo.desktopUrl)
       url.searchParams.set('resize', 'scale')
       url.searchParams.set('scale', '1')
-
-      const rawHash = url.hash.startsWith('#') ? url.hash.slice(1) : url.hash
-      const hashParams = new URLSearchParams(rawHash)
-      if (hashParams.has('resize') || hashParams.has('scale') || rawHash.includes('=')) {
-        hashParams.set('resize', 'scale')
-        hashParams.set('scale', '1')
-        url.hash = hashParams.toString()
-      }
       return url.toString()
     } catch {
       const hasQuery = browserInfo.desktopUrl.includes('?')

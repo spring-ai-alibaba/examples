@@ -1,84 +1,95 @@
 # sandbox-browser-fullstack
 
-基于 `Spring Boot + Spring AI Alibaba + BrowserSandbox + React(Vite)` 的全栈示例项目。
+基于 `Spring Boot + Spring AI Alibaba + BrowserSandbox + React(Vite)` 的全栈示例。
 
-该模块用于演示：用户通过自然语言下达网页操作任务，后端驱动沙箱浏览器执行，并将执行结果流式返回前端，同时可通过 VNC 预览浏览器实时画面。
+这个模块演示的是：用户用自然语言下达网页任务，后端驱动沙箱浏览器执行操作，前端实时看到文本回复和浏览器画面。
 
-## 1. 模块内容
+## 1. 你能复现出的效果
 
-### 1.1 后端模块（Spring Boot）
+启动后，你可以在页面里直接输入：
+- `打开 github.com 并搜索 spring-ai-alibaba`
+- `访问 baidu.com 并总结首页模块`
 
-- 启动入口：`src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/BrowserAgentApplication.java`
-- 配置模块：
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/config/SandboxConfiguration.java`
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/config/CorsConfig.java`
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/config/WebSocketConfig.java`
-- 控制器：
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/controller/ChatController.java`
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/controller/BrowserController.java`
-- 服务层：
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/service/AgentService.java`
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/service/SessionManager.java`
-- Agent：`src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/agent/BrowserUseAgent.java`
-- 模型对象：
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/model/ChatRequest.java`
-  - `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/model/BrowserInfo.java`
+然后会看到：
+- AI 回复按流式逐步返回（不是一次性返回）
+- 同时可打开 VNC 面板，实时看见沙箱浏览器在操作页面
+- 每个 `sessionId` 独立，前端刷新前会话上下文可持续
 
-### 1.2 前端模块（React + Vite + MUI）
+## 2. 架构（先有全局图）
 
-- 入口：
-  - `frontend/src/main.tsx`
-  - `frontend/src/App.tsx`
-- 核心组件：
-  - `frontend/src/components/ChatInterface.tsx`
-  - `frontend/src/components/MessageList.tsx`
-  - `frontend/src/components/MessageInput.tsx`
-  - `frontend/src/components/VNCPanel.tsx`
-- API 调用：`frontend/src/services/api.ts`
-- 主题与多语言：
-  - `frontend/src/theme.ts`
-  - `frontend/src/i18n.ts`
-- 开发代理配置：`frontend/vite.config.ts`
+```text
+React + Vite (5173)
+   |  HTTP(SSE)/WS
+   v
+Spring Boot (8080)
+   |  AgentService + SessionManager
+   v
+BrowserUseAgent (ReactAgent + BrowserNavigateTool)
+   |
+BrowserSandbox (Docker)
+   |
+VNC desktopUrl -> 前端 iframe 实时预览
+```
 
-### 1.3 构建与部署文件
+主链路（最重要）：
+1. 前端发起 `GET /api/chat/stream`（SSE）
+2. `ChatController` 调用 `AgentService`
+3. `SessionManager` 按 `sessionId` 取/建 `BrowserUseAgent`
+4. Agent 调用 `BrowserNavigateTool` 操作 BrowserSandbox
+5. 后端把 chunk 持续推给前端，前端边收边渲染
+6. 前端轮询 `GET /api/browser/info` 获取 `desktopUrl`，在 `VNCPanel` 内展示
 
-- 后端构建：`pom.xml`
-- 后端镜像：`Dockerfile`
-- 前端镜像：`frontend/Dockerfile`
-- Nginx 配置：`frontend/nginx.conf`
-- 快速文档：`QUICKSTART.md`
+## 3. 技术栈（按模块）
 
-## 2. 实现效果
+后端：
+- Java 17
+- Spring Boot (`web`, `websocket`)
+- Spring AI Alibaba
+  - `spring-ai-alibaba-agent-framework`
+  - `spring-ai-alibaba-sandbox-tool`
+  - `spring-ai-alibaba-starter-dashscope`
+- 模型：DashScope `qwen-max`
+- 浏览器运行时：`BrowserSandbox`（依赖 Docker）
 
-- 支持自然语言下发浏览器任务（例如访问网站、搜索信息、页面观察）。
-- 通过 SSE 实现智能体回复的流式输出，前端逐步显示结果。
-- 每个 `sessionId` 独立管理会话，保证会话隔离。
-- 支持查看沙箱浏览器 VNC 实时画面，便于观察自动化过程。
-- 前端提供中英双语 UI、任务建议词和分栏浏览面板。
+前端：
+- React 18 + TypeScript
+- Vite 5
+- MUI 7
+- Axios
+- UUID（生成 `sessionId`）
 
-## 3. 启动教程
+## 4. 启动教程（新人可直接照抄）
 
-### 3.1 环境要求
+### 4.1 环境准备
 
 - JDK 17+
-- Docker（必须运行，用于 Sandbox 容器）
 - Node.js 18+
+- Docker（必须已启动）
 - DashScope API Key（变量名：`AI_DASHSCOPE_API_KEY`）
 
-### 3.2 启动后端
+可先自检：
 
-在项目根目录执行：
+```bash
+java -version
+node -v
+npm -v
+docker ps
+```
+
+### 4.2 启动后端
+
+在当前模块根目录执行：
 
 ```bash
 export AI_DASHSCOPE_API_KEY=你的Key
 mvn spring-boot:run
 ```
 
-默认地址：`http://localhost:8080`
+后端地址：`http://localhost:8080`
 
-### 3.3 启动前端
+### 4.3 启动前端
 
-打开新终端执行：
+新开一个终端：
 
 ```bash
 cd frontend
@@ -86,52 +97,72 @@ npm install
 npm run dev
 ```
 
-默认地址：`http://localhost:5173`
+前端地址：`http://localhost:5173`
 
-### 3.4 使用方式
+### 4.4 开始体验
 
 1. 打开 `http://localhost:5173`
-2. 输入任务（如“打开 github.com 并搜索 spring-ai-alibaba”）
-3. 观察对话区流式返回
-4. 点击“显示浏览器”查看 VNC 实时预览
+2. 输入任务并发送
+3. 观察左侧聊天区流式输出
+4. 点击 “Show Browser / 显示浏览器”，观察右侧 VNC 实时画面
 
-## 4. 实现原理
+## 5. 重点知识点（理解这个模块的关键）
 
-### 4.1 初始化阶段
+1. `SSE 流式输出`
+- 后端使用 `SseEmitter`
+- 前端使用 `EventSource`
+- 你会看到消息按 chunk 增量显示
 
-- `SandboxConfiguration` 在 Spring 容器启动时创建并启动 `SandboxService`。
-- 同时创建 `ChatModel`（DashScope `qwen-max`）供智能体推理使用。
+2. `会话隔离`
+- 前端启动时生成 `sessionId`
+- 后端 `SessionManager` 按 `sessionId` 管理独立 Agent/浏览器上下文
 
-### 4.2 请求处理阶段
+3. `Agent + Tool 调用`
+- `BrowserUseAgent` 内部是 `ReactAgent`
+- 注册 `ToolkitInit.BrowserNavigateTool(browserSandbox)` 后，LLM 才能“真的操作网页”
 
-- 前端通过 `EventSource` 调用 `GET /api/chat/stream`。
-- `ChatController` 接收请求后创建 `SseEmitter`，异步调用 `AgentService`。
+4. `BrowserSandbox 与 Docker`
+- 浏览器不是本地直接开，而是在沙箱容器里跑
+- Docker 没启动时，Sandbox 初始化会失败
 
-### 4.3 会话与 Agent 阶段
+5. `VNC 可视化`
+- 后端返回 `desktopUrl`
+- 前端 `iframe` 加载该地址，实现浏览器操作可视化
 
-- `SessionManager` 按 `sessionId` 获取或创建 `BrowserUseAgent`。
-- `BrowserUseAgent.initialize()` 创建 `BrowserSandbox` 并构建 `ReactAgent`。
-- `ReactAgent` 注册 `ToolkitInit.BrowserNavigateTool(browserSandbox)`，执行网页操作。
+6. `前后端联调关键点`
+- 前端 Vite 通过 `/api` 代理到 `http://localhost:8080`
+- 后端 CORS 默认允许 `http://localhost:5173` 和 `http://localhost:3000`
 
-### 4.4 结果回传阶段
+## 6. 代码阅读顺序（推荐新手）
 
-- Agent 输出被切分为文本 chunk，经 SSE 持续推送到前端。
-- 前端接收 chunk 后拼接到当前 assistant 消息，实现“边生成边显示”。
+先后端主链路，再看前端展示：
 
-### 4.5 可视化阶段
+1. `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/controller/ChatController.java`
+2. `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/service/AgentService.java`
+3. `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/service/SessionManager.java`
+4. `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/agent/BrowserUseAgent.java`
+5. `src/main/java/com/alibaba/cloud/ai/examples/sandbox/browser/config/SandboxConfiguration.java`
+6. `frontend/src/services/api.ts`
+7. `frontend/src/components/ChatInterface.tsx`
+8. `frontend/src/components/VNCPanel.tsx`
 
-- 前端轮询 `GET /api/browser/info` 获取 `desktopUrl`。
-- `VNCPanel` 使用 `iframe` 加载桌面地址，实现浏览器实时可视化。
+## 7. 常见问题（最短排障路径）
 
-## 5. 接口清单
+1. 启动时报 Sandbox 相关错误
+- 先确认 `docker ps` 正常
 
-- `GET /api/chat/stream`：聊天流式输出（前端主链路）
-- `POST /api/chat/stream`：聊天流式输出（备选）
-- `GET /api/browser/info`：查询浏览器桌面信息（含 `desktopUrl`）
-- `WS /ws/chat`：WebSocket 聊天接口
+2. 前端无流式返回
+- 看后端是否已启动在 `8080`
+- 看前端是否走 `/api/chat/stream`
 
-## 6. 注意事项
+3. 看不到浏览器画面
+- 先发起一次聊天，等待 sandbox 初始化
+- 再查看 `/api/browser/info?sessionId=xxx` 是否返回 `desktopUrl`
 
-- 生产环境请移除 `application.yml` 中 API Key 默认值，改为强制环境变量注入。
-- 若前端端口非 `5173`/`3000`，需同步调整后端 CORS 配置。
-- 若 Docker 未启动，Sandbox 初始化会失败。
+4. API Key 问题
+- 优先用环境变量 `AI_DASHSCOPE_API_KEY`
+- 建议不要在 `application.yml` 中保留真实 Key
+
+---
+
+如果你只想快速验证：按“4. 启动教程”执行，发送一条 `打开 github.com 并搜索 spring-ai-alibaba`，并打开 VNC 面板即可完成复现。
