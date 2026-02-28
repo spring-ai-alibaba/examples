@@ -202,9 +202,24 @@
         const transcriptionText = document.getElementById('transcriptionText');
         const errorMessage = document.getElementById('errorMessage');
 
+        // WebSocket 服务器配置（如果直接打开HTML文件，使用此配置）
+        const DEFAULT_WS_HOST = 'localhost:10009';
+
         // 连接 WebSocket
         function connectWebSocket() {
-            const wsUrl = `ws://${location.host}/ws/audio`;
+            let wsUrl;
+
+            if (location.protocol === 'file:') {
+                // 直接打开文件，使用默认配置
+                wsUrl = `ws://${DEFAULT_WS_HOST}/ws/audio`;
+                showError('检测到直接打开文件，请通过 http://localhost:10009/websocket-audio.html 访问页面以获得最佳体验');
+            } else {
+                // 通过服务器访问
+                const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                wsUrl = `${wsProtocol}//${location.host}/ws/audio`;
+            }
+
+            console.log('Connecting to WebSocket:', wsUrl);
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {

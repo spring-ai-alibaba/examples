@@ -144,10 +144,7 @@ GET http://localhost:10009/ai/video/transcription/websocket/short
 
 ### 5. WebSocket 实时语音转录 (浏览器麦克风)
 
-**访问演示页面**:
-```http
-GET http://localhost:10009/websocket-audio.html
-```
+**访问演示页面**: http://localhost:10009/websocket-audio.html
 
 **使用步骤**:
 1. 确保 `AI_DASHSCOPE_API_KEY` 已配置
