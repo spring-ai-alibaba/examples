@@ -16,8 +16,6 @@
 
 package com.alibaba.cloud.ai.example.chat.dashscope.controller;
 
-import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
-import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
