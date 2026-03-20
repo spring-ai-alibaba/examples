@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: browser-fullstack-backend
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY:}
+
+sandbox:
+  pool:
+    size: 1
+
+logging:
+  level:
+    root: INFO
+    com.alibaba.cloud.ai: DEBUG
