@@ -84,7 +84,8 @@ public class PersonalAssistantController {
                     .addHumanFeedback(approvalMetadata)
                     .build();
             TOOL_FEEDBACK_MAP.remove(nodeId);
-            return resumeStreamingWithHack(config);
+            return supervisorAgent.stream(query, config)
+                    .doOnNext(this::println);
         } else {
 
             config = RunnableConfig.builder()
@@ -96,21 +97,6 @@ public class PersonalAssistantController {
 
     }
 
-    public Flux resumeStreamingWithHack(RunnableConfig config) {
-
-        return Mono.fromCallable(() -> {
-                    // 使用 invokeAndGetOutput 恢复（同步阻塞）
-                    Optional<NodeOutput> result = supervisorAgent.invokeAndGetOutput("", config);
-                    if (result.isPresent()) {
-                        println(result.get());
-                        return result.get();
-                    }
-                    return "";
-                })
-                .subscribeOn(Schedulers.boundedElastic())
-                .flux()
-                .concatMap(Flux::just);
-    }
     private void println(NodeOutput nodeOutput) {
         if (nodeOutput instanceof StreamingOutput streamingOutput) {
             String node = streamingOutput.node();

@@ -101,8 +101,7 @@ Email sent to wangwu@agent.cn - Subject: Reminder: Design Team Meeting - Mockup 
 ```
 ## 注意事项
 1. 当检测到人工接入时，需要带着nodeId重新发起请求。
-2. 中断恢复是阻塞调用,等待时间较长。
-3. 当前模型使用的qwen3-max-2026-01-23，模型不同可能导致示例结果有所偏差。
+2. 当前模型使用的qwen3-max-2026-01-23，模型不同可能导致示例结果有所偏差。
 
 ## 相关链接
 
