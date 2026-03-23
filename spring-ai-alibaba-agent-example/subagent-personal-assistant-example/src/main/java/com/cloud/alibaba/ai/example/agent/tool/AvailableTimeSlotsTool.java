@@ -37,11 +37,8 @@ public class AvailableTimeSlotsTool implements BiFunction<AvailableTimeInfo, Too
     @Override
     public String apply(AvailableTimeInfo args, ToolContext toolContext) {
         // Parse input parameters
-        @SuppressWarnings("unchecked")
-        List<String> attendees = (List<String>) args.getAttendees();
-        String date = (String) args.getDate();
-        int durationMinutes = (Integer) args.getDurationMinutes();
-        
+        String date =args.getDate();
+
         // Validate date format (simplified version)
         if (!isValidIsoDate(date)) {
             return "Error: Invalid ISO date format";

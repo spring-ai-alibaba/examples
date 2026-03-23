@@ -3,14 +3,14 @@
 本示例展示如何使用 Spring AI Alibaba 的 ReactAgent 框架构建一个多智能体监督者模式系统，通过主智能体协调多个子智能体，实现日历代理与邮件发送功能。
 ## 功能特性
 
-- **多智能体**: Subagent使用Tool Calling 模式被 Supervisor Agen调用。
-- **人工介入**: 通过在Supervisor Agent配置hooks加入中断功能。
+- **多智能体**: Subagent 使用 Tool Calling 模式被 Supervisor Agent 调用。
+- **人工介入**: 通过在 Supervisor Agent 配置 hooks 加入中断功能。
 
 ## 快速开始
 
 ### 前置条件
 
-- Java 17+
+- Java 21+
 - Maven 3.6+
 - DashScope API Key
 

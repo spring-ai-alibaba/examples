@@ -41,7 +41,6 @@ public class CreateCalendarEventTool implements BiFunction<CalendarInfo, ToolCon
         String title = calendarInfo.getTitle();
         String startTime = calendarInfo.getStartTime();
         String endTime = calendarInfo.getEndTime();
-        @SuppressWarnings("unchecked")
         List<String> attendees = calendarInfo.getAttendees();
         
         // Validate time format (simplified version)
@@ -51,7 +50,7 @@ public class CreateCalendarEventTool implements BiFunction<CalendarInfo, ToolCon
         
         // Simulate event creation
         return String.format("Event created: %s from %s to %s with %d attendees",
-                title, startTime, endTime, attendees.size());
+                title, startTime, endTime, attendees==null ? 0:attendees.size());
     }
 
 

@@ -37,15 +37,12 @@ public class SendEmailTool implements BiFunction<EmailInfo, ToolContext, String>
     @Override
     public String apply(EmailInfo args, ToolContext toolContext) {
         // 参数解析
-        @SuppressWarnings("unchecked")
-        List<String> to = (List<String>) args.getTo();
-        String subject = (String) args.getSubject();
-        String body = (String) args.getBody();
+        List<String> to = args.getTo();
+        String subject = args.getSubject();
+        String body = args.getBody();
         // 验证邮箱格式（简化版）
-        for (String email : to) {
-            if (!isValidEmail(email)) {
-                return "Error: Invalid email address: " + email;
-            }
+        if (to == null || to.isEmpty()){
+            return "Error: No recipient email addresses provided.";
         }
         // 模拟发送邮件
         System.out.printf("Email sent to %s - Subject: %s%n body: %s", String.join(", ", to), subject, body);
@@ -65,8 +62,8 @@ public class SendEmailTool implements BiFunction<EmailInfo, ToolContext, String>
                         Use this when the user wants to send notifications, reminders, or any email
                         communication. Handles recipient extraction, subject generation, and email
                         composition.
-                        Input: Natural language email request (e.g., 'send them a reminder about
-                        the meeting
+                        Input: Natural language email request (e.g., "send them a reminder about
+                        the meeting"
                         """)
                 .inputType(EmailInfo.class)
                 .build();

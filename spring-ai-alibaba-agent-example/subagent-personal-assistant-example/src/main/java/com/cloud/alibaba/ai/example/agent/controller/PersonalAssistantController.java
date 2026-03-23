@@ -17,7 +17,6 @@
 package com.cloud.alibaba.ai.example.agent.controller;
 
 import com.alibaba.cloud.ai.graph.NodeOutput;
-import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.action.InterruptionMetadata;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
@@ -32,12 +31,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -130,7 +126,6 @@ public class PersonalAssistantController {
                 System.out.println("描述: " + feedback.getDescription());
             }
             String node = interruptionMetadata.node();
-            OverAllState state = interruptionMetadata.state();
             System.out.println("检测到中断,等待人工介入... node: " + node);
             TOOL_FEEDBACK_MAP.put(node, toolFeedbacks);
         }

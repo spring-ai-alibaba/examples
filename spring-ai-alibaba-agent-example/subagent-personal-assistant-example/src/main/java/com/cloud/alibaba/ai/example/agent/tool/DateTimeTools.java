@@ -36,11 +36,11 @@ public class DateTimeTools implements BiFunction<Map<String, Object>, ToolContex
 
     @Override
     public String apply(Map<String, Object> map, ToolContext toolContext) {
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH：mm：ss"));
     }
 
     public ToolCallback toolCallback() {
-        return FunctionToolCallback.builder("getCurrentDateTime", this)
+        return FunctionToolCallback.builder("get_current_date_time", this)
                 .description("get_current_date_time")
                 .inputType(Map.class)
                 .build();
