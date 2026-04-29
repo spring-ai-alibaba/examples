@@ -1,5 +1,0 @@
-spring:
-  ai:
-    dashscope:
-      agent:
-        app-id: "put-your-bailian-app-id-here"

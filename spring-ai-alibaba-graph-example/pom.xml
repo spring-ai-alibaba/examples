@@ -36,25 +36,10 @@
     <name>Spring AI Alibaba Graph Examples</name>
 
     <modules>
-        <module>workflow-review-classifier</module>
-        <module>workflow-writing-assistant</module>
         <module>multiagent-openmanus</module>
-        <module>stream-node</module>
         <module>mcp-node</module>
-        <module>human-node</module>
-        <module>usecase-field-classifier</module>
-        <module>product-analysis-graph</module>
-        <module>parallel-node</module>
-        <module>graph-observability-langfuse</module>
         <module>big-tool</module>
         <module>react</module>
-        <module>reflection</module>
-        <module>chatflow</module>
-        <module>parallel-stream-node</module>
-        <!-- InterruptableAction example - need 1.1.0.0-SNAPSHOT version -->
-        <!-- need to build the main repository before use.: mvn install -pl spring-ai-alibaba-graph-core -am -->
-        <module>interruptable-action-example</module>
-        <module>issue-clarify-graph-example</module>
     </modules>
 
     <build>

@@ -57,29 +57,10 @@
 	</properties>
 
 	<modules>
-		<module>spring-ai-alibaba-helloworld</module>
-		<module>spring-ai-alibaba-mcp-example</module>
-		<module>spring-ai-alibaba-rag-example</module>
 		<module>spring-ai-alibaba-chat-example</module>
-		<module>spring-ai-alibaba-audio-example</module>
-		<module>spring-ai-alibaba-video-example</module>
 		<module>spring-ai-alibaba-agent-example</module>
-		<module>spring-ai-alibaba-image-example</module>
-		<module>spring-ai-alibaba-prompt-example</module>
-		<module>spring-ai-alibaba-usecase-example</module>
-		<module>spring-ai-alibaba-structured-example</module>
-		<module>spring-ai-alibaba-multi-model-example</module>
-		<module>spring-ai-alibaba-chat-memory-example</module>
 		<module>spring-ai-alibaba-tool-calling-example</module>
-		<module>spring-ai-alibaba-sandbox-example</module>
-		<module>spring-ai-alibaba-nacos-prompt-example</module>
-		<module>spring-ai-alibaba-observability-example</module>
-		<module>spring-ai-alibaba-more-platform-and-model-example</module>
-		<module>spring-ai-alibaba-nl2sql-example</module>
 		<module>spring-ai-alibaba-graph-example</module>
-		<module>spring-ai-alibaba-bailian-example</module>
-        <module>spring-ai-alibaba-evaluation-example</module>
-        <module>spring-ai-alibaba-mem0-example</module>
 	</modules>
 
 	<dependencyManagement>

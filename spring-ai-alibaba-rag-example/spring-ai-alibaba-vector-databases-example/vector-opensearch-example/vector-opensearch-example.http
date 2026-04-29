@@ -1,6 +1,0 @@
-# OpensearchController类的load方法
-GET http://localhost:8080/load/documents
-
-###
-# OpensearchController类的deleteDocuments方法
-GET http://localhost:8080/delete/documents

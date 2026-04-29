@@ -1,8 +1,0 @@
-###
-GET http://localhost:10007/example/ai/roles
-
-###
-GET http://localhost:10007/prompt/ai/stuff
-
-### 使用 prompt data 填充
-GET http://localhost:10007/prompt/ai/stuff?stuffit=true

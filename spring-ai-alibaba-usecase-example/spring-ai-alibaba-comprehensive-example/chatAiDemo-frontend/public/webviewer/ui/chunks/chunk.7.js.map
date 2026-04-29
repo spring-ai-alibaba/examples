@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack:///./src/ui/src/helpers/getClassName.js"],"names":["className","isOpen","join","trim"],"mappings":"wGAAe,aAACA,EAAW,GAAQ,MAAO,CAACA,EAAR,EAANC,OAAkC,OAAS,UAAUC,KAAK,KAAKC","file":"chunks/chunk.7.js","sourcesContent":["export default (className, { isOpen }) => [className, isOpen ? 'open' : 'closed'].join(' ').trim();\n"],"sourceRoot":""}

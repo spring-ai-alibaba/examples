@@ -1,4 +1,0 @@
-POST http://localhost:8080/product/enrich
-Content-Type: text/plain
-
-一款高品质、舒适的纯棉T恤，有蓝、红、绿三种颜色可选，适合夏季穿着。

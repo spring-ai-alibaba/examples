@@ -1,9 +1,0 @@
-[
-  {
-    "name":"author",
-    "template":"列出 {author} 有名的著作",
-    "model":{
-      "key":"余华"
-    }
-  }
-]

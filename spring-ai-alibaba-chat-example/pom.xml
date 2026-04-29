@@ -36,14 +36,6 @@
 	<name>Spring AI Alibaba Chat Examples</name>
 
 	<modules>
-		<module>qwq-chat</module>
-		<module>ollama-chat</module>
-		<module>openai-chat</module>
-		<module>zhipuai-chat</module>
-		<module>deepseek-chat</module>
-		<module>dashscope-chat</module>
-		<module>azure-openai-chat</module>
-		<module>vllm-chat</module>
 		<module>minimax-chat</module>
 	</modules>
 
