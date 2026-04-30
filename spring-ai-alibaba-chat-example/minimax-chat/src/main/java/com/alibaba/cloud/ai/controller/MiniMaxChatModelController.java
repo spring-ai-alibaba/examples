@@ -18,11 +18,12 @@ package com.alibaba.cloud.ai.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.minimax.MiniMaxChatOptions;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
@@ -48,9 +49,9 @@ public class MiniMaxChatModelController {
      * @return String types.
      */
     @GetMapping("/simple/chat")
-    public String simpleChat() {
+    public String simpleChat(@RequestParam(value = "message", defaultValue = DEFAULT_PROMPT) String message) {
 
-        return chatModel.call(new Prompt(DEFAULT_PROMPT)).getResult().getOutput().getText();
+        return chatModel.call(new Prompt(message)).getResult().getOutput().getText();
     }
 
     /**
@@ -58,31 +59,37 @@ public class MiniMaxChatModelController {
      *
      * @return Flux<String> types.
      */
-    @GetMapping("/stream/chat")
-    public Flux<String> streamChat(HttpServletResponse response) {
+    @GetMapping(value = "/stream/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> streamChat(
+            @RequestParam(value = "message", defaultValue = DEFAULT_PROMPT) String message,
+            HttpServletResponse response) {
 
         // 避免返回乱码
         response.setCharacterEncoding("UTF-8");
 
-        Flux<ChatResponse> chatResponseFlux = chatModel.stream(new Prompt(DEFAULT_PROMPT));
-        return chatResponseFlux.map(resp -> resp.getResult().getOutput().getText());
+        return chatModel.stream(new Prompt(message))
+                .mapNotNull(resp -> {
+                    if (resp.getResult() == null || resp.getResult().getOutput() == null) {
+                        return null;
+                    }
+                    return resp.getResult().getOutput().getText();
+                });
     }
 
     /**
-     * 使用编程方式自定义 LLMs ChatOptions 参数， {@link org.springframework.ai.minimax.MiniMaxChatOptions}
+     * 使用编程方式自定义 LLMs ChatOptions 参数， {@link org.springframework.ai.openai.OpenAiChatOptions}
      * 优先级高于在 application.yml 中配置的 LLMs 参数！
      */
     @GetMapping("/custom/chat")
-    public String customChat() {
+    public String customChat(@RequestParam(value = "message", defaultValue = DEFAULT_PROMPT) String message) {
 
-        MiniMaxChatOptions customOptions = MiniMaxChatOptions.builder()
-                .topP(0.7)
-                .model("glm-4-flash")
+        OpenAiChatOptions customOptions = OpenAiChatOptions.builder()
+                .model("MiniMax-M2.7")
                 .maxTokens(1000)
                 .temperature(0.8)
                 .build();
 
-        return chatModel.call(new Prompt(DEFAULT_PROMPT, customOptions)).getResult().getOutput().getText();
+        return chatModel.call(new Prompt(message, customOptions)).getResult().getOutput().getText();
     }
 
 }

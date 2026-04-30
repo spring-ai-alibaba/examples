@@ -4,5 +4,12 @@ spring:
   application:
     name: minimax-chat-example
   ai:
-    minimax:
+    model:
+      chat: openai
+    openai:
+      base-url: https://api.minimaxi.com
       api-key: ${MINIMAX_API_KEY}
+      chat:
+        options:
+          model: MiniMax-M2.7
+          temperature: 0.7

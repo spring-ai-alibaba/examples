@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MiniMax Chat</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--bg: #eef2f7;
+			--surface: #ffffff;
+			--surface-soft: #f7f9fc;
+			--text: #111827;
+			--muted: #667085;
+			--line: #d8e0ea;
+			--primary: #2563eb;
+			--primary-dark: #1d4ed8;
+			--user: #e9f2ff;
+			--assistant: #ffffff;
+			--danger: #b42318;
+			--code-bg: #f8fafc;
+			--code-text: #1f2937;
+			--code-line: #dbe4ef;
+			--inline-code: #eef2ff;
+			--shadow: 0 18px 45px rgba(17, 24, 39, 0.08);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			height: 100%;
+		}
+
+		body {
+			margin: 0;
+			font-family: Inter, Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+			background:
+				linear-gradient(180deg, #dfe8f6 0, #eef2f7 260px),
+				var(--bg);
+			color: var(--text);
+		}
+
+		button,
+		select,
+		textarea {
+			font: inherit;
+		}
+
+		.app {
+			min-height: 100%;
+			display: grid;
+			grid-template-rows: auto 1fr auto;
+		}
+
+		header {
+			width: min(1040px, calc(100% - 32px));
+			margin: 0 auto;
+			padding: 28px 0 18px;
+		}
+
+		.header-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+		}
+
+		.title-group {
+			min-width: 0;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: clamp(22px, 3vw, 30px);
+			line-height: 1.15;
+			letter-spacing: 0;
+		}
+
+		.subtitle {
+			margin-top: 8px;
+			color: var(--muted);
+			font-size: 14px;
+		}
+
+		.status {
+			flex: 0 0 auto;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 10px;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: rgba(255, 255, 255, 0.78);
+			color: #344054;
+			font-size: 13px;
+		}
+
+		.status-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 999px;
+			background: #16a34a;
+		}
+
+		main {
+			width: min(1040px, calc(100% - 32px));
+			margin: 0 auto 18px;
+			overflow: hidden;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: rgba(255, 255, 255, 0.86);
+			box-shadow: var(--shadow);
+		}
+
+		.messages {
+			height: min(66vh, 680px);
+			min-height: 380px;
+			overflow-y: auto;
+			padding: 22px;
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+		}
+
+		.message {
+			width: min(760px, 88%);
+			display: grid;
+			gap: 6px;
+		}
+
+		.message.user {
+			align-self: flex-end;
+		}
+
+		.message.assistant,
+		.message.error {
+			align-self: flex-start;
+		}
+
+		.message-meta {
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.2;
+		}
+
+		.message.user .message-meta {
+			text-align: right;
+		}
+
+		.message-body {
+			padding: 13px 15px;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: var(--assistant);
+			overflow-wrap: anywhere;
+			line-height: 1.68;
+			font-size: 15px;
+		}
+
+		.message.user .message-body {
+			background: var(--user);
+			border-color: #bfd8ff;
+			white-space: pre-wrap;
+		}
+
+		.message.error .message-body {
+			color: var(--danger);
+			background: #fff4f2;
+			border-color: #ffd1cc;
+			white-space: pre-wrap;
+		}
+
+		.markdown-body > :first-child {
+			margin-top: 0;
+		}
+
+		.markdown-body > :last-child {
+			margin-bottom: 0;
+		}
+
+		.markdown-body h1,
+		.markdown-body h2,
+		.markdown-body h3 {
+			margin: 12px 0 8px;
+			line-height: 1.35;
+			letter-spacing: 0;
+		}
+
+		.markdown-body h1 {
+			font-size: 22px;
+		}
+
+		.markdown-body h2 {
+			font-size: 19px;
+		}
+
+		.markdown-body h3 {
+			font-size: 17px;
+		}
+
+		.markdown-body p {
+			margin: 8px 0;
+		}
+
+		.markdown-body ul,
+		.markdown-body ol {
+			margin: 8px 0;
+			padding-left: 22px;
+		}
+
+		.markdown-body li {
+			margin: 4px 0;
+		}
+
+		.markdown-body blockquote {
+			margin: 10px 0;
+			padding: 8px 12px;
+			border-left: 3px solid #93c5fd;
+			background: #f3f7ff;
+			color: #344054;
+		}
+
+		.markdown-body pre {
+			margin: 10px 0;
+			padding: 12px;
+			border: 1px solid var(--code-line);
+			border-radius: 8px;
+			background: var(--code-bg);
+			color: var(--code-text);
+			overflow-x: auto;
+			white-space: pre;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+		}
+
+		.markdown-body code {
+			font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+			font-size: 0.92em;
+		}
+
+		.markdown-body :not(pre) > code {
+			padding: 2px 5px;
+			border-radius: 6px;
+			background: var(--inline-code);
+			color: #3730a3;
+		}
+
+		.markdown-body a {
+			color: var(--primary);
+			text-decoration: none;
+			border-bottom: 1px solid rgba(37, 99, 235, 0.35);
+		}
+
+		.markdown-body a:hover {
+			border-bottom-color: var(--primary);
+		}
+
+		.composer {
+			width: min(1040px, calc(100% - 32px));
+			margin: 0 auto;
+			padding: 0 0 22px;
+		}
+
+		.composer-inner {
+			display: grid;
+			grid-template-columns: 1fr auto auto auto;
+			gap: 10px;
+			align-items: end;
+			padding: 14px;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: var(--surface);
+			box-shadow: var(--shadow);
+		}
+
+		textarea {
+			width: 100%;
+			min-height: 52px;
+			max-height: 180px;
+			resize: vertical;
+			padding: 12px 13px;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: var(--surface-soft);
+			color: var(--text);
+			line-height: 1.5;
+			outline: none;
+		}
+
+		textarea:focus,
+		select:focus,
+		button:focus-visible {
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+		}
+
+		select,
+		button {
+			height: 52px;
+			border-radius: 8px;
+			border: 1px solid var(--line);
+			background: #fff;
+			color: var(--text);
+			padding: 0 14px;
+			outline: none;
+		}
+
+		button {
+			cursor: pointer;
+			font-weight: 650;
+			white-space: nowrap;
+		}
+
+		button.primary {
+			border-color: var(--primary);
+			background: var(--primary);
+			color: #fff;
+			min-width: 88px;
+		}
+
+		button.primary:hover {
+			background: var(--primary-dark);
+		}
+
+		button.secondary:hover {
+			background: var(--surface-soft);
+		}
+
+		button:disabled {
+			cursor: not-allowed;
+			opacity: 0.68;
+		}
+
+		@media (max-width: 720px) {
+			header {
+				width: min(100% - 24px, 1040px);
+				padding-top: 18px;
+			}
+
+			.header-row {
+				align-items: flex-start;
+				flex-direction: column;
+			}
+
+			main,
+			.composer {
+				width: min(100% - 24px, 1040px);
+			}
+
+			.messages {
+				min-height: 360px;
+				height: 58vh;
+				padding: 14px;
+			}
+
+			.message {
+				width: 100%;
+			}
+
+			.composer-inner {
+				grid-template-columns: 1fr;
+			}
+
+			select,
+			button {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+<body>
+<div class="app">
+	<header>
+		<div class="header-row">
+			<div class="title-group">
+				<h1>MiniMax Chat</h1>
+				<div class="subtitle">支持多轮上下文和 Markdown 渲染的 MiniMax-M2.7 小聊天页面</div>
+			</div>
+			<div class="status" aria-label="当前模型">
+				<span class="status-dot"></span>
+				<span>MiniMax-M2.7</span>
+			</div>
+		</div>
+	</header>
+
+	<main>
+		<div id="messages" class="messages"></div>
+	</main>
+
+	<form id="composer" class="composer">
+		<div class="composer-inner">
+			<textarea id="messageInput" placeholder="输入问题，按 Ctrl + Enter 发送">请用 Markdown 介绍 Spring AI Alibaba Agent 学习路线，并给一个 Java 代码块示例。</textarea>
+			<select id="modeSelect" aria-label="响应模式">
+				<option value="simple">同步</option>
+				<option value="stream">流式</option>
+			</select>
+			<button id="clearButton" class="secondary" type="button">清空</button>
+			<button id="sendButton" class="primary" type="submit">发送</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	const messages = document.getElementById("messages");
+	const composer = document.getElementById("composer");
+	const input = document.getElementById("messageInput");
+	const mode = document.getElementById("modeSelect");
+	const sendButton = document.getElementById("sendButton");
+	const clearButton = document.getElementById("clearButton");
+	const history = [];
+
+	function cleanAssistantText(text) {
+		return text
+			.replace(/<think>[\s\S]*?<\/think>/gi, "")
+			.replace(/<think>[\s\S]*$/gi, "")
+			.replace(/<\/think>/gi, "")
+			.trimStart();
+	}
+
+	function escapeHtml(value) {
+		return String(value)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#39;");
+	}
+
+	function renderInlineMarkdown(value) {
+		return escapeHtml(value)
+			.replace(/`([^`]+)`/g, "<code>$1</code>")
+			.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+			.replace(/__([^_]+)__/g, "<strong>$1</strong>")
+			.replace(/\*([^*]+)\*/g, "<em>$1</em>")
+			.replace(/_([^_]+)_/g, "<em>$1</em>")
+			.replace(/\[([^\]]+)]\((https?:\/\/[^\s)]+)\)/g,
+				"<a href=\"$2\" target=\"_blank\" rel=\"noopener noreferrer\">$1</a>");
+	}
+
+	function flushParagraph(paragraph, html) {
+		if (paragraph.length) {
+			html.push(`<p>${paragraph.map(renderInlineMarkdown).join("<br>")}</p>`);
+			paragraph.length = 0;
+		}
+	}
+
+	function flushList(list, html) {
+		if (list.items.length) {
+			const items = list.items.map(item => `<li>${renderInlineMarkdown(item)}</li>`).join("");
+			html.push(`<${list.type}>${items}</${list.type}>`);
+			list.items.length = 0;
+			list.type = "";
+		}
+	}
+
+	function renderTextBlocks(text) {
+		const html = [];
+		const paragraph = [];
+		const list = { type: "", items: [] };
+		const lines = text.replace(/\r\n/g, "\n").split("\n");
+
+		for (const line of lines) {
+			const trimmed = line.trim();
+
+			if (!trimmed) {
+				flushParagraph(paragraph, html);
+				flushList(list, html);
+				continue;
+			}
+
+			const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+			if (heading) {
+				flushParagraph(paragraph, html);
+				flushList(list, html);
+				const level = heading[1].length;
+				html.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
+				continue;
+			}
+
+			const quote = trimmed.match(/^>\s?(.+)$/);
+			if (quote) {
+				flushParagraph(paragraph, html);
+				flushList(list, html);
+				html.push(`<blockquote>${renderInlineMarkdown(quote[1])}</blockquote>`);
+				continue;
+			}
+
+			const unordered = trimmed.match(/^[-*+]\s+(.+)$/);
+			if (unordered) {
+				flushParagraph(paragraph, html);
+				if (list.type && list.type !== "ul") {
+					flushList(list, html);
+				}
+				list.type = "ul";
+				list.items.push(unordered[1]);
+				continue;
+			}
+
+			const ordered = trimmed.match(/^\d+\.\s+(.+)$/);
+			if (ordered) {
+				flushParagraph(paragraph, html);
+				if (list.type && list.type !== "ol") {
+					flushList(list, html);
+				}
+				list.type = "ol";
+				list.items.push(ordered[1]);
+				continue;
+			}
+
+			flushList(list, html);
+			paragraph.push(line);
+		}
+
+		flushParagraph(paragraph, html);
+		flushList(list, html);
+		return html.join("");
+	}
+
+	function renderMarkdown(text) {
+		const parts = [];
+		const source = cleanAssistantText(text);
+		const codeBlockPattern = /```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g;
+		let cursor = 0;
+		let match;
+
+		while ((match = codeBlockPattern.exec(source)) !== null) {
+			if (match.index > cursor) {
+				parts.push(renderTextBlocks(source.slice(cursor, match.index)));
+			}
+			const language = match[1] ? ` data-language="${escapeHtml(match[1])}"` : "";
+			parts.push(`<pre${language}><code>${escapeHtml(match[2].trim())}</code></pre>`);
+			cursor = match.index + match[0].length;
+		}
+
+		if (cursor < source.length) {
+			parts.push(renderTextBlocks(source.slice(cursor)));
+		}
+
+		return parts.join("") || "";
+	}
+
+	function setAssistantContent(target, text) {
+		target.innerHTML = renderMarkdown(text);
+	}
+
+	function roleName(role) {
+		if (role === "user") {
+			return "你";
+		}
+		if (role === "error") {
+			return "请求错误";
+		}
+		return "MiniMax";
+	}
+
+	function appendMessage(role, text) {
+		const node = document.createElement("article");
+		node.className = `message ${role}`;
+
+		const meta = document.createElement("div");
+		meta.className = "message-meta";
+		meta.textContent = roleName(role);
+
+		const body = document.createElement("div");
+		body.className = "message-body";
+		if (role === "assistant") {
+			body.classList.add("markdown-body");
+			setAssistantContent(body, text);
+		}
+		else {
+			body.textContent = text;
+		}
+
+		node.append(meta, body);
+		messages.appendChild(node);
+		node.scrollIntoView({ behavior: "smooth", block: "end" });
+		return body;
+	}
+
+	function addHistory(role, content) {
+		if (!content || !content.trim()) {
+			return;
+		}
+		history.push({ role, content: content.trim() });
+		if (history.length > 20) {
+			history.splice(0, history.length - 20);
+		}
+	}
+
+	function buildPayload(message) {
+		return {
+			message,
+			history: history.slice()
+		};
+	}
+
+	function setBusy(busy) {
+		sendButton.disabled = busy;
+		sendButton.textContent = busy ? "发送中" : "发送";
+	}
+
+	async function sendConversation(message) {
+		const response = await fetch("/minimax/chat-client/conversation/chat", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(buildPayload(message))
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status}`);
+		}
+		const data = await response.json();
+		return data.content || "";
+	}
+
+	async function sendConversationStream(message, target) {
+		const response = await fetch("/minimax/chat-client/conversation/stream", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(buildPayload(message))
+		});
+		if (!response.ok || !response.body) {
+			throw new Error(`HTTP ${response.status}`);
+		}
+
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder("utf-8");
+		let buffer = "";
+		let rawText = "";
+
+		while (true) {
+			const { value, done } = await reader.read();
+			if (done) {
+				break;
+			}
+			buffer += decoder.decode(value, { stream: true });
+			const parts = buffer.split("\n\n");
+			buffer = parts.pop() || "";
+			for (const part of parts) {
+				const data = part
+					.split("\n")
+					.filter(line => line.startsWith("data:"))
+					.map(line => line.slice(5).trimStart())
+					.join("\n");
+				if (data && data !== "[DONE]") {
+					rawText += data;
+					setAssistantContent(target, rawText);
+					target.scrollIntoView({ behavior: "smooth", block: "end" });
+				}
+			}
+		}
+
+		const answer = cleanAssistantText(rawText);
+		if (!answer.trim()) {
+			setAssistantContent(target, "流式接口没有返回可展示文本，请先确认同步接口是否正常。");
+			return target.textContent;
+		}
+		return answer;
+	}
+
+	composer.addEventListener("submit", async (event) => {
+		event.preventDefault();
+		const message = input.value.trim();
+		if (!message) {
+			return;
+		}
+
+		appendMessage("user", message);
+		const assistant = appendMessage("assistant", "");
+		setBusy(true);
+
+		try {
+			let answer;
+			if (mode.value === "stream") {
+				answer = await sendConversationStream(message, assistant);
+			}
+			else {
+				answer = cleanAssistantText(await sendConversation(message));
+				setAssistantContent(assistant, answer);
+			}
+
+			addHistory("user", message);
+			addHistory("assistant", answer);
+			input.value = "";
+		}
+		catch (error) {
+			assistant.closest(".message").remove();
+			appendMessage("error", `请求失败：${error.message}`);
+		}
+		finally {
+			setBusy(false);
+			input.focus();
+		}
+	});
+
+	input.addEventListener("keydown", (event) => {
+		if (event.key === "Enter" && event.ctrlKey) {
+			composer.requestSubmit();
+		}
+	});
+
+	clearButton.addEventListener("click", () => {
+		history.length = 0;
+		messages.innerHTML = "";
+		appendMessage("assistant", "已清空上下文。继续输入问题测试 MiniMax-M2.7。");
+	});
+
+	appendMessage("assistant", "你好，输入一个问题开始测试。这个页面会把当前聊天记录作为上下文一起发送给 MiniMax-M2.7，并支持 Markdown 渲染。");
+</script>
+</body>
+</html>
