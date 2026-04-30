@@ -219,6 +219,49 @@
 			font-weight: 700;
 		}
 
+		.agent-steps {
+			display: grid;
+			gap: 6px;
+			margin: 8px 0;
+		}
+
+		.agent-step {
+			padding: 8px 10px;
+			border: 1px solid var(--line);
+			border-radius: 6px;
+			background: #fff;
+		}
+
+		.agent-step strong {
+			display: inline-block;
+			margin-right: 6px;
+			color: #0f172a;
+		}
+
+		.memory-grid {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 8px;
+			margin: 8px 0;
+		}
+
+		.memory-card {
+			padding: 8px 10px;
+			border: 1px solid var(--line);
+			border-radius: 6px;
+			background: #fff;
+		}
+
+		.memory-card-title {
+			margin-bottom: 4px;
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.memory-card div {
+			margin-top: 2px;
+		}
+
 		.debug-panel pre {
 			margin: 6px 0 0;
 			padding: 8px;
@@ -315,6 +358,7 @@
 			.message { width: 100%; }
 			.composer-inner { grid-template-columns: 1fr; }
 			select, button, .debug-toggle { width: 100%; }
+			.memory-grid { grid-template-columns: 1fr; }
 		}
 	</style>
 </head>
@@ -507,15 +551,51 @@
 		return body;
 	}
 
-	function renderDebug(messageNode, intent, toolCalls) {
+	function formatMemory(memory) {
+		if (!memory) return "暂无";
+		const topics = Array.isArray(memory.topics) && memory.topics.length ? memory.topics.join("、") : "暂无";
+		return `
+			<div>阶段：${escapeHtml(memory.level || "初学者")}</div>
+			<div>关注：${escapeHtml(topics)}</div>
+			<div>轮次：${escapeHtml(memory.conversationCount ?? 0)}</div>
+			<div>上次意图：${escapeHtml(memory.lastIntent || "GENERAL_CHAT")}</div>
+		`;
+	}
+
+	function renderDebug(messageNode, intent, toolCalls, agentSteps, memoryBefore, memoryAfter) {
 		if (!debugToggle.checked) return;
 		const panel = document.createElement("div");
 		panel.className = "debug-panel";
 		panel.innerHTML = `
 			<div class="debug-title">本轮调试信息</div>
 			<div class="debug-intent">识别意图：${escapeHtml(intent || "UNKNOWN")}</div>
+			<div>Agent 执行步骤：${agentSteps && agentSteps.length ? agentSteps.length : 0} 步</div>
 			<div>工具调用：${toolCalls && toolCalls.length ? toolCalls.length : 0} 次</div>
 		`;
+		const memory = document.createElement("div");
+		memory.className = "memory-grid";
+		memory.innerHTML = `
+			<div class="memory-card">
+				<div class="memory-card-title">调用前 Memory</div>
+				${formatMemory(memoryBefore)}
+			</div>
+			<div class="memory-card">
+				<div class="memory-card-title">调用后 Memory</div>
+				${formatMemory(memoryAfter)}
+			</div>
+		`;
+		panel.appendChild(memory);
+		if (agentSteps && agentSteps.length) {
+			const steps = document.createElement("div");
+			steps.className = "agent-steps";
+			for (const step of agentSteps) {
+				const item = document.createElement("div");
+				item.className = "agent-step";
+				item.innerHTML = `<strong>${escapeHtml(step.name || "STEP")}</strong>${escapeHtml(step.detail || "")}`;
+				steps.appendChild(item);
+			}
+			panel.appendChild(steps);
+		}
 		for (const call of toolCalls || []) {
 			const item = document.createElement("pre");
 			item.textContent = `${call.name}\n参数：${JSON.stringify(call.arguments || {}, null, 2)}\n结果：${call.result || ""}`;
@@ -603,7 +683,8 @@
 				const data = await sendConversation(message);
 				answer = cleanAssistantText(data.content || "");
 				setAssistantContent(assistant, answer);
-				renderDebug(assistantNode, data.intent, data.toolCalls || []);
+				renderDebug(assistantNode, data.intent, data.toolCalls || [], data.agentSteps || [], data.memoryBefore,
+					data.memoryAfter);
 			}
 			addHistory("user", message);
 			addHistory("assistant", answer);

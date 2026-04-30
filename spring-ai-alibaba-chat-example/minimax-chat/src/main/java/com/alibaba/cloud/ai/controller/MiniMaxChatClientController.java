@@ -19,17 +19,12 @@ package com.alibaba.cloud.ai.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.cloud.ai.planner.LearningIntent;
-import com.alibaba.cloud.ai.planner.LearningIntentPlanner;
-import com.alibaba.cloud.ai.tool.MiniMaxLearningTools;
-import com.alibaba.cloud.ai.tool.ToolCallDebugRecorder;
+import com.alibaba.cloud.ai.agent.LearningAgentResult;
+import com.alibaba.cloud.ai.agent.LearningAgentService;
+import com.alibaba.cloud.ai.agent.LearningAgentService.LearningAgentMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.http.MediaType;
@@ -52,33 +47,12 @@ public class MiniMaxChatClientController {
 
 	private static final String DEFAULT_PROMPT = "你好，介绍下你自己吧。";
 
-	private static final String SYSTEM_PROMPT = """
-			你是 MiniMax-M2.7 学习助手。
-			请始终使用中文回答。
-			回答要清晰、直接，适合正在学习 Spring AI Alibaba Agent 和 Skill 开发的 Java 开发者。
-			你可以使用工具获取真实时间、生成学习建议、生成今日学习计划、解释 Spring AI Alibaba 相关概念。
-			当用户询问当前时间、北京时间、UTC 时间等真实时间问题时，优先调用 getCurrentTime 工具。
-			当用户询问学习路线、下一步学习什么、Tool Calling、Skill、Agent、RAG、MCP 或 Graph 时，优先调用 generateLearningAdvice 工具。
-			当用户要求今日计划、30 分钟学习安排、每日练习或任务拆分时，优先调用 generateDailyPlan 工具。
-			当用户询问概念含义或区别，例如 Tool、Skill、Agent、Graph 是什么时，优先调用 explainConcept 工具。
-			不要输出 <think>、</think> 或任何思考标签。
-			""";
-
-	private static final int MAX_HISTORY_MESSAGES = 20;
-
 	private final ChatClient chatClient;
 
-	private final MiniMaxLearningTools learningTools;
+	private final LearningAgentService learningAgentService;
 
-	private final ToolCallDebugRecorder debugRecorder;
-
-	private final LearningIntentPlanner intentPlanner;
-
-	public MiniMaxChatClientController(ChatModel chatModel, MiniMaxLearningTools learningTools,
-			ToolCallDebugRecorder debugRecorder, LearningIntentPlanner intentPlanner) {
-		this.learningTools = learningTools;
-		this.debugRecorder = debugRecorder;
-		this.intentPlanner = intentPlanner;
+	public MiniMaxChatClientController(ChatModel chatModel, LearningAgentService learningAgentService) {
+		this.learningAgentService = learningAgentService;
 		this.chatClient = ChatClient.builder(chatModel)
 				.defaultAdvisors(new SimpleLoggerAdvisor())
 				.defaultOptions(defaultOptions())
@@ -98,53 +72,15 @@ public class MiniMaxChatClientController {
 	}
 
 	@PostMapping(value = "/conversation/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ChatResponse conversationChat(@RequestBody ChatRequest request) {
-		this.debugRecorder.clear();
-		LearningIntent intent = this.intentPlanner.plan(extractMessage(request));
-		try {
-			String content = this.chatClient.prompt()
-					.messages(buildMessages(request, intent))
-					.options(defaultOptions())
-					.tools(this.learningTools)
-					.call()
-					.content();
-			return new ChatResponse(content, intent, this.debugRecorder.snapshot());
-		}
-		finally {
-			this.debugRecorder.remove();
-		}
+	public LearningAgentResult conversationChat(@RequestBody ChatRequest request) {
+		return this.learningAgentService.chat(extractMessage(request), toAgentHistory(request));
 	}
 
 	@PostMapping(value = "/conversation/stream", consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<String> conversationStream(@RequestBody ChatRequest request, HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
-		this.debugRecorder.clear();
-		LearningIntent intent = this.intentPlanner.plan(extractMessage(request));
-		return this.chatClient.prompt()
-				.messages(buildMessages(request, intent))
-				.options(defaultOptions())
-				.tools(this.learningTools)
-				.stream()
-				.content()
-				.doFinally(signalType -> this.debugRecorder.remove());
-	}
-
-	private List<Message> buildMessages(ChatRequest request, LearningIntent intent) {
-		List<Message> messages = new ArrayList<>();
-		messages.add(new SystemMessage(SYSTEM_PROMPT + "\n" + this.intentPlanner.instructionFor(intent)));
-
-		List<ChatMessage> history = request == null || request.history() == null ? List.of() : request.history();
-		int start = Math.max(0, history.size() - MAX_HISTORY_MESSAGES);
-		for (ChatMessage item : history.subList(start, history.size())) {
-			Message message = toMessage(item);
-			if (message != null) {
-				messages.add(message);
-			}
-		}
-
-		messages.add(new UserMessage(extractMessage(request)));
-		return messages;
+		return this.learningAgentService.stream(extractMessage(request), toAgentHistory(request));
 	}
 
 	private String extractMessage(ChatRequest request) {
@@ -154,22 +90,15 @@ public class MiniMaxChatClientController {
 		return request.message();
 	}
 
-	private Message toMessage(ChatMessage message) {
-		if (message == null || message.content() == null || message.content().isBlank()) {
-			return null;
+	private List<LearningAgentMessage> toAgentHistory(ChatRequest request) {
+		if (request == null || request.history() == null || request.history().isEmpty()) {
+			return List.of();
 		}
-		return switch (normalizeRole(message.role())) {
-			case "assistant" -> new AssistantMessage(message.content());
-			case "system" -> new SystemMessage(message.content());
-			default -> new UserMessage(message.content());
-		};
-	}
-
-	private String normalizeRole(String role) {
-		if (role == null) {
-			return "user";
+		List<LearningAgentMessage> messages = new ArrayList<>();
+		for (ChatMessage item : request.history()) {
+			messages.add(new LearningAgentMessage(item.role(), item.content()));
 		}
-		return role.trim().toLowerCase();
+		return messages;
 	}
 
 	private OpenAiChatOptions defaultOptions() {
@@ -183,10 +112,6 @@ public class MiniMaxChatClientController {
 	}
 
 	public record ChatMessage(String role, String content) {
-	}
-
-	public record ChatResponse(String content, LearningIntent intent,
-			List<ToolCallDebugRecorder.ToolCallDebug> toolCalls) {
 	}
 
 }
