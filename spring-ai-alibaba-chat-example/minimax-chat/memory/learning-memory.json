@@ -1,0 +1,10 @@
+{
+  "default-user" : {
+    "level" : "初学者",
+    "topics" : [ "Agent" ],
+    "lastIntent" : "MIXED",
+    "lastQuestion" : "现在北京时间几点？然后给我一个今天 30 分钟的 Agent 学习计划。",
+    "conversationCount" : 5,
+    "updatedAt" : "2026-04-30T20:54:32.2052598"
+  }
+}

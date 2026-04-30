@@ -16,29 +16,72 @@
 
 package com.alibaba.cloud.ai.memory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.cloud.ai.planner.LearningIntent;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Stores lightweight learning memory in process.
+ * Stores lightweight learning memory and persists it to a JSON file.
  */
 @Service
 public class LearningMemoryService {
 
+	private static final Logger logger = LoggerFactory.getLogger(LearningMemoryService.class);
+
 	public static final String DEFAULT_USER_ID = "default-user";
 
+	private final ObjectMapper objectMapper;
+
+	private final Path memoryFile;
+
 	private final Map<String, LearningMemory> memories = new ConcurrentHashMap<>();
+
+	public LearningMemoryService(ObjectMapper objectMapper,
+			@Value("${minimax.memory.file:spring-ai-alibaba-chat-example/minimax-chat/memory/learning-memory.json}") String memoryFile) {
+		this.objectMapper = objectMapper;
+		this.memoryFile = Path.of(memoryFile);
+	}
+
+	@PostConstruct
+	public void load() {
+		if (!Files.exists(this.memoryFile)) {
+			persist();
+			return;
+		}
+		try {
+			Map<String, StoredLearningMemory> storedMemories = this.objectMapper.readValue(this.memoryFile.toFile(),
+					new TypeReference<>() {
+					});
+			storedMemories.forEach((userId, storedMemory) -> this.memories.put(userId,
+					toLearningMemory(userId, storedMemory)));
+			logger.info("Loaded {} learning memories from {}", this.memories.size(), this.memoryFile.toAbsolutePath());
+		}
+		catch (IOException ex) {
+			logger.warn("Failed to load learning memory from {}", this.memoryFile.toAbsolutePath(), ex);
+		}
+	}
 
 	public LearningMemory read(String userId) {
 		return this.memories.computeIfAbsent(normalizeUserId(userId), LearningMemory::new).copy();
 	}
 
-	public LearningMemory update(String userId, String message, LearningIntent intent) {
+	public synchronized LearningMemory update(String userId, String message, LearningIntent intent) {
 		LearningMemory memory = this.memories.computeIfAbsent(normalizeUserId(userId), LearningMemory::new);
 		memory.setConversationCount(memory.getConversationCount() + 1);
 		memory.setLastQuestion(message == null ? "" : message.trim());
@@ -46,7 +89,49 @@ public class LearningMemoryService {
 		memory.setLevel(detectLevel(message, memory.getLevel()));
 		addTopic(memory, message);
 		memory.setUpdatedAt(LocalDateTime.now());
+		persist();
 		return memory.copy();
+	}
+
+	private synchronized void persist() {
+		try {
+			if (this.memoryFile.getParent() != null) {
+				Files.createDirectories(this.memoryFile.getParent());
+			}
+			this.objectMapper.writerWithDefaultPrettyPrinter()
+					.writeValue(this.memoryFile.toFile(), toStoredMemories());
+			logger.debug("Persisted {} learning memories to {}", this.memories.size(), this.memoryFile.toAbsolutePath());
+		}
+		catch (IOException ex) {
+			logger.warn("Failed to persist learning memory to {}", this.memoryFile.toAbsolutePath(), ex);
+		}
+	}
+
+	private Map<String, StoredLearningMemory> toStoredMemories() {
+		Map<String, StoredLearningMemory> stored = new LinkedHashMap<>();
+		this.memories.forEach((userId, memory) -> stored.put(userId, new StoredLearningMemory(memory.getLevel(),
+				List.copyOf(memory.getTopics()), memory.getLastIntent(), memory.getLastQuestion(),
+				memory.getConversationCount(), memory.getUpdatedAt())));
+		return stored;
+	}
+
+	private LearningMemory toLearningMemory(String userId, StoredLearningMemory storedMemory) {
+		LearningMemory memory = new LearningMemory(userId);
+		if (storedMemory == null) {
+			return memory;
+		}
+		memory.setLevel(defaultText(storedMemory.level(), "初学者"));
+		memory.getTopics().addAll(new LinkedHashSet<>(storedMemory.topics() == null ? List.of()
+				: storedMemory.topics()));
+		memory.setLastIntent(defaultText(storedMemory.lastIntent(), LearningIntent.GENERAL_CHAT.name()));
+		memory.setLastQuestion(defaultText(storedMemory.lastQuestion(), ""));
+		memory.setConversationCount(storedMemory.conversationCount());
+		memory.setUpdatedAt(storedMemory.updatedAt() == null ? LocalDateTime.now() : storedMemory.updatedAt());
+		return memory;
+	}
+
+	private String defaultText(String text, String defaultValue) {
+		return text == null || text.isBlank() ? defaultValue : text;
 	}
 
 	private String normalizeUserId(String userId) {
@@ -103,6 +188,10 @@ public class LearningMemoryService {
 			}
 		}
 		return false;
+	}
+
+	public record StoredLearningMemory(String level, List<String> topics, String lastIntent, String lastQuestion,
+			int conversationCount, LocalDateTime updatedAt) {
 	}
 
 }

@@ -1,5 +1,8 @@
 server:
   port: 8080
+minimax:
+  memory:
+    file: spring-ai-alibaba-chat-example/minimax-chat/memory/learning-memory.json
 spring:
   application:
     name: minimax-chat-example

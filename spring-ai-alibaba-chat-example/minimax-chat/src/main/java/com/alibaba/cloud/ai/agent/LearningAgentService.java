@@ -100,7 +100,7 @@ public class LearningAgentService {
 					: new LearningAgentStep("TOOL_RESULT",
 							"本轮模型触发了 " + toolCalls.size() + " 次工具调用，并基于工具结果生成最终回答。"));
 			LearningMemory memoryAfter = this.memoryService.update(LearningMemoryService.DEFAULT_USER_ID, message, intent);
-			steps.add(new LearningAgentStep("MEMORY_WRITE", "已更新用户学习阶段、关注主题、最近意图和对话轮次。"));
+			steps.add(new LearningAgentStep("MEMORY_WRITE", "已更新用户学习阶段、关注主题、最近意图和对话轮次，并写回 JSON 文件。"));
 			return new LearningAgentResult(content, intent, memoryBefore, memoryAfter, List.copyOf(steps), toolCalls);
 		}
 		finally {
@@ -125,7 +125,7 @@ public class LearningAgentService {
 	private List<LearningAgentStep> planSteps(String message, LearningIntent intent, LearningMemory memory) {
 		List<LearningAgentStep> steps = new ArrayList<>();
 		steps.add(new LearningAgentStep("RECEIVE", "接收到用户问题：" + normalizeForStep(message)));
-		steps.add(new LearningAgentStep("MEMORY_READ", "读取用户学习记忆：" + memory.summary()));
+		steps.add(new LearningAgentStep("MEMORY_READ", "从 JSON 文件读取用户学习记忆：" + memory.summary()));
 		steps.add(new LearningAgentStep("PLAN", "Planner 识别意图为 " + intent + "。"));
 		steps.add(new LearningAgentStep("STRATEGY", strategyFor(intent)));
 		return steps;

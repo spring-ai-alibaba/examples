@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Simple in-memory learning profile for one user.
+ * Simple learning profile for one user.
  */
 public class LearningMemory {
 
