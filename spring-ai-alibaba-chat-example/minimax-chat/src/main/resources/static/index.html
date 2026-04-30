@@ -376,7 +376,7 @@
 		<div class="header-row">
 			<div class="title-group">
 				<h1>MiniMax Chat</h1>
-				<div class="subtitle">支持多轮上下文和 Markdown 渲染的 MiniMax-M2.7 小聊天页面</div>
+				<div class="subtitle">支持多轮上下文、Markdown 渲染和 Tool Calling 的 MiniMax-M2.7 小聊天页面</div>
 			</div>
 			<div class="status" aria-label="当前模型">
 				<span class="status-dot"></span>
@@ -391,7 +391,7 @@
 
 	<form id="composer" class="composer">
 		<div class="composer-inner">
-			<textarea id="messageInput" placeholder="输入问题，按 Ctrl + Enter 发送">请用 Markdown 介绍 Spring AI Alibaba Agent 学习路线，并给一个 Java 代码块示例。</textarea>
+			<textarea id="messageInput" placeholder="输入问题，按 Ctrl + Enter 发送">现在北京时间几点？然后给我一个 Spring AI Alibaba Agent 学习建议。</textarea>
 			<select id="modeSelect" aria-label="响应模式">
 				<option value="simple">同步</option>
 				<option value="stream">流式</option>
@@ -710,7 +710,7 @@
 		appendMessage("assistant", "已清空上下文。继续输入问题测试 MiniMax-M2.7。");
 	});
 
-	appendMessage("assistant", "你好，输入一个问题开始测试。这个页面会把当前聊天记录作为上下文一起发送给 MiniMax-M2.7，并支持 Markdown 渲染。");
+	appendMessage("assistant", "你好，输入一个问题开始测试。这个页面会把当前聊天记录作为上下文一起发送给 MiniMax-M2.7，并支持 Markdown 渲染和 Tool Calling。");
 </script>
 </body>
 </html>

@@ -19,17 +19,15 @@ package com.alibaba.cloud.ai.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.cloud.ai.tool.MiniMaxLearningTools;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +52,11 @@ public class MiniMaxChatClientController {
 	private static final String SYSTEM_PROMPT = """
 			你是 MiniMax-M2.7 学习助手。
 			请始终使用中文回答。
-			回答要清晰、直接、适合正在学习 Spring AI Alibaba Agent 和 Skill 开发的 Java 开发者。
+			回答要清晰、直接，适合正在学习 Spring AI Alibaba Agent 和 Skill 开发的 Java 开发者。
+			你可以使用工具获取真实时间，也可以使用工具生成 Spring AI Alibaba 学习建议。
+			当用户询问当前时间、北京时间、UTC 时间等真实时间问题时，优先调用 getCurrentTime 工具。
+			当用户询问学习路线、下一步学习什么、Tool Calling、Skill、Agent、RAG、MCP 或 Graph 时，
+			优先调用 generateLearningAdvice 工具。
 			不要输出 <think>、</think> 或任何思考标签。
 			""";
 
@@ -62,13 +64,11 @@ public class MiniMaxChatClientController {
 
 	private final ChatClient chatClient;
 
-	private final ChatModel chatModel;
+	private final MiniMaxLearningTools learningTools;
 
-	public MiniMaxChatClientController(ChatModel chatModel) {
-		this.chatModel = chatModel;
-
+	public MiniMaxChatClientController(ChatModel chatModel, MiniMaxLearningTools learningTools) {
+		this.learningTools = learningTools;
 		this.chatClient = ChatClient.builder(chatModel)
-				.defaultAdvisors(MessageChatMemoryAdvisor.builder(MessageWindowChatMemory.builder().build()).build())
 				.defaultAdvisors(new SimpleLoggerAdvisor())
 				.defaultOptions(defaultOptions())
 				.build();
@@ -79,7 +79,7 @@ public class MiniMaxChatClientController {
 	 */
 	@GetMapping("/simple/chat")
 	public String simpleChat(@RequestParam(value = "message", defaultValue = DEFAULT_PROMPT) String message) {
-		return chatClient.prompt(message).call().content();
+		return this.chatClient.prompt(message).call().content();
 	}
 
 	/**
@@ -89,34 +89,39 @@ public class MiniMaxChatClientController {
 	public Flux<String> streamChat(@RequestParam(value = "message", defaultValue = DEFAULT_PROMPT) String message,
 			HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
-		return chatClient.prompt(message).stream().content();
+		return this.chatClient.prompt(message).stream().content();
 	}
 
 	/**
-	 * Multi-turn chat. The frontend sends visible conversation history explicitly.
+	 * Multi-turn chat with Tool Calling.
 	 */
 	@PostMapping(value = "/conversation/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ChatResponse conversationChat(@RequestBody ChatRequest request) {
-		String content = this.chatModel.call(buildPrompt(request)).getResult().getOutput().getText();
+		String content = this.chatClient.prompt()
+				.messages(buildMessages(request))
+				.options(defaultOptions())
+				.tools(this.learningTools)
+				.call()
+				.content();
 		return new ChatResponse(content);
 	}
 
 	/**
-	 * Multi-turn streaming chat. The frontend sends visible conversation history explicitly.
+	 * Multi-turn streaming chat with Tool Calling.
 	 */
 	@PostMapping(value = "/conversation/stream", consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<String> conversationStream(@RequestBody ChatRequest request, HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
-		return this.chatModel.stream(buildPrompt(request)).mapNotNull(resp -> {
-			if (resp.getResult() == null || resp.getResult().getOutput() == null) {
-				return null;
-			}
-			return resp.getResult().getOutput().getText();
-		});
+		return this.chatClient.prompt()
+				.messages(buildMessages(request))
+				.options(defaultOptions())
+				.tools(this.learningTools)
+				.stream()
+				.content();
 	}
 
-	private Prompt buildPrompt(ChatRequest request) {
+	private List<Message> buildMessages(ChatRequest request) {
 		List<Message> messages = new ArrayList<>();
 		messages.add(new SystemMessage(SYSTEM_PROMPT));
 
@@ -132,7 +137,7 @@ public class MiniMaxChatClientController {
 		String message = request == null || request.message() == null || request.message().isBlank()
 				? DEFAULT_PROMPT : request.message();
 		messages.add(new UserMessage(message));
-		return new Prompt(messages, defaultOptions());
+		return messages;
 	}
 
 	private Message toMessage(ChatMessage message) {
