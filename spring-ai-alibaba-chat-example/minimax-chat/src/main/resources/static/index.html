@@ -27,29 +27,17 @@
 			--shadow: 0 18px 45px rgba(17, 24, 39, 0.08);
 		}
 
-		* {
-			box-sizing: border-box;
-		}
-
-		html,
-		body {
-			height: 100%;
-		}
+		* { box-sizing: border-box; }
+		html, body { height: 100%; }
 
 		body {
 			margin: 0;
 			font-family: Inter, Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
-			background:
-				linear-gradient(180deg, #dfe8f6 0, #eef2f7 260px),
-				var(--bg);
+			background: linear-gradient(180deg, #dfe8f6 0, #eef2f7 260px), var(--bg);
 			color: var(--text);
 		}
 
-		button,
-		select,
-		textarea {
-			font: inherit;
-		}
+		button, select, textarea { font: inherit; }
 
 		.app {
 			min-height: 100%;
@@ -129,14 +117,8 @@
 			gap: 6px;
 		}
 
-		.message.user {
-			align-self: flex-end;
-		}
-
-		.message.assistant,
-		.message.error {
-			align-self: flex-start;
-		}
+		.message.user { align-self: flex-end; }
+		.message.assistant, .message.error { align-self: flex-start; }
 
 		.message-meta {
 			color: var(--muted);
@@ -144,9 +126,7 @@
 			line-height: 1.2;
 		}
 
-		.message.user .message-meta {
-			text-align: right;
-		}
+		.message.user .message-meta { text-align: right; }
 
 		.message-body {
 			padding: 13px 15px;
@@ -171,47 +151,19 @@
 			white-space: pre-wrap;
 		}
 
-		.markdown-body > :first-child {
-			margin-top: 0;
-		}
-
-		.markdown-body > :last-child {
-			margin-bottom: 0;
-		}
-
-		.markdown-body h1,
-		.markdown-body h2,
-		.markdown-body h3 {
+		.markdown-body > :first-child { margin-top: 0; }
+		.markdown-body > :last-child { margin-bottom: 0; }
+		.markdown-body h1, .markdown-body h2, .markdown-body h3 {
 			margin: 12px 0 8px;
 			line-height: 1.35;
 			letter-spacing: 0;
 		}
-
-		.markdown-body h1 {
-			font-size: 22px;
-		}
-
-		.markdown-body h2 {
-			font-size: 19px;
-		}
-
-		.markdown-body h3 {
-			font-size: 17px;
-		}
-
-		.markdown-body p {
-			margin: 8px 0;
-		}
-
-		.markdown-body ul,
-		.markdown-body ol {
-			margin: 8px 0;
-			padding-left: 22px;
-		}
-
-		.markdown-body li {
-			margin: 4px 0;
-		}
+		.markdown-body h1 { font-size: 22px; }
+		.markdown-body h2 { font-size: 19px; }
+		.markdown-body h3 { font-size: 17px; }
+		.markdown-body p { margin: 8px 0; }
+		.markdown-body ul, .markdown-body ol { margin: 8px 0; padding-left: 22px; }
+		.markdown-body li { margin: 4px 0; }
 
 		.markdown-body blockquote {
 			margin: 10px 0;
@@ -230,7 +182,6 @@
 			color: var(--code-text);
 			overflow-x: auto;
 			white-space: pre;
-			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 		}
 
 		.markdown-body code {
@@ -260,6 +211,12 @@
 			margin-bottom: 6px;
 			font-weight: 700;
 			color: #334155;
+		}
+
+		.debug-intent {
+			margin-bottom: 8px;
+			color: #1d4ed8;
+			font-weight: 700;
 		}
 
 		.debug-panel pre {
@@ -304,16 +261,12 @@
 			outline: none;
 		}
 
-		textarea:focus,
-		select:focus,
-		button:focus-visible,
-		input:focus-visible {
+		textarea:focus, select:focus, button:focus-visible, input:focus-visible {
 			border-color: var(--primary);
 			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
 		}
 
-		select,
-		button {
+		select, button {
 			height: 52px;
 			border-radius: 8px;
 			border: 1px solid var(--line);
@@ -336,18 +289,9 @@
 			min-width: 88px;
 		}
 
-		button.primary:hover {
-			background: var(--primary-dark);
-		}
-
-		button.secondary:hover {
-			background: var(--surface-soft);
-		}
-
-		button:disabled {
-			cursor: not-allowed;
-			opacity: 0.68;
-		}
+		button.primary:hover { background: var(--primary-dark); }
+		button.secondary:hover { background: var(--surface-soft); }
+		button:disabled { cursor: not-allowed; opacity: 0.68; }
 
 		.debug-toggle {
 			height: 52px;
@@ -364,40 +308,13 @@
 		}
 
 		@media (max-width: 820px) {
-			header {
-				width: min(100% - 24px, 1040px);
-				padding-top: 18px;
-			}
-
-			.header-row {
-				align-items: flex-start;
-				flex-direction: column;
-			}
-
-			main,
-			.composer {
-				width: min(100% - 24px, 1040px);
-			}
-
-			.messages {
-				min-height: 360px;
-				height: 58vh;
-				padding: 14px;
-			}
-
-			.message {
-				width: 100%;
-			}
-
-			.composer-inner {
-				grid-template-columns: 1fr;
-			}
-
-			select,
-			button,
-			.debug-toggle {
-				width: 100%;
-			}
+			header, main, .composer { width: min(100% - 24px, 1040px); }
+			header { padding-top: 18px; }
+			.header-row { align-items: flex-start; flex-direction: column; }
+			.messages { min-height: 360px; height: 58vh; padding: 14px; }
+			.message { width: 100%; }
+			.composer-inner { grid-template-columns: 1fr; }
+			select, button, .debug-toggle { width: 100%; }
 		}
 	</style>
 </head>
@@ -406,8 +323,8 @@
 	<header>
 		<div class="header-row">
 			<div>
-				<h1>MiniMax Chat</h1>
-				<div class="subtitle">支持多轮上下文、Markdown、Tool Calling 和调试信息的 MiniMax-M2.7 小聊天页面</div>
+				<h1>小雨点 Chat-Bot</h1>
+				<div class="subtitle">支持多轮上下文、Tool Calling、Planner 和调试信息</div>
 			</div>
 			<div class="status" aria-label="当前模型">
 				<span class="status-dot"></span>
@@ -504,7 +421,6 @@
 				flushList(list, html);
 				continue;
 			}
-
 			const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
 			if (heading) {
 				flushParagraph(paragraph, html);
@@ -513,7 +429,22 @@
 				html.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
 				continue;
 			}
-
+			const unordered = trimmed.match(/^[-*+]\s+(.+)$/);
+			if (unordered) {
+				flushParagraph(paragraph, html);
+				if (list.type && list.type !== "ul") flushList(list, html);
+				list.type = "ul";
+				list.items.push(unordered[1]);
+				continue;
+			}
+			const ordered = trimmed.match(/^\d+\.\s+(.+)$/);
+			if (ordered) {
+				flushParagraph(paragraph, html);
+				if (list.type && list.type !== "ol") flushList(list, html);
+				list.type = "ol";
+				list.items.push(ordered[1]);
+				continue;
+			}
 			const quote = trimmed.match(/^>\s?(.+)$/);
 			if (quote) {
 				flushParagraph(paragraph, html);
@@ -521,33 +452,9 @@
 				html.push(`<blockquote>${renderInlineMarkdown(quote[1])}</blockquote>`);
 				continue;
 			}
-
-			const unordered = trimmed.match(/^[-*+]\s+(.+)$/);
-			if (unordered) {
-				flushParagraph(paragraph, html);
-				if (list.type && list.type !== "ul") {
-					flushList(list, html);
-				}
-				list.type = "ul";
-				list.items.push(unordered[1]);
-				continue;
-			}
-
-			const ordered = trimmed.match(/^\d+\.\s+(.+)$/);
-			if (ordered) {
-				flushParagraph(paragraph, html);
-				if (list.type && list.type !== "ol") {
-					flushList(list, html);
-				}
-				list.type = "ol";
-				list.items.push(ordered[1]);
-				continue;
-			}
-
 			flushList(list, html);
 			paragraph.push(line);
 		}
-
 		flushParagraph(paragraph, html);
 		flushList(list, html);
 		return html.join("");
@@ -559,19 +466,13 @@
 		const codeBlockPattern = /```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g;
 		let cursor = 0;
 		let match;
-
 		while ((match = codeBlockPattern.exec(source)) !== null) {
-			if (match.index > cursor) {
-				parts.push(renderTextBlocks(source.slice(cursor, match.index)));
-			}
+			if (match.index > cursor) parts.push(renderTextBlocks(source.slice(cursor, match.index)));
 			const language = match[1] ? ` data-language="${escapeHtml(match[1])}"` : "";
 			parts.push(`<pre${language}><code>${escapeHtml(match[2].trim())}</code></pre>`);
 			cursor = match.index + match[0].length;
 		}
-
-		if (cursor < source.length) {
-			parts.push(renderTextBlocks(source.slice(cursor)));
-		}
+		if (cursor < source.length) parts.push(renderTextBlocks(source.slice(cursor)));
 		return parts.join("") || "";
 	}
 
@@ -580,23 +481,17 @@
 	}
 
 	function roleName(role) {
-		if (role === "user") {
-			return "你";
-		}
-		if (role === "error") {
-			return "请求错误";
-		}
+		if (role === "user") return "你";
+		if (role === "error") return "请求错误";
 		return "MiniMax";
 	}
 
 	function appendMessage(role, text) {
 		const node = document.createElement("article");
 		node.className = `message ${role}`;
-
 		const meta = document.createElement("div");
 		meta.className = "message-meta";
 		meta.textContent = roleName(role);
-
 		const body = document.createElement("div");
 		body.className = "message-body";
 		if (role === "assistant") {
@@ -606,21 +501,22 @@
 		else {
 			body.textContent = text;
 		}
-
 		node.append(meta, body);
 		messages.appendChild(node);
 		node.scrollIntoView({ behavior: "smooth", block: "end" });
 		return body;
 	}
 
-	function renderToolCalls(messageNode, toolCalls) {
-		if (!debugToggle.checked || !toolCalls || !toolCalls.length) {
-			return;
-		}
+	function renderDebug(messageNode, intent, toolCalls) {
+		if (!debugToggle.checked) return;
 		const panel = document.createElement("div");
 		panel.className = "debug-panel";
-		panel.innerHTML = `<div class="debug-title">本轮工具调用：${toolCalls.length} 次</div>`;
-		for (const call of toolCalls) {
+		panel.innerHTML = `
+			<div class="debug-title">本轮调试信息</div>
+			<div class="debug-intent">识别意图：${escapeHtml(intent || "UNKNOWN")}</div>
+			<div>工具调用：${toolCalls && toolCalls.length ? toolCalls.length : 0} 次</div>
+		`;
+		for (const call of toolCalls || []) {
 			const item = document.createElement("pre");
 			item.textContent = `${call.name}\n参数：${JSON.stringify(call.arguments || {}, null, 2)}\n结果：${call.result || ""}`;
 			panel.appendChild(item);
@@ -629,20 +525,13 @@
 	}
 
 	function addHistory(role, content) {
-		if (!content || !content.trim()) {
-			return;
-		}
+		if (!content || !content.trim()) return;
 		history.push({ role, content: content.trim() });
-		if (history.length > 20) {
-			history.splice(0, history.length - 20);
-		}
+		if (history.length > 20) history.splice(0, history.length - 20);
 	}
 
 	function buildPayload(message) {
-		return {
-			message,
-			history: history.slice()
-		};
+		return { message, history: history.slice() };
 	}
 
 	function setBusy(busy) {
@@ -653,45 +542,32 @@
 	async function sendConversation(message) {
 		const response = await fetch("/minimax/chat-client/conversation/chat", {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(buildPayload(message))
 		});
-		if (!response.ok) {
-			throw new Error(`HTTP ${response.status}`);
-		}
+		if (!response.ok) throw new Error(`HTTP ${response.status}`);
 		return response.json();
 	}
 
 	async function sendConversationStream(message, target) {
 		const response = await fetch("/minimax/chat-client/conversation/stream", {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(buildPayload(message))
 		});
-		if (!response.ok || !response.body) {
-			throw new Error(`HTTP ${response.status}`);
-		}
-
+		if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
 		const reader = response.body.getReader();
 		const decoder = new TextDecoder("utf-8");
 		let buffer = "";
 		let rawText = "";
-
 		while (true) {
 			const { value, done } = await reader.read();
-			if (done) {
-				break;
-			}
+			if (done) break;
 			buffer += decoder.decode(value, { stream: true });
 			const parts = buffer.split("\n\n");
 			buffer = parts.pop() || "";
 			for (const part of parts) {
-				const data = part
-					.split("\n")
+				const data = part.split("\n")
 					.filter(line => line.startsWith("data:"))
 					.map(line => line.slice(5).trimStart())
 					.join("\n");
@@ -702,7 +578,6 @@
 				}
 			}
 		}
-
 		const answer = cleanAssistantText(rawText);
 		if (!answer.trim()) {
 			setAssistantContent(target, "流式接口没有返回可展示文本，请先确认同步接口是否正常。");
@@ -714,15 +589,11 @@
 	composer.addEventListener("submit", async (event) => {
 		event.preventDefault();
 		const message = input.value.trim();
-		if (!message) {
-			return;
-		}
-
+		if (!message) return;
 		appendMessage("user", message);
 		const assistant = appendMessage("assistant", "");
 		const assistantNode = assistant.closest(".message");
 		setBusy(true);
-
 		try {
 			let answer;
 			if (mode.value === "stream") {
@@ -732,9 +603,8 @@
 				const data = await sendConversation(message);
 				answer = cleanAssistantText(data.content || "");
 				setAssistantContent(assistant, answer);
-				renderToolCalls(assistantNode, data.toolCalls || []);
+				renderDebug(assistantNode, data.intent, data.toolCalls || []);
 			}
-
 			addHistory("user", message);
 			addHistory("assistant", answer);
 			input.value = "";
@@ -750,9 +620,7 @@
 	});
 
 	input.addEventListener("keydown", (event) => {
-		if (event.key === "Enter" && event.ctrlKey) {
-			composer.requestSubmit();
-		}
+		if (event.key === "Enter" && event.ctrlKey) composer.requestSubmit();
 	});
 
 	clearButton.addEventListener("click", () => {
@@ -761,7 +629,7 @@
 		appendMessage("assistant", "已清空上下文。继续输入问题测试 MiniMax-M2.7。");
 	});
 
-	appendMessage("assistant", "你好，输入一个问题开始测试。同步模式会在回答下方显示本轮 Tool 调用调试信息；流式模式请查看后端日志。");
+	appendMessage("assistant", "你好，输入一个问题开始测试。同步模式会显示 Planner 识别意图和本轮 Tool 调用；流式模式请查看后端日志。");
 </script>
 </body>
 </html>

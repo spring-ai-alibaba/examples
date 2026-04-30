@@ -19,6 +19,8 @@ package com.alibaba.cloud.ai.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.cloud.ai.planner.LearningIntent;
+import com.alibaba.cloud.ai.planner.LearningIntentPlanner;
 import com.alibaba.cloud.ai.tool.MiniMaxLearningTools;
 import com.alibaba.cloud.ai.tool.ToolCallDebugRecorder;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,8 +58,7 @@ public class MiniMaxChatClientController {
 			回答要清晰、直接，适合正在学习 Spring AI Alibaba Agent 和 Skill 开发的 Java 开发者。
 			你可以使用工具获取真实时间、生成学习建议、生成今日学习计划、解释 Spring AI Alibaba 相关概念。
 			当用户询问当前时间、北京时间、UTC 时间等真实时间问题时，优先调用 getCurrentTime 工具。
-			当用户询问学习路线、下一步学习什么、Tool Calling、Skill、Agent、RAG、MCP 或 Graph 时，
-			优先调用 generateLearningAdvice 工具。
+			当用户询问学习路线、下一步学习什么、Tool Calling、Skill、Agent、RAG、MCP 或 Graph 时，优先调用 generateLearningAdvice 工具。
 			当用户要求今日计划、30 分钟学习安排、每日练习或任务拆分时，优先调用 generateDailyPlan 工具。
 			当用户询问概念含义或区别，例如 Tool、Skill、Agent、Graph 是什么时，优先调用 explainConcept 工具。
 			不要输出 <think>、</think> 或任何思考标签。
@@ -71,27 +72,24 @@ public class MiniMaxChatClientController {
 
 	private final ToolCallDebugRecorder debugRecorder;
 
+	private final LearningIntentPlanner intentPlanner;
+
 	public MiniMaxChatClientController(ChatModel chatModel, MiniMaxLearningTools learningTools,
-			ToolCallDebugRecorder debugRecorder) {
+			ToolCallDebugRecorder debugRecorder, LearningIntentPlanner intentPlanner) {
 		this.learningTools = learningTools;
 		this.debugRecorder = debugRecorder;
+		this.intentPlanner = intentPlanner;
 		this.chatClient = ChatClient.builder(chatModel)
 				.defaultAdvisors(new SimpleLoggerAdvisor())
 				.defaultOptions(defaultOptions())
 				.build();
 	}
 
-	/**
-	 * Single-turn ChatClient call.
-	 */
 	@GetMapping("/simple/chat")
 	public String simpleChat(@RequestParam(value = "message", defaultValue = DEFAULT_PROMPT) String message) {
 		return this.chatClient.prompt(message).call().content();
 	}
 
-	/**
-	 * Single-turn streaming ChatClient call.
-	 */
 	@GetMapping(value = "/stream/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<String> streamChat(@RequestParam(value = "message", defaultValue = DEFAULT_PROMPT) String message,
 			HttpServletResponse response) {
@@ -99,40 +97,32 @@ public class MiniMaxChatClientController {
 		return this.chatClient.prompt(message).stream().content();
 	}
 
-	/**
-	 * Multi-turn chat with Tool Calling.
-	 */
 	@PostMapping(value = "/conversation/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ChatResponse conversationChat(@RequestBody ChatRequest request) {
 		this.debugRecorder.clear();
+		LearningIntent intent = this.intentPlanner.plan(extractMessage(request));
 		try {
 			String content = this.chatClient.prompt()
-					.messages(buildMessages(request))
+					.messages(buildMessages(request, intent))
 					.options(defaultOptions())
 					.tools(this.learningTools)
 					.call()
 					.content();
-			return new ChatResponse(content, this.debugRecorder.snapshot());
+			return new ChatResponse(content, intent, this.debugRecorder.snapshot());
 		}
 		finally {
 			this.debugRecorder.remove();
 		}
 	}
 
-	/**
-	 * Multi-turn streaming chat with Tool Calling.
-	 *
-	 * <p>
-	 * Streaming responses keep Tool debug details in backend logs. The sync endpoint
-	 * returns toolCalls in JSON for easy UI display.
-	 */
 	@PostMapping(value = "/conversation/stream", consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<String> conversationStream(@RequestBody ChatRequest request, HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
 		this.debugRecorder.clear();
+		LearningIntent intent = this.intentPlanner.plan(extractMessage(request));
 		return this.chatClient.prompt()
-				.messages(buildMessages(request))
+				.messages(buildMessages(request, intent))
 				.options(defaultOptions())
 				.tools(this.learningTools)
 				.stream()
@@ -140,9 +130,9 @@ public class MiniMaxChatClientController {
 				.doFinally(signalType -> this.debugRecorder.remove());
 	}
 
-	private List<Message> buildMessages(ChatRequest request) {
+	private List<Message> buildMessages(ChatRequest request, LearningIntent intent) {
 		List<Message> messages = new ArrayList<>();
-		messages.add(new SystemMessage(SYSTEM_PROMPT));
+		messages.add(new SystemMessage(SYSTEM_PROMPT + "\n" + this.intentPlanner.instructionFor(intent)));
 
 		List<ChatMessage> history = request == null || request.history() == null ? List.of() : request.history();
 		int start = Math.max(0, history.size() - MAX_HISTORY_MESSAGES);
@@ -153,10 +143,15 @@ public class MiniMaxChatClientController {
 			}
 		}
 
-		String message = request == null || request.message() == null || request.message().isBlank()
-				? DEFAULT_PROMPT : request.message();
-		messages.add(new UserMessage(message));
+		messages.add(new UserMessage(extractMessage(request)));
 		return messages;
+	}
+
+	private String extractMessage(ChatRequest request) {
+		if (request == null || request.message() == null || request.message().isBlank()) {
+			return DEFAULT_PROMPT;
+		}
+		return request.message();
 	}
 
 	private Message toMessage(ChatMessage message) {
@@ -190,7 +185,8 @@ public class MiniMaxChatClientController {
 	public record ChatMessage(String role, String content) {
 	}
 
-	public record ChatResponse(String content, List<ToolCallDebugRecorder.ToolCallDebug> toolCalls) {
+	public record ChatResponse(String content, LearningIntent intent,
+			List<ToolCallDebugRecorder.ToolCallDebug> toolCalls) {
 	}
 
 }
