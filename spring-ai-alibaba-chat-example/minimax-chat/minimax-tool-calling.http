@@ -1,0 +1,53 @@
+### Tool Calling: 获取当前北京时间
+POST http://localhost:8080/minimax/chat-client/conversation/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "现在北京时间几点？请说明你是否使用了工具。",
+  "history": []
+}
+
+### Skill: 生成 Spring AI Alibaba 学习建议
+POST http://localhost:8080/minimax/chat-client/conversation/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "我是初学者，下一步应该怎么学习 Spring AI Alibaba Agent 和 Tool Calling？请给出 Markdown 列表。",
+  "history": []
+}
+
+### Skill: 生成今日 30 分钟学习计划
+POST http://localhost:8080/minimax/chat-client/conversation/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "请给我一个今天 30 分钟的 Spring AI Alibaba Tool Calling 学习计划。",
+  "history": []
+}
+
+### Skill: 解释概念
+POST http://localhost:8080/minimax/chat-client/conversation/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "请用初学者能懂的话解释 Tool、Skill、Agent、Graph 的区别。",
+  "history": []
+}
+
+### Tool Calling + Skill + 多轮上下文
+POST http://localhost:8080/minimax/chat-client/conversation/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "基于我的目标，给我今天 30 分钟的学习安排，并告诉我现在北京时间。",
+  "history": [
+    {
+      "role": "user",
+      "content": "我叫小王，正在学习 Spring AI Alibaba Agent 开发。"
+    },
+    {
+      "role": "assistant",
+      "content": "好的，我记住了。你的目标是学习 Spring AI Alibaba Agent 开发。"
+    }
+  ]
+}

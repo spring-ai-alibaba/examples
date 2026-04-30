@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.cloud.ai.tool.MiniMaxLearningTools;
+import com.alibaba.cloud.ai.tool.ToolCallDebugRecorder;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -53,10 +54,12 @@ public class MiniMaxChatClientController {
 			你是 MiniMax-M2.7 学习助手。
 			请始终使用中文回答。
 			回答要清晰、直接，适合正在学习 Spring AI Alibaba Agent 和 Skill 开发的 Java 开发者。
-			你可以使用工具获取真实时间，也可以使用工具生成 Spring AI Alibaba 学习建议。
+			你可以使用工具获取真实时间、生成学习建议、生成今日学习计划、解释 Spring AI Alibaba 相关概念。
 			当用户询问当前时间、北京时间、UTC 时间等真实时间问题时，优先调用 getCurrentTime 工具。
 			当用户询问学习路线、下一步学习什么、Tool Calling、Skill、Agent、RAG、MCP 或 Graph 时，
 			优先调用 generateLearningAdvice 工具。
+			当用户要求今日计划、30 分钟学习安排、每日练习或任务拆分时，优先调用 generateDailyPlan 工具。
+			当用户询问概念含义或区别，例如 Tool、Skill、Agent、Graph 是什么时，优先调用 explainConcept 工具。
 			不要输出 <think>、</think> 或任何思考标签。
 			""";
 
@@ -66,8 +69,12 @@ public class MiniMaxChatClientController {
 
 	private final MiniMaxLearningTools learningTools;
 
-	public MiniMaxChatClientController(ChatModel chatModel, MiniMaxLearningTools learningTools) {
+	private final ToolCallDebugRecorder debugRecorder;
+
+	public MiniMaxChatClientController(ChatModel chatModel, MiniMaxLearningTools learningTools,
+			ToolCallDebugRecorder debugRecorder) {
 		this.learningTools = learningTools;
+		this.debugRecorder = debugRecorder;
 		this.chatClient = ChatClient.builder(chatModel)
 				.defaultAdvisors(new SimpleLoggerAdvisor())
 				.defaultOptions(defaultOptions())
@@ -97,28 +104,40 @@ public class MiniMaxChatClientController {
 	 */
 	@PostMapping(value = "/conversation/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ChatResponse conversationChat(@RequestBody ChatRequest request) {
-		String content = this.chatClient.prompt()
-				.messages(buildMessages(request))
-				.options(defaultOptions())
-				.tools(this.learningTools)
-				.call()
-				.content();
-		return new ChatResponse(content);
+		this.debugRecorder.clear();
+		try {
+			String content = this.chatClient.prompt()
+					.messages(buildMessages(request))
+					.options(defaultOptions())
+					.tools(this.learningTools)
+					.call()
+					.content();
+			return new ChatResponse(content, this.debugRecorder.snapshot());
+		}
+		finally {
+			this.debugRecorder.remove();
+		}
 	}
 
 	/**
 	 * Multi-turn streaming chat with Tool Calling.
+	 *
+	 * <p>
+	 * Streaming responses keep Tool debug details in backend logs. The sync endpoint
+	 * returns toolCalls in JSON for easy UI display.
 	 */
 	@PostMapping(value = "/conversation/stream", consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<String> conversationStream(@RequestBody ChatRequest request, HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
+		this.debugRecorder.clear();
 		return this.chatClient.prompt()
 				.messages(buildMessages(request))
 				.options(defaultOptions())
 				.tools(this.learningTools)
 				.stream()
-				.content();
+				.content()
+				.doFinally(signalType -> this.debugRecorder.remove());
 	}
 
 	private List<Message> buildMessages(ChatRequest request) {
@@ -171,7 +190,7 @@ public class MiniMaxChatClientController {
 	public record ChatMessage(String role, String content) {
 	}
 
-	public record ChatResponse(String content) {
+	public record ChatResponse(String content, List<ToolCallDebugRecorder.ToolCallDebug> toolCalls) {
 	}
 
 }
