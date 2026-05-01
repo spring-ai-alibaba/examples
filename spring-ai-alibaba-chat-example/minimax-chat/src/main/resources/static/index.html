@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>MiniMax Chat</title>
+	<title>Chat-Bot</title>
 	<style>
 		:root {
 			color-scheme: light;
@@ -37,7 +37,7 @@
 			color: var(--text);
 		}
 
-		button, input, select, textarea { font: inherit; }
+		button, input, textarea { font: inherit; }
 
 		.app {
 			min-height: 100%;
@@ -102,7 +102,7 @@
 		}
 
 		.messages {
-			height: min(66vh, 680px);
+			height: min(54vh, 680px);
 			min-height: 380px;
 			overflow-y: auto;
 			padding: 22px;
@@ -280,15 +280,21 @@
 
 		.composer-inner {
 			display: grid;
-			grid-template-columns: 180px 1fr auto auto auto auto auto;
+			grid-template-columns: minmax(160px, 220px) 1fr;
+			grid-template-areas:
+				"user message"
+				"tools actions";
 			gap: 10px;
-			align-items: end;
+			align-items: stretch;
 			padding: 14px;
 			border: 1px solid var(--line);
 			border-radius: 8px;
 			background: var(--surface);
 			box-shadow: var(--shadow);
 		}
+
+		#userIdInput { grid-area: user; }
+		#messageInput { grid-area: message; }
 
 		input[type="text"], textarea {
 			width: 100%;
@@ -306,24 +312,81 @@
 		}
 
 		textarea {
-			min-height: 52px;
+			min-height: 64px;
 			max-height: 180px;
 			resize: vertical;
 		}
 
-		textarea:focus, select:focus, button:focus-visible, input:focus-visible {
+		textarea:focus, button:focus-visible, input:focus-visible {
 			border-color: var(--primary);
 			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
 		}
 
-		select, button {
-			height: 52px;
+		.composer-tools {
+			grid-area: tools;
+			display: flex;
+			gap: 8px;
+			align-items: center;
+		}
+
+		.composer-actions {
+			grid-area: actions;
+			display: flex;
+			justify-content: flex-end;
+			gap: 8px;
+			align-items: center;
+			flex-wrap: wrap;
+		}
+
+		button {
+			height: 44px;
 			border-radius: 8px;
 			border: 1px solid var(--line);
 			background: #fff;
 			color: var(--text);
-			padding: 0 14px;
+			padding: 0 12px;
 			outline: none;
+		}
+
+		.mode-radio {
+			height: 44px;
+			display: inline-grid;
+			grid-template-columns: repeat(2, minmax(62px, 1fr));
+			padding: 3px;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: var(--surface-soft);
+		}
+
+		.mode-radio label {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 62px;
+			padding: 0 10px;
+			border-radius: 6px;
+			color: #475467;
+			font-size: 13px;
+			font-weight: 650;
+			cursor: pointer;
+			white-space: nowrap;
+		}
+
+		.mode-radio input {
+			position: absolute;
+			opacity: 0;
+			pointer-events: none;
+		}
+
+		.mode-radio label:has(input:checked) {
+			background: #fff;
+			color: var(--primary);
+			box-shadow: 0 1px 4px rgba(17, 24, 39, 0.12);
+		}
+
+		.mode-radio label:focus-within {
+			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
 		}
 
 		button {
@@ -336,7 +399,7 @@
 			border-color: var(--primary);
 			background: var(--primary);
 			color: #fff;
-			min-width: 88px;
+			min-width: 96px;
 		}
 
 		button.primary:hover { background: var(--primary-dark); }
@@ -344,7 +407,7 @@
 		button:disabled { cursor: not-allowed; opacity: 0.68; }
 
 		.debug-toggle {
-			height: 52px;
+			height: 44px;
 			display: inline-flex;
 			align-items: center;
 			gap: 6px;
@@ -363,8 +426,17 @@
 			.header-row { align-items: flex-start; flex-direction: column; }
 			.messages { min-height: 360px; height: 58vh; padding: 14px; }
 			.message { width: 100%; }
-			.composer-inner { grid-template-columns: 1fr; }
-			select, button, .debug-toggle { width: 100%; }
+			.composer-inner {
+				grid-template-columns: 1fr;
+				grid-template-areas:
+					"user"
+					"message"
+					"tools"
+					"actions";
+			}
+			.composer-tools, .composer-actions { width: 100%; }
+			.composer-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+			button, .debug-toggle, .mode-radio { width: 100%; }
 			.memory-grid { grid-template-columns: 1fr; }
 		}
 	</style>
@@ -392,18 +464,28 @@
 		<div class="composer-inner">
 			<input id="userIdInput" type="text" value="default-user" aria-label="用户 ID" placeholder="用户ID">
 			<textarea id="messageInput" placeholder="输入问题，按 Ctrl + Enter 发送">现在北京时间几点？然后给我一个今天 30 分钟的 Agent 学习计划。</textarea>
-			<select id="modeSelect" aria-label="响应模式">
-				<option value="simple">同步</option>
-				<option value="stream">流式</option>
-			</select>
-			<label class="debug-toggle">
-				<input id="debugToggle" type="checkbox" checked>
-				<span>调试</span>
-			</label>
-			<button id="viewMemoryButton" class="secondary" type="button">查看记忆</button>
-			<button id="clearMemoryButton" class="secondary" type="button">清空记忆</button>
-			<button id="clearButton" class="secondary" type="button">清空</button>
-			<button id="sendButton" class="primary" type="submit">发送</button>
+			<div class="composer-tools">
+				<div class="mode-radio" role="radiogroup" aria-label="响应模式">
+					<label>
+						<input type="radio" name="modeSelect" value="simple" checked>
+						<span>同步</span>
+					</label>
+					<label>
+						<input type="radio" name="modeSelect" value="stream">
+						<span>流式</span>
+					</label>
+				</div>
+				<label class="debug-toggle">
+					<input id="debugToggle" type="checkbox" checked>
+					<span>调试</span>
+				</label>
+			</div>
+			<div class="composer-actions">
+				<button id="viewMemoryButton" class="secondary" type="button">查看记忆</button>
+				<button id="clearMemoryButton" class="secondary" type="button">清空记忆</button>
+				<button id="clearButton" class="secondary" type="button">清空上下文</button>
+				<button id="sendButton" class="primary" type="submit">发送</button>
+			</div>
 		</div>
 	</form>
 </div>
@@ -413,7 +495,7 @@
 	const composer = document.getElementById("composer");
 	const userIdInput = document.getElementById("userIdInput");
 	const input = document.getElementById("messageInput");
-	const mode = document.getElementById("modeSelect");
+	const modeInputs = Array.from(document.querySelectorAll("input[name='modeSelect']"));
 	const debugToggle = document.getElementById("debugToggle");
 	const viewMemoryButton = document.getElementById("viewMemoryButton");
 	const clearMemoryButton = document.getElementById("clearMemoryButton");
@@ -649,6 +731,11 @@
 		return { userId: currentUserId(), message, history: history.slice() };
 	}
 
+	function currentMode() {
+		const selected = modeInputs.find(item => item.checked);
+		return selected ? selected.value : "simple";
+	}
+
 	function setBusy(busy) {
 		sendButton.disabled = busy;
 		sendButton.textContent = busy ? "发送中" : "发送";
@@ -725,7 +812,7 @@
 		setBusy(true);
 		try {
 			let answer;
-			if (mode.value === "stream") {
+			if (currentMode() === "stream") {
 				answer = await sendConversationStream(message, assistant);
 			}
 			else {
