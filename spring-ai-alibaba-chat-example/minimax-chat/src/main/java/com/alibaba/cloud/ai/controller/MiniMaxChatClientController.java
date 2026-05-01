@@ -22,6 +22,7 @@ import java.util.List;
 import com.alibaba.cloud.ai.agent.LearningAgentResult;
 import com.alibaba.cloud.ai.agent.LearningAgentService;
 import com.alibaba.cloud.ai.agent.LearningAgentService.LearningAgentMessage;
+import com.alibaba.cloud.ai.agent.LearningStreamEvent;
 import com.alibaba.cloud.ai.memory.LearningMemory;
 import com.alibaba.cloud.ai.memory.LearningMemoryService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -85,9 +87,12 @@ public class MiniMaxChatClientController {
 
 	@PostMapping(value = "/conversation/stream", consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<String> conversationStream(@RequestBody ChatRequest request, HttpServletResponse response) {
+	public Flux<ServerSentEvent<LearningStreamEvent>> conversationStream(@RequestBody ChatRequest request,
+			HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
-		return this.learningAgentService.stream(extractUserId(request), extractMessage(request), toAgentHistory(request));
+		return this.learningAgentService.streamEvents(extractUserId(request), extractMessage(request),
+				toAgentHistory(request))
+				.map(event -> ServerSentEvent.builder(event).event(event.type()).build());
 	}
 
 	@GetMapping("/memory")

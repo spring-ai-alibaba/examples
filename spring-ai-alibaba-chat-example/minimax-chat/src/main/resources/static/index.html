@@ -28,7 +28,7 @@
 		}
 
 		* { box-sizing: border-box; }
-		html, body { height: 100%; }
+		html, body { height: 100%; overflow: hidden; }
 
 		body {
 			margin: 0;
@@ -238,6 +238,41 @@
 			color: #0f172a;
 		}
 
+		.graph-steps {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 8px;
+			margin: 8px 0;
+		}
+
+		.graph-step {
+			min-height: 92px;
+			padding: 9px 10px;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: #fff;
+		}
+
+		.graph-step-name {
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.graph-step-status {
+			display: inline-flex;
+			margin: 5px 0;
+			padding: 2px 6px;
+			border-radius: 999px;
+			background: #ecfdf3;
+			color: #027a48;
+			font-size: 11px;
+			font-weight: 700;
+		}
+
+		.graph-step-detail {
+			color: #475467;
+		}
+
 		.memory-grid {
 			display: grid;
 			grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -437,6 +472,7 @@
 			.composer-tools, .composer-actions { width: 100%; }
 			.composer-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 			button, .debug-toggle, .mode-radio { width: 100%; }
+			.graph-steps { grid-template-columns: 1fr; }
 			.memory-grid { grid-template-columns: 1fr; }
 		}
 	</style>
@@ -664,13 +700,16 @@
 		return `用户：${memory.userId || currentUserId()}\n阶段：${memory.level || "初学者"}\n关注：${topics}\n轮次：${memory.conversationCount ?? 0}\n上次意图：${memory.lastIntent || "GENERAL_CHAT"}\n上次问题：${memory.lastQuestion || "暂无"}`;
 	}
 
-	function renderDebug(messageNode, intent, toolCalls, agentSteps, memoryBefore, memoryAfter) {
+	function renderDebug(messageNode, intent, toolCalls, graphSteps, agentSteps, memoryBefore, memoryAfter) {
 		if (!debugToggle.checked) return;
+		const existing = messageNode.querySelector(":scope > .debug-panel");
+		if (existing) existing.remove();
 		const panel = document.createElement("div");
 		panel.className = "debug-panel";
 		panel.innerHTML = `
 			<div class="debug-title">本轮调试信息</div>
 			<div class="debug-intent">识别意图：${escapeHtml(intent || "UNKNOWN")}</div>
+			<div>Graph 节点：${graphSteps && graphSteps.length ? graphSteps.length : 0} 个</div>
 			<div>Agent 执行步骤：${agentSteps && agentSteps.length ? agentSteps.length : 0} 步</div>
 			<div>工具调用：${toolCalls && toolCalls.length ? toolCalls.length : 0} 次</div>
 		`;
@@ -687,6 +726,21 @@
 			</div>
 		`;
 		panel.appendChild(memory);
+		if (graphSteps && graphSteps.length) {
+			const graph = document.createElement("div");
+			graph.className = "graph-steps";
+			for (const step of graphSteps) {
+				const item = document.createElement("div");
+				item.className = "graph-step";
+				item.innerHTML = `
+					<div class="graph-step-name">${escapeHtml(step.name || step.id || "Node")}</div>
+					<div class="graph-step-status">${escapeHtml(step.status || "READY")}</div>
+					<div class="graph-step-detail">${escapeHtml(step.detail || "")}</div>
+				`;
+				graph.appendChild(item);
+			}
+			panel.appendChild(graph);
+		}
 		if (agentSteps && agentSteps.length) {
 			const steps = document.createElement("div");
 			steps.className = "agent-steps";
@@ -765,7 +819,7 @@
 		return response.json();
 	}
 
-	async function sendConversationStream(message, target) {
+	async function sendConversationStream(message, target, messageNode) {
 		const response = await fetch("/minimax/chat-client/conversation/stream", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -776,6 +830,7 @@
 		const decoder = new TextDecoder("utf-8");
 		let buffer = "";
 		let rawText = "";
+		let debugData = {};
 		while (true) {
 			const { value, done } = await reader.read();
 			if (done) break;
@@ -783,12 +838,33 @@
 			const parts = buffer.split("\n\n");
 			buffer = parts.pop() || "";
 			for (const part of parts) {
-				const data = part.split("\n")
+				const lines = part.split("\n");
+				const eventType = lines.find(line => line.startsWith("event:"))?.slice(6).trim() || "message";
+				const dataText = lines
 					.filter(line => line.startsWith("data:"))
 					.map(line => line.slice(5).trimStart())
 					.join("\n");
-				if (data && data !== "[DONE]") {
-					rawText += data;
+				if (!dataText || dataText === "[DONE]") continue;
+				let payload;
+				try {
+					payload = JSON.parse(dataText);
+				}
+				catch (ignored) {
+					payload = { type: eventType, content: dataText };
+				}
+				const type = payload.type || eventType;
+				if (type === "debug") {
+					debugData = payload;
+					renderDebug(messageNode, payload.intent, [], payload.graphSteps || [], payload.agentSteps || [],
+						payload.memoryBefore, null);
+				}
+				else if (type === "done") {
+					renderDebug(messageNode, debugData.intent, payload.toolCalls || [],
+						payload.graphSteps || debugData.graphSteps || [], payload.agentSteps || debugData.agentSteps || [],
+						debugData.memoryBefore, payload.memoryAfter);
+				}
+				else {
+					rawText += payload.content || "";
 					setAssistantContent(target, rawText);
 					target.scrollIntoView({ behavior: "smooth", block: "end" });
 				}
@@ -813,14 +889,14 @@
 		try {
 			let answer;
 			if (currentMode() === "stream") {
-				answer = await sendConversationStream(message, assistant);
+				answer = await sendConversationStream(message, assistant, assistantNode);
 			}
 			else {
 				const data = await sendConversation(message);
 				answer = cleanAssistantText(data.content || "");
 				setAssistantContent(assistant, answer);
-				renderDebug(assistantNode, data.intent, data.toolCalls || [], data.agentSteps || [], data.memoryBefore,
-					data.memoryAfter);
+				renderDebug(assistantNode, data.intent, data.toolCalls || [], data.graphSteps || [],
+					data.agentSteps || [], data.memoryBefore, data.memoryAfter);
 			}
 			addHistory("user", message);
 			addHistory("assistant", answer);

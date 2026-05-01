@@ -17,6 +17,8 @@
 - 多用户 Learning Memory
 - Memory 查看和清空管理
 - 本地文档 Simple RAG 检索
+- 轻量 Graph 工作流节点
+- 流式模式 SSE 调试事件
 
 ## 当前请求链路
 
@@ -27,12 +29,19 @@
  -> 前端携带 userId
  -> Controller
  -> LearningAgentService
+ -> LearningGraphService 生成 Graph 节点
  -> LearningMemoryService 按 userId 从 JSON 文件读取记忆
  -> Planner 判断意图
  -> MiniMax + Tools
  -> searchLearningDocs Tool 按需检索本地文档
  -> LearningMemoryService 按 userId 更新记忆并写回 JSON 文件
- -> 前端展示回答 + Agent步骤 + Tool调用 + 当前用户Memory信息
+ -> 前端展示回答 + Graph节点 + Agent步骤 + Tool调用 + 当前用户Memory信息
+```
+
+流式模式会额外通过 SSE 事件分阶段返回：
+
+```text
+debug -> message -> done
 ```
 
 ## 各层职责
@@ -42,6 +51,7 @@
 | 前端 | `src/main/resources/static/index.html` | 发送用户 ID 和用户问题，维护短期聊天历史，渲染 Markdown，展示调试信息。 |
 | Controller | `MiniMaxChatClientController` | 接收 HTTP 请求，把对话处理委托给 Agent 层。 |
 | Agent | `LearningAgentService` | 编排记忆读取、意图识别、模型调用、工具访问和记忆更新。 |
+| Graph | `LearningGraphService` | 把 Agent 执行流程表达成可展示的轻量工作流节点。 |
 | Memory | `LearningMemoryService` | 按 userId 从 JSON 文件读取用户学习记忆，并在每轮对话后写回该用户的学习阶段、关注主题、最近意图和对话轮次。 |
 | RAG | `LearningRagService` | 基于关键词检索当前 minimax-chat 的 README 和关键源码，为模型回答当前项目实现细节提供本地资料。 |
 | Planner | `LearningIntentPlanner` | 把当前用户请求识别成具体学习意图。 |
@@ -272,6 +282,75 @@ searchLearningDocs(query, limit)
 
 这一阶段的目标不是构建完整知识库，而是先理解 RAG 在 Agent 链路中的位置：模型在回答当前项目相关问题前，先通过工具检索本地资料，再基于资料组织回答。
 
+### 11. 轻量 Graph 工作流
+
+新增轻量 Graph 层，用于把当前 Agent 编排过程表达成节点流程。
+
+新增类：
+
+- `LearningGraphStep`
+- `LearningGraphResult`
+- `LearningGraphService`
+
+当前阶段不改变真实执行逻辑，只把 Agent 流程图谱化，方便观察和学习：
+
+```text
+Receive
+ -> Memory Read
+ -> Planner
+ -> Strategy
+ -> Model Call
+ -> Tool Execute
+ -> Memory Write
+ -> Response
+```
+
+请求链路：
+
+```text
+前端问题
+ -> Controller
+ -> LearningAgentService
+ -> LearningGraphService 生成 Graph 节点
+ -> Memory Read
+ -> Planner
+ -> MiniMax + Tools/RAG
+ -> Memory Write
+ -> 前端展示回答 + Graph节点 + Tool调用 + Memory信息
+```
+
+这一阶段的目标是理解 Graph 在 Agent 中的位置：Agent 负责编排任务，Graph 负责把编排过程表达成节点流程。后续可以再接入正式的 Spring AI Alibaba Graph/工作流框架。
+
+### 12. 流式调试增强
+
+把流式接口 `/conversation/stream` 从单纯文本流升级为多事件 SSE。
+
+事件格式：
+
+```text
+event: debug
+data: {"intent":"MIXED","graphSteps":[...],"agentSteps":[...],"memoryBefore":...}
+
+event: message
+data: {"content":"模型回答片段"}
+
+event: done
+data: {"memoryAfter":...,"toolCalls":[...],"agentSteps":[...]}
+```
+
+流式模式现在可以边输出回答，边展示调试信息：
+
+- `debug`：回答开始前返回 Planner 意图、Graph 节点、Agent 初始步骤和调用前 Memory。
+- `message`：持续追加模型回答片段。
+- `done`：回答结束后返回 Tool 调用、调用后 Memory 和最终 Agent 步骤。
+
+同步模式和流式模式的定位：
+
+```text
+同步模式：一次性返回完整结果，适合接口验证。
+流式模式：边输出边展示调试信息，适合真实聊天体验。
+```
+
 ## 建议测试用例
 
 打开：
@@ -304,6 +383,8 @@ http://localhost:8080/index.html
 - 点击 `清空记忆` 后，该用户在 JSON 文件中的长期 Memory 会重置。
 - 点击 `清空` 只清空短期上下文，不会重置 JSON 文件中的长期 Memory。
 - 询问当前项目 README、源码结构或调用链时，`toolCalls` 中应出现 `searchLearningDocs`。
+- 同步模式下，调试区应展示 `Graph 节点`，包含 Receive、Memory Read、Planner、Model Call 等节点。
+- 流式模式下，回答应逐步输出，并在调试区展示 Graph、Tool 调用和 Memory 变化。
 
 多用户测试：
 

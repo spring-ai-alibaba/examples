@@ -9,11 +9,11 @@
   },
   "default-user" : {
     "level" : "初学者",
-    "topics" : [ "Agent" ],
+    "topics" : [ "Agent", "Tool Calling", "Skill", "Graph", "RAG" ],
     "lastIntent" : "MIXED",
-    "lastQuestion" : "现在北京时间几点？然后给我一个今天 30 分钟的 Agent 学习计划。",
-    "conversationCount" : 5,
-    "updatedAt" : "2026-04-30T20:54:32.2052598"
+    "lastQuestion" : "根据当前 minimax-chat 项目，解释 Tool、Skill、Agent、Memory、RAG 和 Graph 的调用关系。",
+    "conversationCount" : 7,
+    "updatedAt" : "2026-05-01T23:48:11.8112735"
   },
   "user-b" : {
     "level" : "进阶",

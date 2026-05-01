@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.cloud.ai.agent.LearningAgentResult.LearningAgentStep;
+import com.alibaba.cloud.ai.graph.LearningGraphResult;
+import com.alibaba.cloud.ai.graph.LearningGraphService;
 import com.alibaba.cloud.ai.memory.LearningMemory;
 import com.alibaba.cloud.ai.memory.LearningMemoryService;
 import com.alibaba.cloud.ai.planner.LearningIntent;
@@ -36,6 +38,7 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Lightweight learning agent that plans the request, chooses an execution strategy,
@@ -69,13 +72,16 @@ public class LearningAgentService {
 
 	private final LearningMemoryService memoryService;
 
+	private final LearningGraphService graphService;
+
 	public LearningAgentService(ChatModel chatModel, MiniMaxLearningTools learningTools,
 			ToolCallDebugRecorder debugRecorder, LearningIntentPlanner intentPlanner,
-			LearningMemoryService memoryService) {
+			LearningMemoryService memoryService, LearningGraphService graphService) {
 		this.learningTools = learningTools;
 		this.debugRecorder = debugRecorder;
 		this.intentPlanner = intentPlanner;
 		this.memoryService = memoryService;
+		this.graphService = graphService;
 		this.chatClient = ChatClient.builder(chatModel)
 				.defaultAdvisors(new SimpleLoggerAdvisor())
 				.defaultOptions(defaultOptions())
@@ -86,6 +92,7 @@ public class LearningAgentService {
 		this.debugRecorder.clear();
 		LearningMemory memoryBefore = this.memoryService.read(userId);
 		LearningIntent intent = this.intentPlanner.plan(message);
+		LearningGraphResult graph = this.graphService.plan(userId, message, intent);
 		List<LearningAgentStep> steps = planSteps(message, intent, memoryBefore);
 		try {
 			steps.add(new LearningAgentStep("MODEL_CALL", "携带系统提示、历史上下文和可用工具调用 MiniMax-M2.7。"));
@@ -102,7 +109,8 @@ public class LearningAgentService {
 							"本轮模型触发了 " + toolCalls.size() + " 次工具调用，并基于工具结果生成最终回答。"));
 			LearningMemory memoryAfter = this.memoryService.update(userId, message, intent);
 			steps.add(new LearningAgentStep("MEMORY_WRITE", "已更新用户学习阶段、关注主题、最近意图和对话轮次，并写回 JSON 文件。"));
-			return new LearningAgentResult(content, intent, memoryBefore, memoryAfter, List.copyOf(steps), toolCalls);
+			return new LearningAgentResult(content, intent, memoryBefore, memoryAfter, graph.steps(),
+					List.copyOf(steps), toolCalls);
 		}
 		finally {
 			this.debugRecorder.remove();
@@ -110,16 +118,38 @@ public class LearningAgentService {
 	}
 
 	public Flux<String> stream(String userId, String message, List<LearningAgentMessage> history) {
+		return streamEvents(userId, message, history)
+				.filter(event -> "message".equals(event.type()))
+				.map(LearningStreamEvent::content);
+	}
+
+	public Flux<LearningStreamEvent> streamEvents(String userId, String message, List<LearningAgentMessage> history) {
 		this.debugRecorder.clear();
-		LearningMemory memory = this.memoryService.read(userId);
+		LearningMemory memoryBefore = this.memoryService.read(userId);
 		LearningIntent intent = this.intentPlanner.plan(message);
-		return this.chatClient.prompt()
-				.messages(buildMessages(message, history, intent, memory))
+		LearningGraphResult graph = this.graphService.plan(userId, message, intent);
+		List<LearningAgentStep> steps = planSteps(message, intent, memoryBefore);
+		steps.add(new LearningAgentStep("MODEL_CALL", "携带系统提示、历史上下文和可用工具调用 MiniMax-M2.7。"));
+		Flux<LearningStreamEvent> debugEvent = Flux.just(
+				LearningStreamEvent.debug(intent, memoryBefore, graph.steps(), List.copyOf(steps)));
+		Flux<LearningStreamEvent> messageEvents = this.chatClient.prompt()
+				.messages(buildMessages(message, history, intent, memoryBefore))
 				.options(defaultOptions())
 				.tools(this.learningTools)
 				.stream()
 				.content()
-				.doOnComplete(() -> this.memoryService.update(userId, message, intent))
+				.map(LearningStreamEvent::message);
+		Mono<LearningStreamEvent> doneEvent = Mono.fromSupplier(() -> {
+			List<ToolCallDebugRecorder.ToolCallDebug> toolCalls = this.debugRecorder.snapshot();
+			steps.add(toolCalls.isEmpty()
+					? new LearningAgentStep("TOOL_RESULT", "本轮没有触发工具，模型直接基于上下文回答。")
+					: new LearningAgentStep("TOOL_RESULT",
+							"本轮模型触发了 " + toolCalls.size() + " 次工具调用，并基于工具结果生成最终回答。"));
+			LearningMemory memoryAfter = this.memoryService.update(userId, message, intent);
+			steps.add(new LearningAgentStep("MEMORY_WRITE", "已更新用户学习阶段、关注主题、最近意图和对话轮次，并写回 JSON 文件。"));
+			return LearningStreamEvent.done(memoryAfter, graph.steps(), List.copyOf(steps), toolCalls);
+		});
+		return Flux.concat(debugEvent, messageEvents, doneEvent)
 				.doFinally(signalType -> this.debugRecorder.remove());
 	}
 

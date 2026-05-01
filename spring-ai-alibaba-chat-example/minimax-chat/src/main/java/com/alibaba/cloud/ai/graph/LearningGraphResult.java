@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package com.alibaba.cloud.ai.agent;
+package com.alibaba.cloud.ai.graph;
 
 import java.util.List;
 
-import com.alibaba.cloud.ai.graph.LearningGraphStep;
-import com.alibaba.cloud.ai.memory.LearningMemory;
-import com.alibaba.cloud.ai.planner.LearningIntent;
-import com.alibaba.cloud.ai.tool.ToolCallDebugRecorder;
-
 /**
- * Result returned by the lightweight learning agent.
+ * Lightweight graph execution plan returned for debugging.
  */
-public record LearningAgentResult(String content, LearningIntent intent, LearningMemory memoryBefore,
-		LearningMemory memoryAfter, List<LearningGraphStep> graphSteps, List<LearningAgentStep> agentSteps,
-		List<ToolCallDebugRecorder.ToolCallDebug> toolCalls) {
-
-	public record LearningAgentStep(String name, String detail) {
-	}
-
+public record LearningGraphResult(List<LearningGraphStep> steps) {
 }
