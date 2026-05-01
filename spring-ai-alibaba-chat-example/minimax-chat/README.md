@@ -411,3 +411,91 @@ Simple RAG 测试：
 ```
 
 预期前端调试区会显示 `searchLearningDocs` 工具调用，并返回本地文档检索摘要。
+
+## 接口测试矩阵
+
+推荐使用模块根目录下的 HTTP 用例文件进行回归测试：
+
+```text
+minimax-chat.http
+minimax-tool-calling.http
+```
+
+### 全量回归用例
+
+| 编号 | 测试目标 | HTTP 用例 | 请求接口 | 预期结果 |
+| --- | --- | --- | --- | --- |
+| 01 | 验证基础 ChatModel 同步调用 | `minimax-chat.http` | `GET /minimax/chat-model/simple/chat` | 返回普通文本回答 |
+| 02 | 验证基础 ChatModel 流式调用 | `minimax-chat.http` | `GET /minimax/chat-model/stream/chat` | 返回 `text/event-stream` 文本流 |
+| 03 | 验证自定义 ChatOptions | `minimax-chat.http` | `GET /minimax/chat-model/custom/chat` | 使用 Controller 内自定义模型参数返回回答 |
+| 04 | 验证 ChatClient 同步调用 | `minimax-chat.http` | `GET /minimax/chat-client/simple/chat` | 返回普通文本回答 |
+| 05 | 验证 ChatClient 流式调用 | `minimax-chat.http` | `GET /minimax/chat-client/stream/chat` | 返回基础流式文本 |
+| 06 | 验证 Tool Calling 时间工具 | `minimax-chat.http` | `POST /minimax/chat-client/conversation/chat` | `toolCalls` 中出现 `getCurrentTime` |
+| 07 | 验证 Skill 学习计划 | `minimax-chat.http` | `POST /minimax/chat-client/conversation/chat` | `toolCalls` 中出现 `generateDailyPlan` |
+| 08 | 验证多轮上下文 | `minimax-chat.http` | `POST /minimax/chat-client/conversation/chat` | 回答能结合请求体中的 `history` |
+| 09 | 验证 Simple RAG | `minimax-chat.http` | `POST /minimax/chat-client/conversation/chat` | `toolCalls` 中出现 `searchLearningDocs` |
+| 10 | 验证 Graph 调试节点 | `minimax-chat.http` | `POST /minimax/chat-client/conversation/chat` | 响应中包含 `graphSteps` |
+| 11 | 验证流式 SSE 调试 | `minimax-chat.http` | `POST /minimax/chat-client/conversation/stream` | 依次返回 `debug`、`message`、`done` 事件 |
+| 12 | 查看用户 Memory | `minimax-chat.http` | `GET /minimax/chat-client/memory` | 返回指定 `userId` 的长期 Memory |
+| 13 | 清空用户 Memory | `minimax-chat.http` | `DELETE /minimax/chat-client/memory` | 指定 `userId` 的 Memory 被重置并写回 JSON |
+| 14 | 写入 user-a Memory | `minimax-chat.http` | `POST /minimax/chat-client/conversation/chat` | `user-a` 关注主题更新为 Agent |
+| 15 | 写入 user-b Memory | `minimax-chat.http` | `POST /minimax/chat-client/conversation/chat` | `user-b` 关注主题更新为 RAG |
+| 16 | 验证多用户隔离 | `minimax-chat.http` | `GET /minimax/chat-client/memory` | `user-a` 和 `user-b` 记忆互不影响 |
+
+### 专项能力用例
+
+| 能力 | HTTP 用例 | 示例问题 | 重点观察 |
+| --- | --- | --- | --- |
+| 时间 Tool | `minimax-tool-calling.http` | `现在北京时间几点？` | `toolCalls.name = getCurrentTime` |
+| 学习建议 Skill | `minimax-tool-calling.http` | `下一步应该怎么学习 Agent？` | `toolCalls.name = generateLearningAdvice` |
+| 今日计划 Skill | `minimax-tool-calling.http` | `给我今天 30 分钟学习计划` | `toolCalls.name = generateDailyPlan` |
+| 概念解释 Skill | `minimax-tool-calling.http` | `解释 Tool、Skill、Agent、Graph 的区别` | `toolCalls.name = explainConcept` |
+| 本地文档 RAG | `minimax-tool-calling.http` | `根据当前项目 README 和源码说明调用关系` | `toolCalls.name = searchLearningDocs` |
+| Graph 节点 | `minimax-tool-calling.http` | `当前 Agent 的 Graph 节点有哪些？` | 响应中包含 `graphSteps` |
+| 流式调试 | `minimax-tool-calling.http` | `请流式解释 Tool、RAG 和 Graph 的关系` | SSE 中包含 `debug/message/done` |
+
+### 回归测试顺序
+
+建议每次较大改动后按以下顺序测试：
+
+```text
+1. 基础模型接口：01-05
+2. Agent 同步链路：06-10
+3. 流式 SSE 链路：11
+4. Memory 管理：12-13
+5. 多用户隔离：14-16
+6. Tool/RAG/Graph 专项：minimax-tool-calling.http
+```
+
+### 关键断言
+
+同步接口 `/conversation/chat` 的响应应包含：
+
+```json
+{
+  "content": "...",
+  "intent": "MIXED",
+  "memoryBefore": {},
+  "memoryAfter": {},
+  "graphSteps": [],
+  "agentSteps": [],
+  "toolCalls": []
+}
+```
+
+流式接口 `/conversation/stream` 应包含：
+
+```text
+event:debug
+event:message
+event:done
+```
+
+Memory 持久化文件应按用户 ID 分组：
+
+```json
+{
+  "user-a": {},
+  "user-b": {}
+}
+```

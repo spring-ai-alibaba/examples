@@ -71,6 +71,26 @@
 			font-size: 14px;
 		}
 
+		.capabilities {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			margin-top: 10px;
+		}
+
+		.capability {
+			display: inline-flex;
+			align-items: center;
+			height: 26px;
+			padding: 0 9px;
+			border: 1px solid rgba(37, 99, 235, 0.18);
+			border-radius: 999px;
+			background: rgba(255, 255, 255, 0.72);
+			color: #344054;
+			font-size: 12px;
+			white-space: nowrap;
+		}
+
 		.status {
 			flex: 0 0 auto;
 			display: inline-flex;
@@ -319,17 +339,33 @@
 			grid-template-areas:
 				"user message"
 				"tools actions";
-			gap: 10px;
+			gap: 12px;
 			align-items: stretch;
-			padding: 14px;
+			padding: 16px;
 			border: 1px solid var(--line);
 			border-radius: 8px;
 			background: var(--surface);
 			box-shadow: var(--shadow);
 		}
 
-		#userIdInput { grid-area: user; }
-		#messageInput { grid-area: message; }
+		.field {
+			display: grid;
+			gap: 6px;
+		}
+
+		.user-field { grid-area: user; }
+		.message-field { grid-area: message; }
+
+		.field-label {
+			color: #475467;
+			font-size: 12px;
+			font-weight: 700;
+		}
+
+		.field-hint {
+			color: var(--muted);
+			font-size: 12px;
+		}
 
 		input[type="text"], textarea {
 			width: 100%;
@@ -362,6 +398,7 @@
 			display: flex;
 			gap: 8px;
 			align-items: center;
+			align-self: end;
 		}
 
 		.composer-actions {
@@ -371,6 +408,7 @@
 			gap: 8px;
 			align-items: center;
 			flex-wrap: wrap;
+			align-self: end;
 		}
 
 		button {
@@ -483,7 +521,18 @@
 		<div class="header-row">
 			<div>
 				<h1>小雨点 Chat-Bot</h1>
-				<div class="subtitle">支持多轮上下文、Tool Calling、Planner、Memory 和调试信息</div>
+				<div class="subtitle">基于 MiniMax-M2.7 的 Spring AI Alibaba 学习型 Agent 示例</div>
+				<div class="capabilities" aria-label="当前能力">
+					<span class="capability">多轮上下文</span>
+					<span class="capability">Tool Calling</span>
+					<span class="capability">Skill</span>
+					<span class="capability">Planner</span>
+					<span class="capability">Agent</span>
+					<span class="capability">多用户 Memory</span>
+					<span class="capability">Simple RAG</span>
+					<span class="capability">Graph</span>
+					<span class="capability">流式调试</span>
+				</div>
 			</div>
 			<div class="status" aria-label="当前模型">
 				<span class="status-dot"></span>
@@ -498,8 +547,15 @@
 
 	<form id="composer" class="composer">
 		<div class="composer-inner">
-			<input id="userIdInput" type="text" value="default-user" aria-label="用户 ID" placeholder="用户ID">
-			<textarea id="messageInput" placeholder="输入问题，按 Ctrl + Enter 发送">现在北京时间几点？然后给我一个今天 30 分钟的 Agent 学习计划。</textarea>
+			<label class="field user-field">
+				<span class="field-label">用户 ID</span>
+				<input id="userIdInput" type="text" value="default-user" aria-label="用户 ID" placeholder="例如 user-a">
+				<span class="field-hint">用于隔离长期 Memory</span>
+			</label>
+			<label class="field message-field">
+				<span class="field-label">消息</span>
+				<textarea id="messageInput" placeholder="输入问题，按 Ctrl + Enter 发送">现在北京时间几点？然后给我一个今天 30 分钟的 Agent 学习计划。</textarea>
+			</label>
 			<div class="composer-tools">
 				<div class="mode-radio" role="radiogroup" aria-label="响应模式">
 					<label>
@@ -855,8 +911,6 @@
 				const type = payload.type || eventType;
 				if (type === "debug") {
 					debugData = payload;
-					renderDebug(messageNode, payload.intent, [], payload.graphSteps || [], payload.agentSteps || [],
-						payload.memoryBefore, null);
 				}
 				else if (type === "done") {
 					renderDebug(messageNode, debugData.intent, payload.toolCalls || [],
