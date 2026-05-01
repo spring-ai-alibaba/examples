@@ -53,6 +53,7 @@ public class LearningAgentService {
 			当用户询问学习路线、下一步学习什么、Tool Calling、Skill、Agent、RAG、MCP 或 Graph 时，优先调用 generateLearningAdvice 工具。
 			当用户要求今日计划、30 分钟学习安排、每日练习或任务拆分时，优先调用 generateDailyPlan 工具。
 			当用户询问概念含义或区别，例如 Tool、Skill、Agent、Graph 是什么时，优先调用 explainConcept 工具。
+			当用户询问当前 minimax-chat 项目文档、README、源码结构、调用链或当前实现细节时，优先调用 searchLearningDocs 工具检索本地资料。
 			不要输出 <think>、</think> 或任何思考标签。
 			""";
 
@@ -138,7 +139,7 @@ public class LearningAgentService {
 			case LEARNING_ADVICE -> "优先让模型调用 generateLearningAdvice，生成适合当前阶段的学习建议。";
 			case DAILY_PLAN -> "优先让模型调用 generateDailyPlan，把学习目标拆成可执行时间块。";
 			case CONCEPT_EXPLAIN -> "优先让模型调用 explainConcept，用学习者能理解的方式解释概念。";
-			case MIXED -> "允许模型组合多个工具，把时间、计划、建议或概念解释整合成一个完整回答。";
+			case MIXED -> "允许模型组合多个工具，把时间、计划、建议、概念解释或本地文档检索结果整合成一个完整回答。";
 			case GENERAL_CHAT -> "不强制调用工具，模型可以根据上下文直接回答。";
 		};
 	}

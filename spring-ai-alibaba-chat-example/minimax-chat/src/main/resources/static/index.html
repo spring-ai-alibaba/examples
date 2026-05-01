@@ -280,7 +280,7 @@
 
 		.composer-inner {
 			display: grid;
-			grid-template-columns: 180px 1fr auto auto auto auto;
+			grid-template-columns: 180px 1fr auto auto auto auto auto;
 			gap: 10px;
 			align-items: end;
 			padding: 14px;
@@ -400,6 +400,8 @@
 				<input id="debugToggle" type="checkbox" checked>
 				<span>调试</span>
 			</label>
+			<button id="viewMemoryButton" class="secondary" type="button">查看记忆</button>
+			<button id="clearMemoryButton" class="secondary" type="button">清空记忆</button>
 			<button id="clearButton" class="secondary" type="button">清空</button>
 			<button id="sendButton" class="primary" type="submit">发送</button>
 		</div>
@@ -413,6 +415,8 @@
 	const input = document.getElementById("messageInput");
 	const mode = document.getElementById("modeSelect");
 	const debugToggle = document.getElementById("debugToggle");
+	const viewMemoryButton = document.getElementById("viewMemoryButton");
+	const clearMemoryButton = document.getElementById("clearMemoryButton");
 	const sendButton = document.getElementById("sendButton");
 	const clearButton = document.getElementById("clearButton");
 	const histories = new Map();
@@ -572,6 +576,12 @@
 		`;
 	}
 
+	function memoryText(memory) {
+		if (!memory) return "暂无记忆。";
+		const topics = Array.isArray(memory.topics) && memory.topics.length ? memory.topics.join("、") : "暂无";
+		return `用户：${memory.userId || currentUserId()}\n阶段：${memory.level || "初学者"}\n关注：${topics}\n轮次：${memory.conversationCount ?? 0}\n上次意图：${memory.lastIntent || "GENERAL_CHAT"}\n上次问题：${memory.lastQuestion || "暂无"}`;
+	}
+
 	function renderDebug(messageNode, intent, toolCalls, agentSteps, memoryBefore, memoryAfter) {
 		if (!debugToggle.checked) return;
 		const panel = document.createElement("div");
@@ -649,6 +659,20 @@
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(buildPayload(message))
+		});
+		if (!response.ok) throw new Error(`HTTP ${response.status}`);
+		return response.json();
+	}
+
+	async function fetchMemory() {
+		const response = await fetch(`/minimax/chat-client/memory?userId=${encodeURIComponent(currentUserId())}`);
+		if (!response.ok) throw new Error(`HTTP ${response.status}`);
+		return response.json();
+	}
+
+	async function deleteMemory() {
+		const response = await fetch(`/minimax/chat-client/memory?userId=${encodeURIComponent(currentUserId())}`, {
+			method: "DELETE"
 		});
 		if (!response.ok) throw new Error(`HTTP ${response.status}`);
 		return response.json();
@@ -733,6 +757,27 @@
 		currentHistory().length = 0;
 		messages.innerHTML = "";
 		appendMessage("assistant", `已清空 ${currentUserId()} 的短期上下文。继续输入问题测试 MiniMax-M2.7。`);
+	});
+
+	viewMemoryButton.addEventListener("click", async () => {
+		try {
+			const memory = await fetchMemory();
+			appendMessage("assistant", `当前长期 Memory：\n${memoryText(memory)}`);
+		}
+		catch (error) {
+			appendMessage("error", `查看记忆失败：${error.message}`);
+		}
+	});
+
+	clearMemoryButton.addEventListener("click", async () => {
+		try {
+			const memory = await deleteMemory();
+			currentHistory().length = 0;
+			appendMessage("assistant", `已清空 ${currentUserId()} 的长期 Memory，并同步清空该用户短期上下文。\n${memoryText(memory)}`);
+		}
+		catch (error) {
+			appendMessage("error", `清空记忆失败：${error.message}`);
+		}
 	});
 
 	userIdInput.addEventListener("change", () => {

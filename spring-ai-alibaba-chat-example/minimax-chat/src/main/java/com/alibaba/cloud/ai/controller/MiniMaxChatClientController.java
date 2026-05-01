@@ -22,12 +22,15 @@ import java.util.List;
 import com.alibaba.cloud.ai.agent.LearningAgentResult;
 import com.alibaba.cloud.ai.agent.LearningAgentService;
 import com.alibaba.cloud.ai.agent.LearningAgentService.LearningAgentMessage;
+import com.alibaba.cloud.ai.memory.LearningMemory;
+import com.alibaba.cloud.ai.memory.LearningMemoryService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,8 +54,12 @@ public class MiniMaxChatClientController {
 
 	private final LearningAgentService learningAgentService;
 
-	public MiniMaxChatClientController(ChatModel chatModel, LearningAgentService learningAgentService) {
+	private final LearningMemoryService learningMemoryService;
+
+	public MiniMaxChatClientController(ChatModel chatModel, LearningAgentService learningAgentService,
+			LearningMemoryService learningMemoryService) {
 		this.learningAgentService = learningAgentService;
+		this.learningMemoryService = learningMemoryService;
 		this.chatClient = ChatClient.builder(chatModel)
 				.defaultAdvisors(new SimpleLoggerAdvisor())
 				.defaultOptions(defaultOptions())
@@ -81,6 +88,16 @@ public class MiniMaxChatClientController {
 	public Flux<String> conversationStream(@RequestBody ChatRequest request, HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
 		return this.learningAgentService.stream(extractUserId(request), extractMessage(request), toAgentHistory(request));
+	}
+
+	@GetMapping("/memory")
+	public LearningMemory getMemory(@RequestParam(value = "userId", defaultValue = "default-user") String userId) {
+		return this.learningMemoryService.read(userId);
+	}
+
+	@DeleteMapping("/memory")
+	public LearningMemory clearMemory(@RequestParam(value = "userId", defaultValue = "default-user") String userId) {
+		return this.learningMemoryService.clear(userId);
 	}
 
 	private String extractUserId(ChatRequest request) {

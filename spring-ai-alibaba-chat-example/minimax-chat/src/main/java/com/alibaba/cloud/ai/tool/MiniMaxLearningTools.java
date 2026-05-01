@@ -19,6 +19,7 @@ package com.alibaba.cloud.ai.tool;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.alibaba.cloud.ai.rag.LearningRagService;
 import com.alibaba.cloud.ai.skill.LearningSkillService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -36,10 +37,14 @@ public class MiniMaxLearningTools {
 
 	private final LearningSkillService learningSkillService;
 
+	private final LearningRagService learningRagService;
+
 	private final ToolCallDebugRecorder debugRecorder;
 
-	public MiniMaxLearningTools(LearningSkillService learningSkillService, ToolCallDebugRecorder debugRecorder) {
+	public MiniMaxLearningTools(LearningSkillService learningSkillService, LearningRagService learningRagService,
+			ToolCallDebugRecorder debugRecorder) {
 		this.learningSkillService = learningSkillService;
+		this.learningRagService = learningRagService;
 		this.debugRecorder = debugRecorder;
 	}
 
@@ -77,6 +82,15 @@ public class MiniMaxLearningTools {
 			@ToolParam(description = "学习者阶段，例如 初学者、进阶、熟练。") String level) {
 		String result = this.learningSkillService.explainConcept(concept, level);
 		this.debugRecorder.record("explainConcept", arguments("concept", concept, "level", level), result);
+		return result;
+	}
+
+	@Tool(description = "检索当前 minimax-chat 项目的本地文档和关键源码。当用户询问 README、项目结构、当前实现、调用链、Controller、Agent、Tool、Skill、Memory 或 RAG 代码细节时使用。")
+	public String searchLearningDocs(
+			@ToolParam(description = "检索问题或关键词，例如 当前项目 Tool Skill Agent Memory 调用链。") String query,
+			@ToolParam(description = "返回结果数量，建议 1 到 5。") Integer limit) {
+		String result = this.learningRagService.search(query, limit);
+		this.debugRecorder.record("searchLearningDocs", arguments("query", query, "limit", limit), result);
 		return result;
 	}
 

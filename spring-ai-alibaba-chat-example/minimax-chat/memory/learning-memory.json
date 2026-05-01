@@ -1,11 +1,11 @@
 {
   "user-a" : {
     "level" : "初学者",
-    "topics" : [ "Agent" ],
-    "lastIntent" : "CONCEPT_EXPLAIN",
-    "lastQuestion" : "我是初学者，想学习 Agent。",
-    "conversationCount" : 1,
-    "updatedAt" : "2026-05-01T21:55:39.0314758"
+    "topics" : [ ],
+    "lastIntent" : "GENERAL_CHAT",
+    "lastQuestion" : "",
+    "conversationCount" : 0,
+    "updatedAt" : "2026-05-01T22:25:58.0127593"
   },
   "default-user" : {
     "level" : "初学者",

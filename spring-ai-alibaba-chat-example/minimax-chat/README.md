@@ -15,6 +15,8 @@
 - 轻量 Agent 编排层
 - JSON 文件持久化 Learning Memory
 - 多用户 Learning Memory
+- Memory 查看和清空管理
+- 本地文档 Simple RAG 检索
 
 ## 当前请求链路
 
@@ -28,6 +30,7 @@
  -> LearningMemoryService 按 userId 从 JSON 文件读取记忆
  -> Planner 判断意图
  -> MiniMax + Tools
+ -> searchLearningDocs Tool 按需检索本地文档
  -> LearningMemoryService 按 userId 更新记忆并写回 JSON 文件
  -> 前端展示回答 + Agent步骤 + Tool调用 + 当前用户Memory信息
 ```
@@ -40,6 +43,7 @@
 | Controller | `MiniMaxChatClientController` | 接收 HTTP 请求，把对话处理委托给 Agent 层。 |
 | Agent | `LearningAgentService` | 编排记忆读取、意图识别、模型调用、工具访问和记忆更新。 |
 | Memory | `LearningMemoryService` | 按 userId 从 JSON 文件读取用户学习记忆，并在每轮对话后写回该用户的学习阶段、关注主题、最近意图和对话轮次。 |
+| RAG | `LearningRagService` | 基于关键词检索当前 minimax-chat 的 README 和关键源码，为模型回答当前项目实现细节提供本地资料。 |
 | Planner | `LearningIntentPlanner` | 把当前用户请求识别成具体学习意图。 |
 | Tool | `MiniMaxLearningTools` | 暴露可以被大模型调用的工具入口。 |
 | Skill | `LearningSkillService` | 承载学习建议、计划生成、概念解释、当前时间等真实业务逻辑。 |
@@ -190,6 +194,84 @@ JSON 文件结构保持为按用户 ID 分组：
  -> 前端展示回答 + Agent步骤 + Tool调用 + 当前用户Memory信息
 ```
 
+### 9. Memory 管理能力
+
+新增长期 Memory 的查看和清空能力，用于区分短期上下文和长期记忆。
+
+后端接口：
+
+```text
+GET /minimax/chat-client/memory?userId=user-a
+DELETE /minimax/chat-client/memory?userId=user-a
+```
+
+前端新增按钮：
+
+- `查看记忆`：读取当前用户的长期 Memory。
+- `清空记忆`：清空当前用户的长期 Memory，并同步清空当前浏览器中的短期上下文。
+- `清空`：只清空当前用户的短期上下文，不影响 JSON 文件中的长期 Memory。
+
+查看 Memory 链路：
+
+```text
+用户点击查看记忆
+ -> Controller
+ -> LearningMemoryService.read(userId)
+ -> 前端展示当前用户 Memory
+```
+
+清空 Memory 链路：
+
+```text
+用户点击清空记忆
+ -> Controller
+ -> LearningMemoryService.clear(userId)
+ -> JSON 文件写回
+ -> 前端提示已清空该用户长期记忆
+```
+
+### 10. Simple RAG
+
+新增本地文档检索能力，用于让 Agent 回答当前 `minimax-chat` 项目的 README、源码结构和调用链问题。
+
+新增类：
+
+- `LearningDocument`
+- `LearningRagService`
+
+新增 Tool：
+
+```text
+searchLearningDocs(query, limit)
+```
+
+当前 Simple RAG 不接向量数据库，先用关键词检索本地文档和关键源码，覆盖以下资料：
+
+- `README.md`
+- `MiniMaxChatClientController`
+- `LearningAgentService`
+- `MiniMaxLearningTools`
+- `LearningSkillService`
+- `LearningIntentPlanner`
+- `LearningMemoryService`
+
+调用链：
+
+```text
+前端问题
+ -> Controller
+ -> LearningAgentService
+ -> LearningMemoryService 按 userId 读取记忆
+ -> Planner 判断意图
+ -> MiniMax
+ -> searchLearningDocs Tool
+ -> LearningRagService 检索本地文档
+ -> MiniMax 基于检索结果生成回答
+ -> 前端展示回答 + Tool调用 + Memory信息
+```
+
+这一阶段的目标不是构建完整知识库，而是先理解 RAG 在 Agent 链路中的位置：模型在回答当前项目相关问题前，先通过工具检索本地资料，再基于资料组织回答。
+
 ## 建议测试用例
 
 打开：
@@ -218,6 +300,10 @@ http://localhost:8080/index.html
 - `memoryBefore` 和 `memoryAfter` 会显示学习记忆的变化。
 - 重启应用后再次提问，`memoryBefore` 应该能读取到上次保存在 `memory/learning-memory.json` 中的学习记忆。
 - 切换不同用户 ID 后，不同用户的关注主题和对话轮次应该互不影响。
+- 点击 `查看记忆` 可以展示当前用户的长期 Memory。
+- 点击 `清空记忆` 后，该用户在 JSON 文件中的长期 Memory 会重置。
+- 点击 `清空` 只清空短期上下文，不会重置 JSON 文件中的长期 Memory。
+- 询问当前项目 README、源码结构或调用链时，`toolCalls` 中应出现 `searchLearningDocs`。
 
 多用户测试：
 
@@ -232,3 +318,15 @@ http://localhost:8080/index.html
 ```
 
 预期 `memory/learning-memory.json` 中会出现 `user-a` 和 `user-b` 两份独立记忆。
+
+Simple RAG 测试：
+
+```text
+根据当前 minimax-chat 项目，解释 Tool、Skill、Agent、Memory 的调用关系。
+```
+
+```text
+查看当前项目 README，说明这个项目已经演进到哪一步。
+```
+
+预期前端调试区会显示 `searchLearningDocs` 工具调用，并返回本地文档检索摘要。

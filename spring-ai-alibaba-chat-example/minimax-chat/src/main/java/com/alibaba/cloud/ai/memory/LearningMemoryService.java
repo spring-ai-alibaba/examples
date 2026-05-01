@@ -81,6 +81,14 @@ public class LearningMemoryService {
 		return this.memories.computeIfAbsent(normalizeUserId(userId), LearningMemory::new).copy();
 	}
 
+	public synchronized LearningMemory clear(String userId) {
+		String safeUserId = normalizeUserId(userId);
+		LearningMemory memory = new LearningMemory(safeUserId);
+		this.memories.put(safeUserId, memory);
+		persist();
+		return memory.copy();
+	}
+
 	public synchronized LearningMemory update(String userId, String message, LearningIntent intent) {
 		LearningMemory memory = this.memories.computeIfAbsent(normalizeUserId(userId), LearningMemory::new);
 		memory.setConversationCount(memory.getConversationCount() + 1);
