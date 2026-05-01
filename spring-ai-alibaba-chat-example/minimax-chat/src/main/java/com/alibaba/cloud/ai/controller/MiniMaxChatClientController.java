@@ -73,14 +73,21 @@ public class MiniMaxChatClientController {
 
 	@PostMapping(value = "/conversation/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public LearningAgentResult conversationChat(@RequestBody ChatRequest request) {
-		return this.learningAgentService.chat(extractMessage(request), toAgentHistory(request));
+		return this.learningAgentService.chat(extractUserId(request), extractMessage(request), toAgentHistory(request));
 	}
 
 	@PostMapping(value = "/conversation/stream", consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<String> conversationStream(@RequestBody ChatRequest request, HttpServletResponse response) {
 		response.setCharacterEncoding("UTF-8");
-		return this.learningAgentService.stream(extractMessage(request), toAgentHistory(request));
+		return this.learningAgentService.stream(extractUserId(request), extractMessage(request), toAgentHistory(request));
+	}
+
+	private String extractUserId(ChatRequest request) {
+		if (request == null || request.userId() == null || request.userId().isBlank()) {
+			return "default-user";
+		}
+		return request.userId().trim();
 	}
 
 	private String extractMessage(ChatRequest request) {
@@ -108,7 +115,7 @@ public class MiniMaxChatClientController {
 				.build();
 	}
 
-	public record ChatRequest(String message, List<ChatMessage> history) {
+	public record ChatRequest(String userId, String message, List<ChatMessage> history) {
 	}
 
 	public record ChatMessage(String role, String content) {

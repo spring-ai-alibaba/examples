@@ -14,6 +14,7 @@
 - 轻量 Planner 意图识别
 - 轻量 Agent 编排层
 - JSON 文件持久化 Learning Memory
+- 多用户 Learning Memory
 
 ## 当前请求链路
 
@@ -21,23 +22,24 @@
 
 ```text
 前端问题
+ -> 前端携带 userId
  -> Controller
  -> LearningAgentService
- -> LearningMemoryService 从 JSON 文件读取记忆
+ -> LearningMemoryService 按 userId 从 JSON 文件读取记忆
  -> Planner 判断意图
  -> MiniMax + Tools
- -> LearningMemoryService 更新记忆并写回 JSON 文件
- -> 前端展示回答 + Agent步骤 + Tool调用 + Memory信息
+ -> LearningMemoryService 按 userId 更新记忆并写回 JSON 文件
+ -> 前端展示回答 + Agent步骤 + Tool调用 + 当前用户Memory信息
 ```
 
 ## 各层职责
 
 | 层 | 类 | 职责 |
 | --- | --- | --- |
-| 前端 | `src/main/resources/static/index.html` | 发送用户问题，维护短期聊天历史，渲染 Markdown，展示调试信息。 |
+| 前端 | `src/main/resources/static/index.html` | 发送用户 ID 和用户问题，维护短期聊天历史，渲染 Markdown，展示调试信息。 |
 | Controller | `MiniMaxChatClientController` | 接收 HTTP 请求，把对话处理委托给 Agent 层。 |
 | Agent | `LearningAgentService` | 编排记忆读取、意图识别、模型调用、工具访问和记忆更新。 |
-| Memory | `LearningMemoryService` | 从 JSON 文件读取用户学习记忆，并在每轮对话后写回用户学习阶段、关注主题、最近意图和对话轮次。 |
+| Memory | `LearningMemoryService` | 按 userId 从 JSON 文件读取用户学习记忆，并在每轮对话后写回该用户的学习阶段、关注主题、最近意图和对话轮次。 |
 | Planner | `LearningIntentPlanner` | 把当前用户请求识别成具体学习意图。 |
 | Tool | `MiniMaxLearningTools` | 暴露可以被大模型调用的工具入口。 |
 | Skill | `LearningSkillService` | 承载学习建议、计划生成、概念解释、当前时间等真实业务逻辑。 |
@@ -158,6 +160,36 @@ minimax:
  -> 前端展示回答 + Agent步骤 + Tool调用 + Memory信息
 ```
 
+### 8. 多用户 Memory
+
+把第 7 阶段的单用户持久化 Memory 升级为多用户 Memory。
+
+前端新增用户 ID 输入框，请求体新增 `userId` 字段。Controller 会把 `userId` 传给 `LearningAgentService`，Agent 再使用真实 `userId` 调用 `LearningMemoryService.read(userId)` 和 `LearningMemoryService.update(userId, ...)`。
+
+JSON 文件结构保持为按用户 ID 分组：
+
+```json
+{
+  "default-user": {},
+  "user-a": {},
+  "user-b": {}
+}
+```
+
+升级后的链路：
+
+```text
+前端问题
+ -> 前端携带 userId
+ -> Controller
+ -> LearningAgentService
+ -> LearningMemoryService 按 userId 从 JSON 文件读取记忆
+ -> Planner 判断意图
+ -> MiniMax + Tools
+ -> LearningMemoryService 按 userId 更新记忆并写回 JSON 文件
+ -> 前端展示回答 + Agent步骤 + Tool调用 + 当前用户Memory信息
+```
+
 ## 建议测试用例
 
 打开：
@@ -185,3 +217,18 @@ http://localhost:8080/index.html
 - `toolCalls` 会显示模型本轮调用了哪些工具。
 - `memoryBefore` 和 `memoryAfter` 会显示学习记忆的变化。
 - 重启应用后再次提问，`memoryBefore` 应该能读取到上次保存在 `memory/learning-memory.json` 中的学习记忆。
+- 切换不同用户 ID 后，不同用户的关注主题和对话轮次应该互不影响。
+
+多用户测试：
+
+```text
+用户 ID：user-a
+问题：我是初学者，想学习 Agent。
+```
+
+```text
+用户 ID：user-b
+问题：我是进阶开发者，想学习 RAG。
+```
+
+预期 `memory/learning-memory.json` 中会出现 `user-a` 和 `user-b` 两份独立记忆。

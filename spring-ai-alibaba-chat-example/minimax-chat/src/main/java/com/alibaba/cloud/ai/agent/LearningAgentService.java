@@ -81,9 +81,9 @@ public class LearningAgentService {
 				.build();
 	}
 
-	public LearningAgentResult chat(String message, List<LearningAgentMessage> history) {
+	public LearningAgentResult chat(String userId, String message, List<LearningAgentMessage> history) {
 		this.debugRecorder.clear();
-		LearningMemory memoryBefore = this.memoryService.read(LearningMemoryService.DEFAULT_USER_ID);
+		LearningMemory memoryBefore = this.memoryService.read(userId);
 		LearningIntent intent = this.intentPlanner.plan(message);
 		List<LearningAgentStep> steps = planSteps(message, intent, memoryBefore);
 		try {
@@ -99,7 +99,7 @@ public class LearningAgentService {
 					? new LearningAgentStep("TOOL_RESULT", "本轮没有触发工具，模型直接基于上下文回答。")
 					: new LearningAgentStep("TOOL_RESULT",
 							"本轮模型触发了 " + toolCalls.size() + " 次工具调用，并基于工具结果生成最终回答。"));
-			LearningMemory memoryAfter = this.memoryService.update(LearningMemoryService.DEFAULT_USER_ID, message, intent);
+			LearningMemory memoryAfter = this.memoryService.update(userId, message, intent);
 			steps.add(new LearningAgentStep("MEMORY_WRITE", "已更新用户学习阶段、关注主题、最近意图和对话轮次，并写回 JSON 文件。"));
 			return new LearningAgentResult(content, intent, memoryBefore, memoryAfter, List.copyOf(steps), toolCalls);
 		}
@@ -108,9 +108,9 @@ public class LearningAgentService {
 		}
 	}
 
-	public Flux<String> stream(String message, List<LearningAgentMessage> history) {
+	public Flux<String> stream(String userId, String message, List<LearningAgentMessage> history) {
 		this.debugRecorder.clear();
-		LearningMemory memory = this.memoryService.read(LearningMemoryService.DEFAULT_USER_ID);
+		LearningMemory memory = this.memoryService.read(userId);
 		LearningIntent intent = this.intentPlanner.plan(message);
 		return this.chatClient.prompt()
 				.messages(buildMessages(message, history, intent, memory))
@@ -118,14 +118,15 @@ public class LearningAgentService {
 				.tools(this.learningTools)
 				.stream()
 				.content()
-				.doOnComplete(() -> this.memoryService.update(LearningMemoryService.DEFAULT_USER_ID, message, intent))
+				.doOnComplete(() -> this.memoryService.update(userId, message, intent))
 				.doFinally(signalType -> this.debugRecorder.remove());
 	}
 
 	private List<LearningAgentStep> planSteps(String message, LearningIntent intent, LearningMemory memory) {
 		List<LearningAgentStep> steps = new ArrayList<>();
 		steps.add(new LearningAgentStep("RECEIVE", "接收到用户问题：" + normalizeForStep(message)));
-		steps.add(new LearningAgentStep("MEMORY_READ", "从 JSON 文件读取用户学习记忆：" + memory.summary()));
+		steps.add(new LearningAgentStep("MEMORY_READ", "从 JSON 文件读取用户 " + memory.getUserId() + " 的学习记忆："
+				+ memory.summary()));
 		steps.add(new LearningAgentStep("PLAN", "Planner 识别意图为 " + intent + "。"));
 		steps.add(new LearningAgentStep("STRATEGY", strategyFor(intent)));
 		return steps;

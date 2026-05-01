@@ -1,4 +1,12 @@
 {
+  "user-a" : {
+    "level" : "初学者",
+    "topics" : [ "Agent" ],
+    "lastIntent" : "CONCEPT_EXPLAIN",
+    "lastQuestion" : "我是初学者，想学习 Agent。",
+    "conversationCount" : 1,
+    "updatedAt" : "2026-05-01T21:55:39.0314758"
+  },
   "default-user" : {
     "level" : "初学者",
     "topics" : [ "Agent" ],
@@ -6,5 +14,13 @@
     "lastQuestion" : "现在北京时间几点？然后给我一个今天 30 分钟的 Agent 学习计划。",
     "conversationCount" : 5,
     "updatedAt" : "2026-04-30T20:54:32.2052598"
+  },
+  "user-b" : {
+    "level" : "进阶",
+    "topics" : [ "RAG" ],
+    "lastIntent" : "CONCEPT_EXPLAIN",
+    "lastQuestion" : "我是进阶开发者，想学习 RAG。",
+    "conversationCount" : 1,
+    "updatedAt" : "2026-05-01T21:56:57.7226755"
   }
 }

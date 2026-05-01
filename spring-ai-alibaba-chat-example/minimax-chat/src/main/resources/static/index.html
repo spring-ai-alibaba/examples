@@ -37,7 +37,7 @@
 			color: var(--text);
 		}
 
-		button, select, textarea { font: inherit; }
+		button, input, select, textarea { font: inherit; }
 
 		.app {
 			min-height: 100%;
@@ -280,7 +280,7 @@
 
 		.composer-inner {
 			display: grid;
-			grid-template-columns: 1fr auto auto auto auto;
+			grid-template-columns: 180px 1fr auto auto auto auto;
 			gap: 10px;
 			align-items: end;
 			padding: 14px;
@@ -290,11 +290,8 @@
 			box-shadow: var(--shadow);
 		}
 
-		textarea {
+		input[type="text"], textarea {
 			width: 100%;
-			min-height: 52px;
-			max-height: 180px;
-			resize: vertical;
 			padding: 12px 13px;
 			border: 1px solid var(--line);
 			border-radius: 8px;
@@ -302,6 +299,16 @@
 			color: var(--text);
 			line-height: 1.5;
 			outline: none;
+		}
+
+		input[type="text"] {
+			height: 52px;
+		}
+
+		textarea {
+			min-height: 52px;
+			max-height: 180px;
+			resize: vertical;
 		}
 
 		textarea:focus, select:focus, button:focus-visible, input:focus-visible {
@@ -368,7 +375,7 @@
 		<div class="header-row">
 			<div>
 				<h1>小雨点 Chat-Bot</h1>
-				<div class="subtitle">支持多轮上下文、Tool Calling、Planner 和调试信息</div>
+				<div class="subtitle">支持多轮上下文、Tool Calling、Planner、Memory 和调试信息</div>
 			</div>
 			<div class="status" aria-label="当前模型">
 				<span class="status-dot"></span>
@@ -383,6 +390,7 @@
 
 	<form id="composer" class="composer">
 		<div class="composer-inner">
+			<input id="userIdInput" type="text" value="default-user" aria-label="用户 ID" placeholder="用户ID">
 			<textarea id="messageInput" placeholder="输入问题，按 Ctrl + Enter 发送">现在北京时间几点？然后给我一个今天 30 分钟的 Agent 学习计划。</textarea>
 			<select id="modeSelect" aria-label="响应模式">
 				<option value="simple">同步</option>
@@ -401,12 +409,13 @@
 <script>
 	const messages = document.getElementById("messages");
 	const composer = document.getElementById("composer");
+	const userIdInput = document.getElementById("userIdInput");
 	const input = document.getElementById("messageInput");
 	const mode = document.getElementById("modeSelect");
 	const debugToggle = document.getElementById("debugToggle");
 	const sendButton = document.getElementById("sendButton");
 	const clearButton = document.getElementById("clearButton");
-	const history = [];
+	const histories = new Map();
 
 	function cleanAssistantText(text) {
 		return String(text || "")
@@ -555,6 +564,7 @@
 		if (!memory) return "暂无";
 		const topics = Array.isArray(memory.topics) && memory.topics.length ? memory.topics.join("、") : "暂无";
 		return `
+			<div>用户：${escapeHtml(memory.userId || currentUserId())}</div>
 			<div>阶段：${escapeHtml(memory.level || "初学者")}</div>
 			<div>关注：${escapeHtml(topics)}</div>
 			<div>轮次：${escapeHtml(memory.conversationCount ?? 0)}</div>
@@ -606,12 +616,27 @@
 
 	function addHistory(role, content) {
 		if (!content || !content.trim()) return;
+		const history = currentHistory();
 		history.push({ role, content: content.trim() });
 		if (history.length > 20) history.splice(0, history.length - 20);
 	}
 
+	function currentUserId() {
+		const value = userIdInput.value.trim();
+		return value || "default-user";
+	}
+
+	function currentHistory() {
+		const userId = currentUserId();
+		if (!histories.has(userId)) {
+			histories.set(userId, []);
+		}
+		return histories.get(userId);
+	}
+
 	function buildPayload(message) {
-		return { message, history: history.slice() };
+		const history = currentHistory();
+		return { userId: currentUserId(), message, history: history.slice() };
 	}
 
 	function setBusy(busy) {
@@ -705,9 +730,14 @@
 	});
 
 	clearButton.addEventListener("click", () => {
-		history.length = 0;
+		currentHistory().length = 0;
 		messages.innerHTML = "";
-		appendMessage("assistant", "已清空上下文。继续输入问题测试 MiniMax-M2.7。");
+		appendMessage("assistant", `已清空 ${currentUserId()} 的短期上下文。继续输入问题测试 MiniMax-M2.7。`);
+	});
+
+	userIdInput.addEventListener("change", () => {
+		messages.innerHTML = "";
+		appendMessage("assistant", `已切换到用户 ${currentUserId()}。同步模式会显示该用户的 Memory。`);
 	});
 
 	appendMessage("assistant", "你好，输入一个问题开始测试。同步模式会显示 Planner 识别意图和本轮 Tool 调用；流式模式请查看后端日志。");
