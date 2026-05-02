@@ -25,6 +25,8 @@ import com.alibaba.cloud.ai.agent.LearningAgentService.LearningAgentMessage;
 import com.alibaba.cloud.ai.agent.LearningStreamEvent;
 import com.alibaba.cloud.ai.memory.LearningMemory;
 import com.alibaba.cloud.ai.memory.LearningMemoryService;
+import com.alibaba.cloud.ai.official.OfficialLearningAgentResult;
+import com.alibaba.cloud.ai.official.OfficialLearningAgentService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -58,10 +60,13 @@ public class MiniMaxChatClientController {
 
 	private final LearningMemoryService learningMemoryService;
 
+	private final OfficialLearningAgentService officialLearningAgentService;
+
 	public MiniMaxChatClientController(ChatModel chatModel, LearningAgentService learningAgentService,
-			LearningMemoryService learningMemoryService) {
+			LearningMemoryService learningMemoryService, OfficialLearningAgentService officialLearningAgentService) {
 		this.learningAgentService = learningAgentService;
 		this.learningMemoryService = learningMemoryService;
+		this.officialLearningAgentService = officialLearningAgentService;
 		this.chatClient = ChatClient.builder(chatModel)
 				.defaultAdvisors(new SimpleLoggerAdvisor())
 				.defaultOptions(defaultOptions())
@@ -93,6 +98,11 @@ public class MiniMaxChatClientController {
 		return this.learningAgentService.streamEvents(extractUserId(request), extractMessage(request),
 				toAgentHistory(request))
 				.map(event -> ServerSentEvent.builder(event).event(event.type()).build());
+	}
+
+	@PostMapping(value = "/official-agent/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public OfficialLearningAgentResult officialAgentChat(@RequestBody ChatRequest request) {
+		return this.officialLearningAgentService.chat(extractUserId(request), extractMessage(request));
 	}
 
 	@GetMapping("/memory")

@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:8080
+@userA = user-a
+
+### 01 官方 Agent Framework：ReactAgent 同步调用
+# 目标：验证 minimax-chat 可以通过 Spring AI Alibaba 官方 ReactAgent 调用 MiniMax 和学习工具。
+# 观察点：
+# - 响应中包含 content、intent、memoryBefore、memoryAfter、agentSteps、toolCalls、rawState。
+# - 如果问题涉及时间、学习计划、学习建议、概念解释或当前项目文档，toolCalls 应该出现对应工具。
+POST {{baseUrl}}/minimax/chat-client/official-agent/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "userId": "{{userA}}",
+  "message": "请使用官方 ReactAgent 告诉我现在北京时间，并给我一个 30 分钟 Agent 学习计划。",
+  "history": []
+}
+
+### 02 官方 Agent Framework：检索当前项目资料
+# 目标：验证官方 ReactAgent 可以复用当前 searchLearningDocs 工具读取 minimax-chat 本地资料。
+POST {{baseUrl}}/minimax/chat-client/official-agent/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "userId": "{{userA}}",
+  "message": "基于当前 minimax-chat 项目，解释 Tool、Skill、Agent、Memory、RAG 和 Graph 的调用关系。",
+  "history": []
+}
+
+### 03 对比：原有手写 LearningAgent 链路
+# 目标：和官方 ReactAgent 接口对比，观察原有链路额外返回 graphSteps 和更完整的前端调试信息。
+POST {{baseUrl}}/minimax/chat-client/conversation/chat
+Content-Type: application/json; charset=utf-8
+
+{
+  "userId": "{{userA}}",
+  "message": "现在北京时间几点？然后给我一个 30 分钟 Agent 学习计划。",
+  "history": []
+}

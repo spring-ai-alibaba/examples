@@ -1,11 +1,19 @@
 {
+  "tool-test-user" : {
+    "level" : "初学者",
+    "topics" : [ "Tool Calling", "Skill", "Agent", "Graph" ],
+    "lastIntent" : "CONCEPT_EXPLAIN",
+    "lastQuestion" : "请用初学者能懂的话解释 Tool、Skill、Agent、Graph 的区别。",
+    "conversationCount" : 3,
+    "updatedAt" : "2026-05-02T00:37:59.7258221"
+  },
   "user-a" : {
     "level" : "初学者",
-    "topics" : [ ],
-    "lastIntent" : "GENERAL_CHAT",
-    "lastQuestion" : "",
-    "conversationCount" : 0,
-    "updatedAt" : "2026-05-01T22:25:58.0127593"
+    "topics" : [ "Agent" ],
+    "lastIntent" : "MIXED",
+    "lastQuestion" : "现在北京时间几点？然后给我一个 30 分钟 Agent 学习计划。",
+    "conversationCount" : 1,
+    "updatedAt" : "2026-05-02T23:18:00.2593123"
   },
   "default-user" : {
     "level" : "初学者",
