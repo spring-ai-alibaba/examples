@@ -16,6 +16,7 @@
 package com.alibaba.cloud.ai.toolcall.config;
 
 import com.alibaba.cloud.ai.toolcall.component.AddressInformationTools;
+import com.alibaba.cloud.ai.toolcall.component.CampusScheduleTools;
 import com.alibaba.cloud.ai.toolcall.component.TimeTools;
 import com.alibaba.cloud.ai.toolcalling.baidumap.BaiduMapSearchInfoService;
 import com.alibaba.cloud.ai.toolcalling.time.GetTimeByZoneIdService;
@@ -38,6 +39,11 @@ public class ToolCallAutoConfiguration {
     @Bean
     public TimeTools timeTools(GetTimeByZoneIdService service) {
         return new TimeTools(service);
+    }
+
+    @Bean
+    public CampusScheduleTools campusScheduleTools() {
+        return new CampusScheduleTools();
     }
 
     @Bean
