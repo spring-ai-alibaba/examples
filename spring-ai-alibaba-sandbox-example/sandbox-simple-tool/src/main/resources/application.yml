@@ -23,7 +23,7 @@ sandbox:
   pool:
     # Number of warm sandbox containers to maintain
     # 0 means sandboxes are created on-demand
-    size: 0
+    size: 5
 
 # Logging Configuration
 logging:

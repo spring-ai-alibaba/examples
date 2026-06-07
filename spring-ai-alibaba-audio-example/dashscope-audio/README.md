@@ -79,6 +79,26 @@ mvn spring-boot:run
 | `/websocket/paraformer` | GET | Paraformer 高精度识别 | paraformer-realtime-v2 |
 | `/websocket/funasr` | GET | Fun-ASR 实时识别 | fun-asr-realtime |
 
+#### WebSocket 实时语音转录 (浏览器麦克风)
+
+| 功能 | 路径 | 描述 |
+|------|------|------|
+| 前端演示页面 | `/websocket-audio.html` | 通过浏览器麦克风实时转录语音 |
+| WebSocket 端点 | `/ws/audio` | 接收实时音频流并返回转录结果 |
+
+**音频格式要求**:
+- 格式: PCM (raw audio)
+- 采样率: 16000 Hz
+- 编码: 16-bit signed little-endian
+- 声道: 单声道 (mono)
+
+**特性**:
+- 实时语音识别，支持中英文
+- 基于 DashScope Paraformer-realtime-v2 模型
+- 响应式流处理 (Flux<DataBuffer>)
+- 美观的渐变紫色主题界面
+- 支持分块音频传输和背压处理
+
 #### 文件识别 (ASR)
 
 | 接口 | 方法 | 描述 | 模型 |
@@ -122,12 +142,84 @@ GET http://localhost:10009/ai/video/transcription/websocket/short
 
 通过 WebSocket 进行实时语音识别和翻译。
 
+### 5. WebSocket 实时语音转录 (浏览器麦克风)
+
+**访问演示页面**: http://localhost:10009/websocket-audio.html
+
+**使用步骤**:
+1. 确保 `AI_DASHSCOPE_API_KEY` 已配置
+2. 启动应用后，在浏览器中访问演示页面
+3. 点击"开始录音"按钮
+4. 允许浏览器访问麦克风
+5. 开始说话（支持中英文），转录结果会实时显示在页面上
+6. 点击"停止录音"结束转录
+7. 点击"清空文本"可以清除显示的转录内容
+
+**技术实现**:
+- 前端使用 Web Audio API (AudioContext + ScriptProcessor) 捕获麦克风音频
+- 实时生成 16kHz PCM 格式音频数据
+- 通过 WebSocket 分块发送音频数据（每块约 0.25 秒）
+- 后端使用 Reactor Sinks 将音频转换为 Flux<DataBuffer>
+- 调用 DashScope Paraformer-realtime-v2 模型进行实时转录
+- 转录结果通过 WebSocket 以 JSON 格式返回给前端
+
+**核心代码示例**:
+
+后端 WebSocket 处理器:
+```java
+@Component
+public class AudioWebSocketHandler extends BinaryWebSocketHandler {
+
+    private final DashScopeAudioTranscriptionModel transcriptionModel;
+    private final Map<String, Sinks.Many<DataBuffer>> audioSinks = new ConcurrentHashMap<>();
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) {
+        // 为每个连接创建 Sink
+        Sinks.Many<DataBuffer> sink = Sinks.many().multicast().onBackpressureBuffer();
+        audioSinks.put(session.getId(), sink);
+
+        // 配置转录选项
+        DashScopeAudioTranscriptionOptions options = DashScopeAudioTranscriptionOptions.builder()
+            .model(DashScopeModel.AudioModel.PARAFORMER_REALTIME_V2.getValue())
+            .sampleRate(16000)
+            .format("pcm")
+            .languageHints(List.of("zh"))
+            .build();
+
+        // 调用转录 API
+        Flux<AudioTranscriptionResponse> responses = transcriptionModel.stream(sink.asFlux(), options);
+
+        // 订阅结果，推回前端
+        responses.subscribe(response -> {
+            String text = response.getMetadata().getSentence().text();
+            session.sendMessage(new TextMessage("{\"text\":\"" + text + "\"}"));
+        });
+    }
+
+    @Override
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+        // 接收音频数据并发送到 Sink
+        DataBuffer dataBuffer = new DefaultDataBufferFactory(true).wrap(message.getPayload());
+        audioSinks.get(session.getId()).tryEmitNext(dataBuffer);
+    }
+}
+```
+
+**消息格式**:
+- 发送: 二进制 PCM 音频数据（Int16Array）
+- 接收: JSON 格式
+  - 成功: `{"text": "识别的文本内容"}`
+  - 错误: `{"error": "错误信息"}`
+
 ## 技术架构
 
 - **Spring Boot**: Web 框架
+- **Spring WebSocket**: WebSocket 实时通信支持
 - **Spring AI Alibaba**: 阿里通义大模型集成
 - **Reactor**: 响应式流处理
 - **DashScope Audio API**: 阿里云音频服务
+- **Web Audio API**: 浏览器音频捕获
 
 ## 模型说明
 
