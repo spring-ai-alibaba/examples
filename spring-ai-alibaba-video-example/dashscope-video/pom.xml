@@ -36,13 +36,28 @@
 
 <!--	重构video模块，1.1.0.0-SNAPSHOT需编译源码 -->
 	<properties>
-		<spring-ai-alibaba-extensions-SNAPSHOT.version>1.1.0.0-SNAPSHOT</spring-ai-alibaba-extensions-SNAPSHOT.version>
+		<spring-boot.version>4.1.0-RC1</spring-boot.version>
+		<spring-ai.version>2.0.0-RC1</spring-ai.version>
+		<spring-ai-alibaba-extensions-SNAPSHOT.version>2.0.0-RC1.1</spring-ai-alibaba-extensions-SNAPSHOT.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<version>${spring-boot.version}</version>
 		</dependency>
 
 		<dependency>

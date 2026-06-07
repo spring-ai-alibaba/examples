@@ -56,3 +56,55 @@ GET http://localhost:10081/ai/video/emoji
 ###
 # VideoController类的videoStyleTransform方法 - 视频风格重绘
 GET http://localhost:10081/ai/video/video-style-transform
+
+###
+# VideoController类的happyHorseText2Video方法 - HappyHorse 文生视频
+GET http://localhost:10081/ai/video/happyhorse/t2v
+
+###
+# VideoController类的happyHorseImage2Video方法 - HappyHorse 图生视频-首帧
+GET http://localhost:10081/ai/video/happyhorse/i2v
+
+###
+# VideoController类的happyHorseReference2Video方法 - HappyHorse 参考生视频
+GET http://localhost:10081/ai/video/happyhorse/r2v
+
+###
+# VideoController类的happyHorseVideoEdit方法 - HappyHorse 视频编辑
+GET http://localhost:10081/ai/video/happyhorse/video-edit
+
+###
+# VideoController类的pixverseText2Video方法 - PixVerse 爱诗文生视频
+GET http://localhost:10081/ai/video/pixverse/t2v
+
+###
+# VideoController类的pixverseImageText2Video方法 - PixVerse 爱诗图生视频-首帧
+GET http://localhost:10081/ai/video/pixverse/it2v
+
+###
+# VideoController类的pixverseKeyFrame2Video方法 - PixVerse 爱诗图生视频-首尾帧
+GET http://localhost:10081/ai/video/pixverse/kf2v
+
+###
+# VideoController类的pixverseReference2Video方法 - PixVerse 爱诗参考生视频
+GET http://localhost:10081/ai/video/pixverse/r2v
+
+###
+# VideoController类的klingVideoGeneration方法 - Kling 可灵视频生成
+GET http://localhost:10081/ai/video/kling/v3-video-generation
+
+###
+# VideoController类的viduText2Video方法 - Vidu 文生视频
+GET http://localhost:10081/ai/video/vidu/text2video
+
+###
+# VideoController类的viduImage2Video方法 - Vidu 图生视频-首帧
+GET http://localhost:10081/ai/video/vidu/img2video
+
+###
+# VideoController类的viduStartEnd2Video方法 - Vidu 图生视频-首尾帧
+GET http://localhost:10081/ai/video/vidu/start-end2video
+
+###
+# VideoController类的viduReference2Video方法 - Vidu 参考生视频
+GET http://localhost:10081/ai/video/vidu/reference2video
