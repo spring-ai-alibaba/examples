@@ -32,6 +32,46 @@
 	<description>Spring AI Alibaba Dashscope Chat Example</description>
 	<name>Spring AI Alibaba Dashscope Chat Examples</name>
 
+	<properties>
+		<dashscope.spring-boot.version>4.1.0-RC1</dashscope.spring-boot.version>
+		<dashscope.spring-ai.version>2.0.0-RC1</dashscope.spring-ai.version>
+		<dashscope.spring-ai-alibaba.version>2.0.0-RC1.1</dashscope.spring-ai-alibaba.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${dashscope.spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${dashscope.spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+				<version>${dashscope.spring-ai-alibaba.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-autoconfigure-dashscope</artifactId>
+				<version>${dashscope.spring-ai-alibaba.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-dashscope</artifactId>
+				<version>${dashscope.spring-ai-alibaba.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -41,6 +81,12 @@
 		<dependency>
 			<groupId>com.alibaba.cloud.ai</groupId>
 			<artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
         <!-- 自定义 Webclient http client 依赖 -->

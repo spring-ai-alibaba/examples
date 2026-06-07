@@ -22,7 +22,7 @@ package com.alibaba.cloud.ai.example.chat.dashscope.network;
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
-import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatApiSpec.ChatCompletionRequest.Parameters.SearchOptions;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -88,12 +88,8 @@ public class NetworkConfigDemo {
                         DashScopeChatOptions.builder()
                                 .model("qwen-plus")
                                 .enableSearch(true)
-                                .searchOptions(DashScopeApiSpec.SearchOptions.builder()
-                                        .enableSource(true)
-                                        .forcedSearch(true)
-                                        .searchStrategy("turbo")
-                                        .build()
-                                ).build()
+                                .searchOptions(new SearchOptions(true, null, null, "turbo", null, null))
+                                .build()
                 ).build();
     }
 

@@ -60,8 +60,7 @@ public class DashScopeChatClientController {
 				// 设置 ChatClient 中 ChatModel 的 Options 参数
 				.defaultOptions(
 						DashScopeChatOptions.builder()
-								.withTopP(0.7)
-								.build()
+								.topP(0.7)
 				)
 				.build();
 	}
@@ -112,10 +111,10 @@ public class DashScopeChatClientController {
 			// 创建提示词，启用多模态模型
 			Prompt chatPrompt = new Prompt(message,
 					DashScopeChatOptions.builder()
-							.withModel("qwen-vl-max-latest")  // 使用视觉模型
-							.withMultiModel(true)             // 启用多模态
-							.withVlHighResolutionImages(true) // 启用高分辨率图片处理
-							.withTemperature(0.7)
+							.model("qwen-vl-max-latest")  // 使用视觉模型
+							.multiModel(true)             // 启用多模态
+							.vlHighResolutionImages(true) // 启用高分辨率图片处理
+							.temperature(0.7)
 							.build());
 			// 调用模型进行图片分析
 			return dashScopeChatClient.prompt(chatPrompt).call().content();
@@ -149,10 +148,10 @@ public class DashScopeChatClientController {
 			// 创建提示词，启用多模态模型
 			Prompt chatPrompt = new Prompt(message,
 					DashScopeChatOptions.builder()
-							.withModel("qwen-vl-max-latest")  // 使用视觉模型
-							.withMultiModel(true)             // 启用多模态
-							.withVlHighResolutionImages(true) // 启用高分辨率图片处理
-							.withTemperature(0.7)
+							.model("qwen-vl-max-latest")  // 使用视觉模型
+							.multiModel(true)             // 启用多模态
+							.vlHighResolutionImages(true) // 启用高分辨率图片处理
+							.temperature(0.7)
 							.build());
 
 			// 调用模型进行图片分析

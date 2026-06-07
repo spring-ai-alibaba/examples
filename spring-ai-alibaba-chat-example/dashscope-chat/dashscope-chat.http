@@ -43,3 +43,132 @@ GET http://localhost:10000/model/custom/http-headers
 
 ###
 GET http://localhost:10000/model/search/info/streams
+
+###
+# DashScopeChatModelController类的text方法
+POST http://localhost:10000/model/dashscope/text
+Content-Type: application/json
+
+{
+  "model": "qwen-plus",
+  "system": "You are a helpful assistant.",
+  "prompt": "你是谁？",
+  "temperature": 0.7,
+  "topP": 0.8,
+  "topK": 50
+}
+
+###
+# DashScopeChatModelController类的textStream方法
+POST http://localhost:10000/model/dashscope/text/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "model": "qwen-plus",
+  "system": "You are a helpful assistant.",
+  "prompt": "你是谁？"
+}
+
+###
+# DashScopeChatModelController类的search方法
+POST http://localhost:10000/model/dashscope/search
+Content-Type: application/json
+
+{
+  "model": "qwen-plus",
+  "system": "You are a helpful assistant.",
+  "prompt": "明天杭州天气如何？",
+  "searchOptions": {
+    "enableSource": true,
+    "enableCitation": true,
+    "citationFormat": "[<number>]",
+    "searchStrategy": "turbo",
+    "enableSearchExtension": true,
+    "prependSearchResult": true
+  }
+}
+
+###
+# DashScopeChatModelController类的document方法
+POST http://localhost:10000/model/dashscope/document
+Content-Type: application/json
+
+{
+  "model": "qwen-long",
+  "system": "You are a helpful assistant.",
+  "fileId": "file-xxx",
+  "prompt": "这篇文章讲了什么？"
+}
+
+###
+# DashScopeChatModelController类的pptStream方法
+POST http://localhost:10000/model/dashscope/ppt/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "model": "qwen-doc-turbo",
+  "system": "You are a helpful assistant.",
+  "document": "您的文档内容",
+  "prompt": "生成一个10到20页的ppt",
+  "mode": "general",
+  "templateId": "news_01"
+}
+
+###
+# DashScopeChatModelController类的image方法
+POST http://localhost:10000/model/dashscope/multimodal/image
+Content-Type: application/json
+
+{
+  "model": "qwen-vl-plus",
+  "prompt": "这些是什么？",
+  "imageUrls": [
+    "https://dashscope.oss-cn-beijing.aliyuncs.com/images/dog_and_girl.jpeg",
+    "https://dashscope.oss-cn-beijing.aliyuncs.com/images/tiger.png",
+    "https://dashscope.oss-cn-beijing.aliyuncs.com/images/rabbit.png"
+  ]
+}
+
+###
+# DashScopeChatModelController类的imageStream方法
+POST http://localhost:10000/model/dashscope/multimodal/image/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "model": "qwen3-vl-plus",
+  "prompt": "图中描绘的是什么景象？",
+  "imageUrls": [
+    "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"
+  ]
+}
+
+###
+# DashScopeChatModelController类的video方法
+POST http://localhost:10000/model/dashscope/multimodal/video
+Content-Type: application/json
+
+{
+  "model": "qwen-vl-max",
+  "prompt": "描述这个视频的具体过程",
+  "frameUrls": [
+    "https://img.alicdn.com/imgextra/i3/O1CN01K3SgGo1eqmlUgeE9b_!!6000000003923-0-tps-3840-2160.jpg",
+    "https://img.alicdn.com/imgextra/i4/O1CN01BjZvwg1Y23CF5qIRB_!!6000000003000-0-tps-3840-2160.jpg",
+    "https://img.alicdn.com/imgextra/i4/O1CN01Ib0clU27vTgBdbVLQ_!!6000000007859-0-tps-3840-2160.jpg",
+    "https://img.alicdn.com/imgextra/i1/O1CN01aygPLW1s3EXCdSN4X_!!6000000005710-0-tps-3840-2160.jpg"
+  ]
+}
+
+###
+# DashScopeChatModelController类的audio方法
+POST http://localhost:10000/model/dashscope/multimodal/audio
+Content-Type: application/json
+
+{
+  "model": "qwen-audio-turbo-latest",
+  "system": "You are a helpful assistant.",
+  "prompt": "这段音频在说什么？",
+  "audioUrl": "https://dashscope.oss-cn-beijing.aliyuncs.com/audios/welcome.mp3"
+}
