@@ -4,6 +4,7 @@ Demonstrate four approaches to ToolCalling with four distinct examples here:
 - AddressController : Methods as Tools - MethodToolCallback
 - BaiduTranslateController : Function as Tools - Function Name 
 - WeatherController : Function as Tools - FunctionCallBack
+- CampusAssistantController : Combine time, weather, and campus schedule tools
 
 If you want to build your own tools, you can refer to the implementation in the community module of the Spring AI Alibaba repository and use the currently stable version 1.0.0.2.
 
@@ -205,6 +206,13 @@ GET http://localhost:8080/weather/chat-tool-function-name
 - 默认端口：8080
 - 默认上下文路径：/basic
 ## 测试指导
+### 校园助手组合调用
+`CampusAssistantController` 演示了在同一个请求中组合三种工具：城市时间、天气查询和校园日程生成。
+
+```bash
+curl "http://localhost:8080/campus/chat-tools?query=请查询上海当前时间和天气，并为我安排一小时的校园跑步计划"
+```
+
 ### 使用 HTTP 文件测试
 模块根目录下提供了 **[spring-ai-alibaba-tool-calling-example.http](./spring-ai-alibaba-tool-calling-example.http)** 文件，包含所有接口的测试用例：
 - 可在 IDE 中直接执行
