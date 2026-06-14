@@ -17,8 +17,10 @@ package com.alibaba.cloud.ai.toolcall.component;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CampusScheduleToolsTest {
 
@@ -26,8 +28,16 @@ class CampusScheduleToolsTest {
 
     @Test
     void shouldCreateCampusSchedule() {
-        assertEquals("Campus schedule: activity=run, startTime=14:00, durationMinutes=60.",
-                campusScheduleTools.createCampusSchedule("run", "14:00", 60));
+        String result = campusScheduleTools.createCampusSchedule("run", "14:00", 60);
+
+        assertAll(
+                () -> assertTrue(result.contains("activity=run")),
+                () -> assertTrue(result.contains("startTime=14:00")),
+                () -> assertTrue(result.contains("durationMinutes=60")),
+                () -> assertTrue(result.contains("preparation=10 minutes")),
+                () -> assertTrue(result.contains("mainActivity=43 minutes")),
+                () -> assertTrue(result.contains("wrapUp=7 minutes"))
+        );
     }
 
     @Test
@@ -40,6 +50,55 @@ class CampusScheduleToolsTest {
     void shouldRejectNegativeDuration() {
         assertThrows(IllegalArgumentException.class,
                 () -> campusScheduleTools.createCampusSchedule("run", "14:00", -1));
+    }
+
+    @Test
+    void shouldRejectBlankActivity() {
+        assertThrows(IllegalArgumentException.class,
+                () -> campusScheduleTools.createCampusSchedule(" ", "14:00", 60));
+    }
+
+    @Test
+    void shouldEstimateLowRiskForClearWeather() {
+        assertEquals("Campus activity risk: activity=run, durationMinutes=60, riskLevel=LOW, "
+                        + "suggestion=Activity can continue as planned.",
+                campusScheduleTools.estimateCampusActivityRisk("clear and mild", "run", 60));
+    }
+
+    @Test
+    void shouldEstimateMediumRiskForRain() {
+        String result = campusScheduleTools.estimateCampusActivityRisk("light rain", "run", 60);
+
+        assertAll(
+                () -> assertTrue(result.contains("riskLevel=MEDIUM")),
+                () -> assertTrue(result.contains("Shorten the activity"))
+        );
+    }
+
+    @Test
+    void shouldEstimateHighRiskForStorm() {
+        String result = campusScheduleTools.estimateCampusActivityRisk("thunder storm", "run", 60);
+
+        assertAll(
+                () -> assertTrue(result.contains("riskLevel=HIGH")),
+                () -> assertTrue(result.contains("Move the activity indoors"))
+        );
+    }
+
+    @Test
+    void shouldRaiseRiskForLongActivity() {
+        String result = campusScheduleTools.estimateCampusActivityRisk("clear", "club activity", 180);
+
+        assertAll(
+                () -> assertTrue(result.contains("riskLevel=MEDIUM")),
+                () -> assertTrue(result.contains("Long activity duration detected"))
+        );
+    }
+
+    @Test
+    void shouldRejectBlankWeatherSummary() {
+        assertThrows(IllegalArgumentException.class,
+                () -> campusScheduleTools.estimateCampusActivityRisk(" ", "run", 60));
     }
 
 }
