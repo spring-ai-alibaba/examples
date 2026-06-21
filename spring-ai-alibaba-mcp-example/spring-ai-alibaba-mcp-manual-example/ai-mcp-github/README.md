@@ -1,107 +1,27 @@
-# MCP-GitHub使用示例
+# Spring AI Model Context Protocol GitHub
 
-官方仓库连接[github/github-mcp-server: GitHub's official MCP Server](https://github.com/github/github-mcp-server)
+## 模块定位
 
-## 1 依赖
+本模块演示手动创建 GitHub MCP 客户端，连接 GitHub MCP server 后把仓库查询能力交给 ChatClient 使用。
 
-```xml
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-starter-mcp-client</artifactId>
-    <version>1.0.0-RC1</version>
-</dependency>
+## 主要内容
+
+- 启动入口：GithubMcpApplication
+- 模型依赖：DashScope，通常需要配置 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
+
+## 运行方式
+
+```bash
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-manual-example/ai-mcp-github/pom.xml test-compile -DskipTests
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-manual-example/ai-mcp-github/pom.xml spring-boot:run
 ```
 
-## 2 配置文件：mcp-servers-config
+## 配置要点
 
-### Windows
+- DashScope key：优先使用环境变量 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
+- MCP：client/server 示例通常需要先启动 server，再运行对应 client。
 
-```json
-{
-  "mcpServers": {
-    "github": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_token_here"
-      }
-    }
-  }
-}
-```
+## 验证建议
 
-### mac
-
-```json
-{
-  "mcpServers": {
-    "github": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_token_here"
-      }
-    }
-  }
-}
-```
-
-如何申请token请查阅官方仓库。
-
-## 3 yaml配置
-
-```yaml
-spring:
-  ai:
-    dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY}
-    mcp:
-      client:
-        stdio:
-          servers-configuration: classpath:/mcp-servers-config.json
-```
-
-## 4 简单调用
-
-```java
-@SpringBootApplication
-public class Application {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-    @Bean
-    public CommandLineRunner predefinedQuestions(
-            ChatClient.Builder chatClientBuilder,
-            ToolCallbackProvider tools,
-            ConfigurableApplicationContext context) {
-        return args -> {
-            // 构建ChatClient并注入MCP工具
-            var chatClient = chatClientBuilder
-                    .defaultTools(tools)
-                    .build();
-
-            // 定义用户输入
-            String userInput = "帮我创建一个私有仓库，命名为test-mcp";
-            // 打印问题
-            System.out.println("\n>>> QUESTION: " + userInput);
-            // 调用LLM并打印响应
-            System.out.println("\n>>> ASSISTANT: " +
-                    chatClient.prompt(userInput).call().content());
-
-            // 关闭应用上下文
-            context.close();
-        };
-    }
-
-}
-```
+- README 中的运行命令用于本地 smoke 验证；需要模型或外部服务的场景，先确认对应环境变量和服务状态。
+- 修改代码后至少执行本模块 `test-compile`，涉及接口行为时再补充启动或 curl 验证。

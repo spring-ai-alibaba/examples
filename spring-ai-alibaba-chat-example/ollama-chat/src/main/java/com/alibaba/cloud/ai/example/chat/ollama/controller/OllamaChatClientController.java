@@ -55,7 +55,6 @@ public class OllamaChatClientController {
 					OllamaChatOptions.builder()
 								.topP(0.7)
 								.model("llama3")
-								.build()
 				)
 				.build();
 	}

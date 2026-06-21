@@ -48,7 +48,7 @@ public class DeepSeekChatClientController {
                 // 实现 Logger 的 Advisor
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 // 设置 ChatClient 中 ChatModel 的 Options 参数
-                .defaultOptions(DeepSeekChatOptions.builder().temperature(0.7d).build()).build();
+                .defaultOptions(DeepSeekChatOptions.builder().temperature(0.7d)).build();
     }
 
     /**

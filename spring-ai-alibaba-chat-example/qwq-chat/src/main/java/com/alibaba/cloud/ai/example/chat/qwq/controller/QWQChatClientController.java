@@ -69,10 +69,9 @@ public class QWQChatClientController {
 				// 设置 ChatClient 中 ChatModel 的 Options 参数
 				.defaultOptions(
 						DashScopeChatOptions.builder()
-								.withTopP(0.7)
+								.topP(0.7)
 								// 设置enable_thinking 为 true，启用思考过程
-								.withEnableThinking(true)
-								.build()
+								.enableThinking(true)
 				)
 				.build();
 	}

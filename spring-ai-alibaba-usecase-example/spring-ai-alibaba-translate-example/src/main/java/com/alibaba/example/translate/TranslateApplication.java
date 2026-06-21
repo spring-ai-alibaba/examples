@@ -48,7 +48,7 @@ public class TranslateApplication {
 	@Bean
 	public DashScopeChatModel dashScopeChatModel(@Value("${spring.ai.dashscope.api-key:#{null}}") String apiKey) {
 		DashScopeChatOptions options = DashScopeChatOptions.builder()
-			.withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
+			.model(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
 			.build();
 
 		return DashScopeChatModel.builder().dashScopeApi(DashScopeApi.builder().apiKey(apiKey).build()).defaultOptions(options).build();

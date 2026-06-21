@@ -1,0 +1,6 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: mcp-oauth2-authorization-server

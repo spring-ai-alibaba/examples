@@ -24,7 +24,7 @@ import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.client.transport.ServerParameters;
 import io.modelcontextprotocol.client.transport.StdioClientTransport;
 
-import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.json.McpJsonDefaults;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.boot.CommandLineRunner;
@@ -45,8 +45,9 @@ public class Application {
 			McpSyncClient mcpClient, ConfigurableApplicationContext context) {
 
 		return args -> {
+			var tools = new SyncMcpToolCallbackProvider(mcpClient);
 			var chatClient = chatClientBuilder
-					.defaultToolCallbacks(new SyncMcpToolCallbackProvider(mcpClient))
+					.defaultToolCallbacks(tools)
 					.build();
 
 			System.out.println("Running predefined questions with AI model responses:\n");
@@ -77,7 +78,7 @@ public class Application {
 				.args("-y", "@modelcontextprotocol/server-filesystem", getDbPath())
 				.build();
 
-		var mcpClient = McpClient.sync(new StdioClientTransport(stdioParams, McpJsonMapper.getDefault()))
+		var mcpClient = McpClient.sync(new StdioClientTransport(stdioParams, McpJsonDefaults.getMapper()))
 				.requestTimeout(Duration.ofSeconds(10)).build();
 
 		var init = mcpClient.initialize();

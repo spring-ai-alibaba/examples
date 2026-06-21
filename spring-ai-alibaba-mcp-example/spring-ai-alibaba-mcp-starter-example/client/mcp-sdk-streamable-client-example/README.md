@@ -1,29 +1,28 @@
-# MCP Streamable Client Demo
+# Spring AI MCP SDK STREAMABLE WEBFLUX Client EXAMPLE
 
-## 1.启动py streamable server 
+## 模块定位
 
-由于mcp java-sdk还未更新streamable server实现， 目前使用python-sdk的server进行实验
+本模块演示 Spring AI MCP 的客户端或服务端能力，按当前目录对应的 transport、注册或安全模型运行。
 
-server代码地址： https://github.com/modelcontextprotocol/python-sdk/blob/main/examples/servers/simple-streamablehttp-stateless/mcp_simple_streamablehttp_stateless/server.py
-按照官方说明启动运行即可：
+## 主要内容
 
-![image-20250719175009082](./assets/image-20250719175009082.png)
+- 启动入口：Application
+- Web 入口：ChatController
+- 模型依赖：DashScope，通常需要配置 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
 
-确保能够调用list_tools接口
+## 运行方式
 
-![image-20250719175147426](./assets/image-20250719175147426.png)
+```bash
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-starter-example/client/mcp-sdk-streamable-client-example/pom.xml test-compile -DskipTests
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-starter-example/client/mcp-sdk-streamable-client-example/pom.xml spring-boot:run
+```
 
-## 2.运行Java client
+## 配置要点
 
-注意， 目前使用的是mcp java-sdk的快照版本， 需要本地编译好0.11.0-SNAPSHOT的依赖，
-地址：https://github.com/modelcontextprotocol/java-sdk
+- DashScope key：优先使用环境变量 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
+- MCP：client/server 示例通常需要先启动 server，再运行对应 client。
 
-配置chatclient以及mcpclient
+## 验证建议
 
-![image-20250719175436782](./assets/image-20250719175436782.png)
-
-启动程序， 调用接口
-
-![image-20250719175538101](./assets/image-20250719175538101.png)
-
-可以看到stream返回
+- README 中的运行命令用于本地 smoke 验证；需要模型或外部服务的场景，先确认对应环境变量和服务状态。
+- 修改代码后至少执行本模块 `test-compile`，涉及接口行为时再补充启动或 curl 验证。

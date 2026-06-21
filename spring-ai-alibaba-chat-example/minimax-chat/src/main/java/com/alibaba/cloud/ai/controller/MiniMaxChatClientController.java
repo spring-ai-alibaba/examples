@@ -22,7 +22,6 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.minimax.MiniMaxChatOptions;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,12 +52,6 @@ public class MiniMaxChatClientController {
 				// 实现 Logger 的 Advisor
 				.defaultAdvisors(
 						new SimpleLoggerAdvisor()
-				)
-				// 设置 ChatClient 中 ChatModel 的 Options 参数
-				.defaultOptions(
-						MiniMaxChatOptions.builder()
-								.topP(0.7)
-								.build()
 				)
 				.build();
 	}

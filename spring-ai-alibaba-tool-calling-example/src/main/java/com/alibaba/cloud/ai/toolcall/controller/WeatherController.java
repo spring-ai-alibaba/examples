@@ -17,11 +17,16 @@ package com.alibaba.cloud.ai.toolcall.controller;
 
 import com.alibaba.cloud.ai.toolcalling.weather.WeatherService;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/weather")
@@ -29,11 +34,14 @@ public class WeatherController {
 
     private final ChatClient dashScopeChatClient;
 
+    private final ToolCallingAdvisor toolCallingAdvisor;
+
     private final WeatherService weatherService;
 
-    public WeatherController(ChatClient chatClient, WeatherService weatherService) {
+    public WeatherController(ChatClient chatClient, ToolCallingAdvisor toolCallingAdvisor, WeatherService weatherService) {
 
         this.dashScopeChatClient = chatClient;
+        this.toolCallingAdvisor = toolCallingAdvisor;
         this.weatherService = weatherService;
     }
 
@@ -52,12 +60,16 @@ public class WeatherController {
     @GetMapping("/chat-tool-function-name")
     public String chatWithWeatherFunction(@RequestParam(value = "query", defaultValue = "请告诉我北京1天以后的天气") String query) {
 
-        return dashScopeChatClient.prompt(query).toolCallbacks(
-                FunctionToolCallback.builder("getWeather", weatherService)
-                        .description("Use api.weather to get weather information.")
-                        .inputType(WeatherService.Request.class)
-                        .build()
-        ).call().content();
+        ToolCallback weatherToolCallback = FunctionToolCallback.builder("getWeather", weatherService)
+                .description("Use api.weather to get weather information.")
+                .inputType(WeatherService.Request.class)
+                .build();
+
+        return dashScopeChatClient.prompt(query)
+                .options(ToolCallingChatOptions.builder().toolCallbacks(List.of(weatherToolCallback)))
+                .advisors(toolCallingAdvisor)
+                .call()
+                .content();
     }
 
 }

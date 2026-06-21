@@ -17,7 +17,7 @@
 package com.alibaba.cloud.ai.example.dcg.service;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -55,7 +55,7 @@ public class ClassificationAssistant {
 								 理由：...
 						""")
 				.defaultAdvisors(
-						PromptChatMemoryAdvisor.builder(chatMemory).build(), // Chat Memory
+						MessageChatMemoryAdvisor.builder(chatMemory).build(), // Chat Memory
 						QuestionAnswerAdvisor
 								.builder(classificationVectorStore)
 								.searchRequest(SearchRequest.builder()

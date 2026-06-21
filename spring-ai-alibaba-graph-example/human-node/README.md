@@ -1,91 +1,27 @@
-# Human-Node 模块
+# human node
 
-## 模块说明
+## 模块定位
 
-在实际业务场景中，经常会遇到人类介入的场景，人类的不同操作将影响工作流不同的走向。
+本模块演示人工参与节点，用于在 Graph 流程中插入确认、补充或审批步骤。
 
-## 接口文档
+## 主要内容
 
-### GraphHumanController 接口
+- 启动入口：HumanNodeApplication
+- Web 入口：GraphHumanController
+- 模型依赖：DashScope，通常需要配置 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
 
-#### 1. expand 方法
+## 运行方式
 
-**接口路径：** `GET /graph/human/expand`
-
-**功能描述：** 提供 expand 相关功能
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- 数据处理和响应
-- API 集成测试
-
-**示例请求：**
 ```bash
-GET http://localhost:8080/graph/human/expand
+mvn -f spring-ai-alibaba-graph-example/human-node/pom.xml test-compile -DskipTests
+mvn -f spring-ai-alibaba-graph-example/human-node/pom.xml spring-boot:run
 ```
 
-#### 2. resume 方法
+## 配置要点
 
-**接口路径：** `GET /graph/human/resume`
+- DashScope key：优先使用环境变量 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
 
-**功能描述：** 提供 resume 相关功能
+## 验证建议
 
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- 数据处理和响应
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/graph/human/resume
-```
-
-
-## 技术实现
-
-### 核心组件
-- **Spring Boot**: 应用框架
-- **Spring AI Alibaba**: AI 功能集成
-- **REST Controller**: HTTP 接口处理
-- **spring-ai-alibaba-starter-dashscope**: 核心依赖
-- **spring-ai-autoconfigure-model-chat-client**: 核心依赖
-- **spring-ai-alibaba-graph-core**: 核心依赖
-- **spring-boot-starter-web**: 核心依赖
-
-### 配置要点
-- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
-- 默认端口：8080
-- 默认上下文路径：/basic
-
-## 测试指导
-
-### 使用 HTTP 文件测试
-模块根目录下提供了 **[human-node.http](./human-node.http)** 文件，包含所有接口的测试用例：
-- 可在 IDE 中直接执行
-- 支持参数自定义
-- 提供默认示例参数
-
-### 使用 curl 测试
-```bash
-# expand 接口测试
-curl "http://localhost:8080/graph/human/expand"
-```
-
-## 注意事项
-
-1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
-2. **网络连接**: 需要能够访问阿里云 DashScope 服务
-3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
-4. **端口配置**: 确保端口 8080 未被占用
-
----
-
-*此 README.md 由自动化工具生成于 2025-12-11 00:41:59*
+- README 中的运行命令用于本地 smoke 验证；需要模型或外部服务的场景，先确认对应环境变量和服务状态。
+- 修改代码后至少执行本模块 `test-compile`，涉及接口行为时再补充启动或 curl 验证。

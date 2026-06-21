@@ -1,287 +1,33 @@
-# Tool Calling Example
-Demonstrate four approaches to ToolCalling with four distinct examples here:
-- TimeController : Methods as Tools
-- AddressController : Methods as Tools - MethodToolCallback
-- BaiduTranslateController : Function as Tools - Function Name 
-- WeatherController : Function as Tools - FunctionCallBack
-- CampusAssistantController : Combine time, weather, and campus schedule tools
+# Spring AI Alibaba Tool Calling Examples
 
-If you want to build your own tools, you can refer to the implementation in the community module of the Spring AI Alibaba repository and use the currently stable version 1.0.0.2.
+## 模块定位
 
-More available tools can be found on [this documentation](https://java2ai.com/docs/1.0.0-M5.1/integrations/tools/). For mcp style tools please check [spring-ai-alibaba-mcp-example](../spring-ai-alibaba-mcp-example).
+本模块演示 Spring AI Alibaba Tool Calling 的常见接入方式，包含 book 对齐后的 Search、Python、Time 基础接口，并保留天气、翻译、地址和校园助手等示例。
 
-For more detail information: [spring-ai-tools](https://docs.spring.io/spring-ai/reference/api/tools.html)
-## 接口文档
-### TimeController 接口
+## 主要内容
 
-#### 1. simpleChat 方法
+- 启动入口：`ToolCallingApplication`
+- book 对齐接口：`/basic/tool/search/call`、`/basic/tool/python/call`、`/basic/tool/time/call/function`、`/basic/tool/time/call/method`、`/basic/tool/time/call/auto-config`
+- 保留示例接口：`/weather/**`、`/translate/**`、`/address/**`、`/campus/**`、`/time/**`
+- 工具实现：Time function callback、Time method tool、Time auto configuration、Aliyun AI Search、Python tool，以及 Weather、Baidu Translate、Address、CampusSchedule 等原有工具
+- 调用方式：控制器统一通过 `ToolCallingChatOptions` 和 `ToolCallingAdvisor` 组织工具调用，避免在 prompt 链路中散落注册 callback
 
-**接口路径：** `GET /time/chat`
-
-**功能描述：** No Tool
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/time/chat
-```
-
-#### 2. chatWithTimeFunction 方法
-
-**接口路径：** `GET /time/chat-tool-method`
-
-**功能描述：** 提供 chatWithTimeFunction 相关功能
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/time/chat-tool-method
-```
-
-
-### AddressController 接口
-
-#### 1. chat 方法
-
-**接口路径：** `GET /address/chat`
-
-**功能描述：** No Tool
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/address/chat
-```
-
-#### 2. chatWithBaiduMap 方法
-
-**接口路径：** `GET /address/chat-method-tool-callback`
-
-**功能描述：** Methods as Tools - MethodToolCallback
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/address/chat-method-tool-callback
-```
-
-
-### BaiduTranslateController 接口
-
-#### 1. simpleChat 方法
-
-**接口路径：** `GET /translate/chat`
-
-**功能描述：** No Tool
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/translate/chat
-```
-
-#### 2. chatTranslateFunction 方法
-
-**接口路径：** `GET /translate/chat-tool-function-callback`
-
-**功能描述：** 提供 chatTranslateFunction 相关功能
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/translate/chat-tool-function-callback
-```
-
-
-### WeatherController 接口
-
-#### 1. simpleChat 方法
-
-**接口路径：** `GET /weather/chat`
-
-**功能描述：** No Tool
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/weather/chat
-```
-
-#### 2. chatWithWeatherFunction 方法
-
-**接口路径：** `GET /weather/chat-tool-function-name`
-
-**功能描述：** 提供 chatWithWeatherFunction 相关功能
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- AI 对话交互
-- 智能问答系统
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/weather/chat-tool-function-name
-```
-## 技术实现
-### 核心组件
-- **Spring Boot**: 应用框架
-- **Spring AI Alibaba**: AI 功能集成
-- **REST Controller**: HTTP 接口处理
-- **spring-boot-starter-web**: 核心依赖
-- **spring-ai-alibaba-starter-dashscope**: 核心依赖
-- **spring-ai-alibaba-starter-tool-calling-baidutranslate**: 核心依赖
-- **spring-ai-alibaba-starter-tool-calling-weather**: 核心依赖
-- **spring-ai-alibaba-starter-tool-calling-baidumap**: 核心依赖
-
-### 配置要点
-- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
-- 默认端口：8080
-- 默认上下文路径：/basic
-## 测试指导
-### 校园助手组合调用
-`CampusAssistantController` 演示了在同一个请求中组合三种工具：城市时间、天气查询和校园日程生成。
+## 运行方式
 
 ```bash
-curl "http://localhost:8080/campus/chat-tools?query=请查询上海当前时间和天气，并为我安排一小时的校园跑步计划"
+mvn -f spring-ai-alibaba-tool-calling-example/pom.xml test-compile -DskipTests
+mvn -f spring-ai-alibaba-tool-calling-example/pom.xml spring-boot:run
 ```
 
-### 使用 HTTP 文件测试
-模块根目录下提供了 **[spring-ai-alibaba-tool-calling-example.http](./spring-ai-alibaba-tool-calling-example.http)** 文件，包含所有接口的测试用例：
-- 可在 IDE 中直接执行
-- 支持参数自定义
-- 提供默认示例参数
+## 配置要点
 
-### 使用 curl 测试
-```bash
-# simpleChat 接口测试
-curl "http://localhost:8080/time/chat"
-```
+- DashScope key：优先使用环境变量 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
+- Aliyun AI Search 默认关闭；需要搜索示例时设置 `ALIYUN_AI_SEARCH_ENABLED=true` 并提供 `ALIYUN_AI_SEARCH`。
+- Python tool 默认关闭；需要 Python 示例时设置 `PYTHON_TOOL_ENABLED=true`，本地 Java/GraalVM 环境可能输出 native access warning。
+- Baidu Translate、Weather、Address 等外部服务 key 都保留为空默认值，未配置时应优先做编译或本地启动验证。
 
-```bash
-# chat 接口测试
-curl "http://localhost:8080/address/chat"
-```
-## 注意事项
-1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
-2. **网络连接**: 需要能够访问阿里云 DashScope 服务
-3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
-4. **端口配置**: 确保端口 8080 未被占用
+## 验证建议
 
----
-
-*此 README.md 由自动化工具生成于 2025-12-11 00:51:02*
-## 模块说明
-Demonstrate four approaches to ToolCalling with four distinct examples here:。
-
-## How to Run
-Baidu translation API access document: https://api.fanyi.baidu.com/product/113
-
-Baidu Map API document: https://lbs.baidu.com/faq/api
-
-Access document of weather forecast API: https://www.weatherapi.com/docs/
-
-```yaml
-spring:
-  ai:
-    alibaba:
-      toolcalling:
-        baidu:
-          translate:
-            enabled: true
-            app-id: ${BAIDU_TRANSLATE_APP_ID}
-            secret-key: ${BAIDU_TRANSLATE_SECRET_KEY}
-          map:
-            enabled: true
-            apiKey: ${BAIDU_MAP_API_KEY}
-
-        time:
-          enabled: true
-
-        weather:
-          enabled: true
-          api-key: ${WEATHER_API_KEY}
-
-    dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY}
-
-```
-
----
-
-*此 README.md 由自动化工具融合更新于 2025-12-11 00:40:51*
-
-*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
-
----
-
-*此 README.md 由自动化工具融合更新于 2025-12-11 00:51:02*
-
-*融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
+- 无密钥环境先验证应用能启动；有 DashScope key 时可调用 Time 示例做 smoke test。
+- Search 和 Python 示例需要分别打开对应开关后再访问 `/basic/tool/search/call`、`/basic/tool/python/call`。
+- 修改代码后至少执行本模块 `test-compile`；涉及接口行为时再补充启动或 curl 验证。

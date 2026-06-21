@@ -7,10 +7,11 @@ spring:
   ai:
     mcp:
       server:
+        enabled: true
         name: streamable-mcp-server
         protocol: STREAMABLE # SSE、STREAMABLE、STATELESS
         version: 1.0.0
-        type: ASYNC  # Recommended for reactive applications
+        type: SYNC
         instructions: "This reactive server provides time information tools and resources"
         request-timeout: 20s
         streamable-http:

@@ -25,14 +25,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * MCP Multi Source Discovery Example
  * supports multiple service discovery sources: file, database, Nacos
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.alibaba.cloud.ai.example.config", "com.alibaba.cloud.ai.mcp.router", "com.alibaba.cloud.ai.autoconfigure.mcp.router"})
 public class McpMultiConfigApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(McpMultiConfigApplication.class);

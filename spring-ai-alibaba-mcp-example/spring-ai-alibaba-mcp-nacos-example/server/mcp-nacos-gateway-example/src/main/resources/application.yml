@@ -1,42 +1,37 @@
 server:
-  port: 19000
+  port: ${SERVER_PORT:21000}
 
 spring:
+  main:
+    banner-mode: off
   application:
-    name: mcp-gateway-server
+    name: nacos3-gateway-server
   ai:
     mcp:
       server:
-        name: mcp-nacos-gateway-example
+        name: webflux-mcp-server
         version: 1.0.0
         enabled: true
-        protocol: sse
-        type: async
-        instructions: "Nacos MCP Gateway - 聚合多个 MCP Server 的工具网关"
-        sse-message-endpoint: /mcp/messages
-        capabilities:
-          tool: true
-          resource: false
-          prompt: false
-          completion: false
+        protocol: STREAMABLE
+        type: ASYNC
+        instructions: "This reactive server provides time information tools and resources"
+        request-timeout: 20s
+        streamable-http:
+          mcp-endpoint: /mcp
+          keep-alive-interval: 30s
+          disallow-delete: false
     dashscope:
-      api-key: ${DASHSCOPE_API_KEY}
+      api-key: ${DASHSCOPE_API_KEY:${AI_DASHSCOPE_API_KEY:}}
 
     alibaba:
-      # MCP Gateway 配置
       mcp:
         gateway:
           enabled: true
-          registry: nacos
-          # 配置要发现和聚合的 MCP Server 服务名称
           nacos:
-            serviceNames:
-              - nacos-mcp-server-sse         # SSE 协议的 MCP Server
-              - nacos-mcp-server-streamable  # Streamable 协议的 MCP Server
-        # Nacos 注册中心配置
+            service-names: mcp-nacos-restful
         nacos:
-          server-addr: localhost:8848
-          namespace: public
+          namespace: 0908ca08-c382-404c-9d96-37fe1628b183
+          server-addr: 127.0.0.1:8848
           username: nacos
           password: nacos
 

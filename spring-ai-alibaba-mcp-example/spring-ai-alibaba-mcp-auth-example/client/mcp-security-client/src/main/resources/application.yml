@@ -1,0 +1,26 @@
+server:
+  port: 18300
+
+spring:
+  application:
+    name: mcp-security-client
+
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
+
+    mcp:
+      client:
+        enabled: true
+        name: security-client
+        type: SYNC
+        streamable-http:
+          connections:
+            security-webmvc-server:
+              url: http://localhost:18200
+              endpoint: /mcp
+
+mcp:
+  security:
+    authorization-server-url: http://localhost:9000
+    server-url: http://localhost:18200/mcp

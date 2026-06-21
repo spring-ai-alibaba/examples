@@ -23,7 +23,7 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.ResponseFormat;
+import org.springframework.ai.openai.OpenAiChatModel.ResponseFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -125,7 +125,10 @@ public class OpenAiChatModelController {
                 .model("gpt-4o")
                 .temperature(0.4)
                 .maxTokens(4096)
-                .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
+                .responseFormat(ResponseFormat.builder()
+                        .type(ResponseFormat.Type.JSON_SCHEMA)
+                        .jsonSchema(jsonSchema)
+                        .build())
                 .build();
 
         return openAiChatModel.call(new Prompt(JSON_OUTPUT_PROMPT, customOptions)).getResult().getOutput().getText();

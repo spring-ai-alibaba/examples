@@ -79,7 +79,7 @@ public class MultiModelController {
         
         ChatResponse response = dashScopeChatClient
                 .prompt(new Prompt(message,
-                        DashScopeChatOptions.builder().withModel(DEFAULT_MODEL).withMultiModel(true).build()))
+                        DashScopeChatOptions.builder().model(DEFAULT_MODEL).multiModel(true).build()))
                 .call()
                 .chatResponse();
         
@@ -98,7 +98,7 @@ public class MultiModelController {
         
         ChatResponse response = dashScopeChatClient
                 .prompt(new Prompt(message,
-                        DashScopeChatOptions.builder().withModel(DEFAULT_MODEL).withMultiModel(true).build()))
+                        DashScopeChatOptions.builder().model(DEFAULT_MODEL).multiModel(true).build()))
                 .call()
                 .chatResponse();
         
@@ -118,7 +118,7 @@ public class MultiModelController {
 
         ChatResponse response = dashScopeChatClient
                 .prompt(new Prompt(message,
-                        DashScopeChatOptions.builder().withModel("qwen-audio-turbo-latest").withMultiModel(true).build()))
+                        DashScopeChatOptions.builder().model("qwen-audio-turbo-latest").multiModel(true).build()))
                 .call()
                 .chatResponse();
 
@@ -139,7 +139,7 @@ public class MultiModelController {
         
         ChatResponse response = dashScopeChatClient
                 .prompt(new Prompt(message,
-                        DashScopeChatOptions.builder().withModel(DEFAULT_MODEL).withMultiModel(true).build()))
+                        DashScopeChatOptions.builder().model(DEFAULT_MODEL).multiModel(true).build()))
                 .call()
                 .chatResponse();
         
@@ -156,7 +156,7 @@ public class MultiModelController {
         
         List<ChatResponse> response = dashScopeChatClient
                 .prompt(new Prompt(message,
-                        DashScopeChatOptions.builder().withModel(DEFAULT_MODEL).withMultiModel(true).build()))
+                        DashScopeChatOptions.builder().model(DEFAULT_MODEL).multiModel(true).build()))
                 .stream()
                 .chatResponse()
                 .collectList()

@@ -35,6 +35,11 @@
 	<description>Spring AI Alibaba MCP Example</description>
 	<name>Spring AI Alibaba MCP Examples</name>
 
+    <properties>
+        <mcp-security.version>0.1.13</mcp-security.version>
+        <spring-security-authorization-server.version>7.1.0</spring-security-authorization-server.version>
+    </properties>
+
 	<modules>
 		<module>spring-ai-alibaba-mcp-manual-example</module>
 		<module>spring-ai-alibaba-mcp-starter-example</module>
@@ -43,6 +48,31 @@
         <module>spring-ai-alibaba-mcp-auth-example</module>
         <module>spring-ai-alibaba-mcp-config-example</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springaicommunity</groupId>
+                <artifactId>mcp-server-security</artifactId>
+                <version>${mcp-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springaicommunity</groupId>
+                <artifactId>mcp-client-security</artifactId>
+                <version>${mcp-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springaicommunity</groupId>
+                <artifactId>mcp-authorization-server</artifactId>
+                <version>${mcp-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-authorization-server</artifactId>
+                <version>${spring-security-authorization-server.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 	<build>
 		<plugins>

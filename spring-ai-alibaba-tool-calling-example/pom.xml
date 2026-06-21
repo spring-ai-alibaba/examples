@@ -36,6 +36,9 @@
 
     <properties>
         <junit-jupiter.version>5.10.0</junit-jupiter.version>
+        <graalvm-polyglot.version>25.0.1</graalvm-polyglot.version>
+        <tools-jackson.version>3.1.4</tools-jackson.version>
+        <jackson-annotations.version>2.21</jackson-annotations.version>
     </properties>
 
     <dependencies>
@@ -50,8 +53,41 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-autoconfigure-model-tool</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${tools-jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${tools-jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson-annotations.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-tool-calling-baidutranslate</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-tool-calling-aliyunaisearch</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-tool-calling-python</artifactId>
         </dependency>
 
         <dependency>
@@ -72,6 +108,21 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-tool-calling-githubtoolkit</artifactId>
+        </dependency>
+
+        <!-- GraalVM Polyglot for Python execution. -->
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>polyglot</artifactId>
+            <version>${graalvm-polyglot.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>python</artifactId>
+            <version>${graalvm-polyglot.version}</version>
+            <type>pom</type>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

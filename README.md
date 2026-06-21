@@ -14,6 +14,20 @@
 
 更详细的介绍请参阅每个子项目中的 README.md 和 [Spring AI Alibaba 官网](https://java2ai.com)。
 
+## 2.0 适配版本基线
+
+当前 `2.x` 分支的 basic 示例适配参考 `/Users/yingzi/IdeaProjects/spring-ai-alibaba-book` 中已完成的 basic 配置，使用以下版本基线：
+
+| 组件 | 版本 |
+|---|---|
+| Java | `17` |
+| Spring Boot | `4.0.0` |
+| Spring AI | `2.0.0` |
+| Spring AI Alibaba | `1.1.0.0` |
+| Spring AI Alibaba Extensions | `2.0.0.1` |
+
+本轮适配范围仅覆盖 basic 对应示例，不包含 graph、agent 模块。详细拆分和优先级见 [Spring AI Alibaba Examples 2.0 Basic Adaptation Plan](./docs/spring-ai-alibaba-examples-2.0-basic-adaptation-plan.md)。
+
 ## 参与建设
 
 欢迎任何形式的代码贡献。

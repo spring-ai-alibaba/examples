@@ -16,7 +16,7 @@ spring:
         name: my-mcp-client
         version: 1.0.0
         request-timeout: 600s
-        type: ASYNC  # or ASYNC for reactive applications
+        type: SYNC
         streamable-http:
           connections:
             server1:

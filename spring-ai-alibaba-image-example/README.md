@@ -1,81 +1,27 @@
-# Spring-Ai-Alibaba-Image-Example 模块
+# Spring AI Alibaba Image Examples
 
-## 模块说明
+## 模块定位
 
-本模块演示 Spring AI Alibaba 的图像处理功能。
+这个聚合模块用于组织同一主题下的多个 Spring AI Alibaba 示例子模块，本身不直接启动业务应用。
 
-## 接口文档
+## 主要内容
 
-### DashScopeImageController 接口
+- 子模块：dashscope-image、openai-image
+- 用途：作为同类示例的 Maven 聚合入口，便于统一编译和按需进入子模块运行。
 
-#### 1. image 方法
+## 运行方式
 
-**接口路径：** `GET /example/image`
-
-**功能描述：** 提供 image 相关功能
-
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- 数据处理和响应
-- API 集成测试
-
-**示例请求：**
 ```bash
-GET http://localhost:8080/example/image
+mvn -f spring-ai-alibaba-image-example/pom.xml test-compile -DskipTests
+# 进入需要运行的子模块后再执行 spring-boot:run
 ```
 
-#### 2. generateImageWithMultiPrompt 方法
+## 配置要点
 
-**接口路径：** `GET /example/image/multiPrompt`
+- DashScope key：优先使用环境变量 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
+- OpenAI 兼容配置：按 `application.yml` 设置 API key、base URL 和模型名。
 
-**功能描述：** Generates multiple images from single prompt.
+## 验证建议
 
-**主要特性：**
-- 基于 Spring Boot REST API 实现
-- 返回 JSON 格式响应
-- 支持 UTF-8 编码
-
-**使用场景：**
-- 数据处理和响应
-- API 集成测试
-
-**示例请求：**
-```bash
-GET http://localhost:8080/example/image/multiPrompt
-```
-
-
-## 技术实现
-
-### 核心组件
-- **Spring Boot**: 应用框架
-- **Spring AI Alibaba**: AI 功能集成
-- **REST Controller**: HTTP 接口处理
-
-### 配置要点
-- 需要配置 `AI_DASHSCOPE_API_KEY` 环境变量
-- 默认端口：8080
-- 默认上下文路径：/basic
-
-## 测试指导
-
-### 使用 curl 测试
-```bash
-# image 接口测试
-curl "http://localhost:8080/example/image"
-```
-
-## 注意事项
-
-1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
-2. **网络连接**: 需要能够访问阿里云 DashScope 服务
-3. **字符编码**: 所有响应使用 UTF-8 编码，支持中文内容
-4. **端口配置**: 确保端口 8080 未被占用
-
----
-
-*此 README.md 由自动化工具生成于 2025-12-09 23:30:02*
+- 先执行聚合模块 `test-compile`，再进入目标子模块做运行态验证。
+- 聚合模块不直接暴露业务接口，运行说明以子模块 README 为准。

@@ -19,11 +19,16 @@ import com.alibaba.cloud.ai.toolcall.component.CampusScheduleTools;
 import com.alibaba.cloud.ai.toolcall.component.TimeTools;
 import com.alibaba.cloud.ai.toolcalling.weather.WeatherService;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/campus")
@@ -31,16 +36,19 @@ public class CampusAssistantController {
 
     private final ChatClient dashScopeChatClient;
 
+    private final ToolCallingAdvisor toolCallingAdvisor;
+
     private final TimeTools timeTools;
 
     private final CampusScheduleTools campusScheduleTools;
 
     private final WeatherService weatherService;
 
-    public CampusAssistantController(ChatClient chatClient, TimeTools timeTools,
+    public CampusAssistantController(ChatClient chatClient, ToolCallingAdvisor toolCallingAdvisor, TimeTools timeTools,
             CampusScheduleTools campusScheduleTools, WeatherService weatherService) {
 
         this.dashScopeChatClient = chatClient;
+        this.toolCallingAdvisor = toolCallingAdvisor;
         this.timeTools = timeTools;
         this.campusScheduleTools = campusScheduleTools;
         this.weatherService = weatherService;
@@ -53,12 +61,15 @@ public class CampusAssistantController {
     public String chatWithCampusTools(@RequestParam(value = "query",
             defaultValue = "请查询上海当前时间和天气，并为我安排一小时的校园跑步计划") String query) {
 
+        ToolCallback weatherToolCallback = FunctionToolCallback.builder("getWeather", weatherService)
+                .description("Use api.weather to get weather information.")
+                .inputType(WeatherService.Request.class)
+                .build();
+
         return dashScopeChatClient.prompt(query)
                 .tools(timeTools, campusScheduleTools)
-                .toolCallbacks(FunctionToolCallback.builder("getWeather", weatherService)
-                        .description("Use api.weather to get weather information.")
-                        .inputType(WeatherService.Request.class)
-                        .build())
+                .options(ToolCallingChatOptions.builder().toolCallbacks(List.of(weatherToolCallback)))
+                .advisors(toolCallingAdvisor)
                 .call()
                 .content();
     }

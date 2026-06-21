@@ -17,21 +17,32 @@ package com.alibaba.cloud.ai.toolcall.controller;
 
 import com.alibaba.cloud.ai.toolcalling.baidutranslate.BaiduTranslateService;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/translate")
 public class BaiduTranslateController {
 
     private final ChatClient dashScopeChatClient;
+    private final ToolCallingAdvisor toolCallingAdvisor;
+    private final BaiduTranslateService baiduTranslateService;
 
 
-    public BaiduTranslateController(ChatClient chatClient, BaiduTranslateService baiduTranslateService) {
+    public BaiduTranslateController(ChatClient chatClient, ToolCallingAdvisor toolCallingAdvisor,
+            BaiduTranslateService baiduTranslateService) {
 
         this.dashScopeChatClient = chatClient;
+        this.toolCallingAdvisor = toolCallingAdvisor;
+        this.baiduTranslateService = baiduTranslateService;
     }
 
     /**
@@ -49,8 +60,14 @@ public class BaiduTranslateController {
     @GetMapping("/chat-tool-function-callback")
     public String chatTranslateFunction(@RequestParam(value = "query", defaultValue = "帮我把以下内容翻译成英文：你好，世界。") String query) {
 
+        ToolCallback baiduTranslateToolCallback = FunctionToolCallback.builder("baiduTranslate", baiduTranslateService)
+                .description("Use Baidu Translate to translate text between languages.")
+                .inputType(BaiduTranslateService.Request.class)
+                .build();
+
         return dashScopeChatClient.prompt(query)
-                .toolNames("baiduTranslate")
+                .options(ToolCallingChatOptions.builder().toolCallbacks(List.of(baiduTranslateToolCallback)))
+                .advisors(toolCallingAdvisor)
                 .call()
                 .content();
     }

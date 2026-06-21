@@ -78,7 +78,6 @@ public class MultiModelController {
                 .defaultOptions(
                         OpenAiChatOptions.builder()
                                 .topP(0.7)
-                                .build()
                 )
                 .build();
     }
@@ -156,4 +155,3 @@ public class MultiModelController {
         return response.getResult().getOutput().getText();
     }
 }
-

@@ -52,7 +52,7 @@ public class DocumentAnalysisController {
 		return chatClient.prompt()
 				.advisors(a -> a.param(DashScopeDocumentAnalysisAdvisor.RESOURCE, file.getResource()))
 				.user(DEFAULT_SUMMARY_PROMPT)
-				.options(DashScopeChatOptions.builder().withModel("qwen-long").build())
+				.options(DashScopeChatOptions.builder().model("qwen-long"))
 				.call()
 				.content();
 	}
@@ -63,7 +63,7 @@ public class DocumentAnalysisController {
 		return chatClient.prompt()
 				.advisors(a -> a.param(DashScopeDocumentAnalysisAdvisor.RESOURCE, UrlResource.from(url)))
 				.user(DEFAULT_SUMMARY_PROMPT)
-				.options(DashScopeChatOptions.builder().withModel("qwen-long").build())
+				.options(DashScopeChatOptions.builder().model("qwen-long"))
 				.call()
 				.content();
 	}

@@ -48,13 +48,13 @@ public class BailianAgentRagController {
 	private String appId;
 
 	public BailianAgentRagController(DashScopeAgentApi dashscopeAgentApi) {
-		this.agent = new DashScopeAgent(dashscopeAgentApi);
+		this.agent = new DashScopeAgent(dashscopeAgentApi, DashScopeAgentOptions.builder().build());
 	}
 
 	@GetMapping("/bailian/agent/call")
 	public String call(@RequestParam(value = "message",
 			defaultValue = "如何使用SDK快速调用阿里云百炼的应用?") String message) {
-		ChatResponse response = agent.call(new Prompt(message, DashScopeAgentOptions.builder().withAppId(appId).build()));
+		ChatResponse response = agent.call(new Prompt(message, DashScopeAgentOptions.builder().appId(appId).build()));
 		if (response == null || response.getResult() == null) {
 			logger.error("chat response is null");
 			return "chat response is null";

@@ -1,5 +1,7 @@
 package com.alibaba.cloud.ai;
 
+import java.util.Scanner;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -9,8 +11,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-
-import java.util.Scanner;
 
 /**
  * @author yingzi
@@ -24,18 +24,17 @@ public class NacosDistributedMcpClientApplication {
     }
 
     @Bean
-    public CommandLineRunner predefinedQuestions(ChatClient.Builder chatClientBuilder, @Qualifier("distributedAsyncToolCallback") ToolCallbackProvider tools,
+    public CommandLineRunner predefinedQuestions(ChatClient.Builder chatClientBuilder, @Qualifier("distributedSyncToolCallback") ToolCallbackProvider tools,
                                                  ConfigurableApplicationContext context) {
 
-        ToolCallback[] toolCallbacks = tools.getToolCallbacks();
-        System.out.println(">>> Available tools: ");
-        for (int i = 0; i < toolCallbacks.length; i++) {
-            System.out.println("[" + i + "] " + toolCallbacks[i].getToolDefinition().name());
+        System.out.println("Available Tools:");
+        for (ToolCallback toolCallback : tools.getToolCallbacks()) {
+            System.out.println("Tool: " + toolCallback.getToolDefinition().name());
         }
 
         return args -> {
             var chatClient = chatClientBuilder
-                    .defaultToolCallbacks(toolCallbacks)
+                    .defaultToolCallbacks(tools)
                     .build();
 
             Scanner scanner = new Scanner(System.in);

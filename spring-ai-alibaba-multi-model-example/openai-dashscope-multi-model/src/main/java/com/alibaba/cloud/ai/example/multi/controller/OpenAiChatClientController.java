@@ -42,7 +42,7 @@ public class OpenAiChatClientController {
     public OpenAiChatClientController(@Qualifier("openAiChatModel") ChatModel chatModel) {
         chatClient = ChatClient.builder(chatModel)
                 .defaultAdvisors(new SimpleLoggerAdvisor())
-                .defaultOptions(OpenAiChatOptions.builder().temperature(0.7).build())
+                .defaultOptions(OpenAiChatOptions.builder().temperature(0.7))
                 .build();
     }
 

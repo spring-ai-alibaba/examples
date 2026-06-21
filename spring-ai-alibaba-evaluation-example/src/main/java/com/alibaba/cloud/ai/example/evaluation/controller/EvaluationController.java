@@ -19,7 +19,6 @@ package com.alibaba.cloud.ai.example.evaluation.controller;
 import com.alibaba.cloud.ai.evaluation.AnswerCorrectnessEvaluator;
 import com.alibaba.cloud.ai.evaluation.AnswerFaithfulnessEvaluator;
 import com.alibaba.cloud.ai.evaluation.AnswerRelevancyEvaluator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;

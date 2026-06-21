@@ -74,7 +74,7 @@ public class DashScopeTranslateController {
 		
 		String translatedText = dashScopeChatModel.call(new Prompt(prompt, DashScopeChatOptions
 				.builder()
-				.withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
+				.model(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
 				.build())).getResult().getOutput().getText();
 		
 		return new TranslateResponse(translatedText);
@@ -101,7 +101,7 @@ public class DashScopeTranslateController {
 		
 		Flux<ChatResponse> stream = dashScopeChatModel.stream(new Prompt(prompt, DashScopeChatOptions
 				.builder()
-				.withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
+				.model(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
 				.build()));
 		return stream.map(resp -> resp.getResult().getOutput().getText());
 	}
@@ -122,10 +122,10 @@ public class DashScopeTranslateController {
 		String prompt = String.format(TRANSLATION_PROMPT_TEMPLATE, sourceLanguage, targetLanguage, text);
 		
 		DashScopeChatOptions customOptions = DashScopeChatOptions.builder()
-				.withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
-				.withTopP(0.7)
-				.withTopK(50)
-				.withTemperature(0.5) 
+				.model(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
+				.topP(0.7)
+				.topK(50)
+				.temperature(0.5)
 				.build();
 
 		String translatedText = dashScopeChatModel.call(new Prompt(prompt, customOptions))

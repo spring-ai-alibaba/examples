@@ -81,7 +81,7 @@ public class DashScopeImageController {
 			@RequestParam(defaultValue = "2") int count) {
 
 		ImageOptions options = ImageOptionsBuilder.builder()
-				.N(count)
+				.n(count)
 				.build();
 		ImageResponse response = imageModel.call(new ImagePrompt(prompt, options));
 		Set<String> imageSet = response.getResults().stream().map(result -> result.getOutput().getUrl()).collect(Collectors.toSet());

@@ -1,9 +1,11 @@
 spring:
+  autoconfigure:
+    exclude: ${MCP_ROUTER_AUTOCONFIG_EXCLUDE:com.alibaba.cloud.ai.autoconfigure.mcp.router.NacosMcpRouterAutoConfiguration}
   application:
     name: mcp-config-example
   ai:
     dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY}
+      api-key: ${DASHSCOPE_API_KEY:${AI_DASHSCOPE_API_KEY:}}
     mcp:
       server:
         enabled: false
@@ -13,8 +15,6 @@ spring:
           enabled: true
           discovery-order:
             - file
-            - database
-            - nacos
           # MCP file configurations
           services:
             - name: weather-service
@@ -37,12 +37,15 @@ spring:
                 - "nlp"
 
           database:
-            enabled: true
-            url: jdbc:mysql://localhost:3306/testdb?useSSL=false&serverTimezone=UTC
-            username: root
-            password: root
-            driver-class-name: com.mysql.cj.jdbc.Driver
+            enabled: ${MCP_ROUTER_DATABASE_ENABLED:false}
+            url: ${MCP_ROUTER_DATABASE_URL:jdbc:mysql://127.0.0.1:3306/testdb?useSSL=false&serverTimezone=UTC}
+            username: ${MCP_ROUTER_DATABASE_USERNAME:root}
+            password: ${MCP_ROUTER_DATABASE_PASSWORD:root}
+            driver-class-name: ${MCP_ROUTER_DATABASE_DRIVER:com.mysql.cj.jdbc.Driver}
+            table-name: ${MCP_ROUTER_DATABASE_TABLE:mcp_server_info}
 
         nacos:
-          server-addr: localhost:8848
-          namespace: public
+          server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+          namespace: ${NACOS_NAMESPACE:public}
+          username: ${NACOS_USERNAME:nacos}
+          password: ${NACOS_PASSWORD:nacos}

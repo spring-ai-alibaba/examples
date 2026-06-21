@@ -1,12 +1,16 @@
 spring:
+  application:
+    name: starter-stock-server
   main:
     web-application-type: none
     banner-mode: off
   ai:
     mcp:
       server:
+        stdio: true
         name: my-stock-server
         version: 0.0.1
+        type: SYNC
 
 # NOTE: You must disable the banner and the console logging 
 # to allow the STDIO transport to work !!!

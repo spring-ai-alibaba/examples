@@ -68,8 +68,7 @@ public class MoreModelChatClientController {
 
 		return chatClient.prompt(prompt)
 				.options(DashScopeChatOptions.builder()
-						.withModel(models)
-						.build()
+						.model(models)
 				).stream()
 				.content();
 	}

@@ -38,8 +38,7 @@ public class ClassificationController {
 	ClassificationController(ChatClient.Builder chatClientBuilder) {
 		this.chatClient = chatClientBuilder
 				.defaultOptions(ChatOptions.builder()
-						.temperature(0.0)
-						.build())
+						.temperature(0.0))
 				.build();
 	}
 

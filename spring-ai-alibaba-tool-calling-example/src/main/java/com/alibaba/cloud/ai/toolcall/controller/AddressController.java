@@ -16,10 +16,10 @@
 package com.alibaba.cloud.ai.toolcall.controller;
 
 import com.alibaba.cloud.ai.toolcall.component.AddressInformationTools;
-import com.alibaba.cloud.ai.toolcalling.baidumap.BaiduMapSearchInfoService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.ai.tool.method.MethodToolCallback;
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author yHong
@@ -41,10 +42,15 @@ import java.lang.reflect.Method;
 public class AddressController {
 
     private final ChatClient dashScopeChatClient;
+
+    private final ToolCallingAdvisor toolCallingAdvisor;
+
     private final AddressInformationTools addressTools;
 
-    public AddressController(ChatClient chatClient, AddressInformationTools addressTools) {
+    public AddressController(ChatClient chatClient, ToolCallingAdvisor toolCallingAdvisor,
+            AddressInformationTools addressTools) {
         this.dashScopeChatClient = chatClient;
+        this.toolCallingAdvisor = toolCallingAdvisor;
         this.addressTools = addressTools;
     }
 
@@ -52,11 +58,9 @@ public class AddressController {
      * No Tool
      */
     @GetMapping("/chat")
-    public String chat(@RequestParam(value = "address", defaultValue = "北京") String address) throws JsonProcessingException {
+    public String chat(@RequestParam(value = "address", defaultValue = "北京") String address) {
 
-        BaiduMapSearchInfoService.Request query = new BaiduMapSearchInfoService.Request(address);
-
-        return dashScopeChatClient.prompt(new ObjectMapper().writeValueAsString(query))
+        return dashScopeChatClient.prompt(address)
                 .call()
                 .content();
     }
@@ -65,7 +69,7 @@ public class AddressController {
      * Methods as Tools - MethodToolCallback
      */
     @GetMapping("/chat-method-tool-callback")
-    public String chatWithBaiduMap(@RequestParam(value = "address", defaultValue = "北京") String address) throws JsonProcessingException {
+    public String chatWithBaiduMap(@RequestParam(value = "address", defaultValue = "北京") String address) {
 
         Method method = ReflectionUtils.findMethod(AddressInformationTools.class, "getAddressInformation", String.class);
 
@@ -73,19 +77,22 @@ public class AddressController {
             throw new RuntimeException("Method not found");
         }
 
-        return dashScopeChatClient.prompt(address)
-                .toolCallbacks(MethodToolCallback.builder()
-                        .toolDefinition(ToolDefinition.builder()
-                                .description("Search for places using Baidu Maps API "
-                                        + "or Get detail information of a address and facility query with baidu map or "
-                                        + "Get address information of a place with baidu map or "
-                                        + "Get detailed information about a specific place with baidu map")
-                                .name("getAddressInformation")
-                                .inputSchema(JsonSchemaGenerator.generateForMethodInput(method))
-                                .build())
-                        .toolMethod(method)
-                        .toolObject(addressTools)
+        ToolCallback addressToolCallback = MethodToolCallback.builder()
+                .toolDefinition(ToolDefinition.builder()
+                        .description("Search for places using Baidu Maps API "
+                                + "or Get detail information of a address and facility query with baidu map or "
+                                + "Get address information of a place with baidu map or "
+                                + "Get detailed information about a specific place with baidu map")
+                        .name("getAddressInformation")
+                        .inputSchema(JsonSchemaGenerator.generateForMethodInput(method))
                         .build())
+                .toolMethod(method)
+                .toolObject(addressTools)
+                .build();
+
+        return dashScopeChatClient.prompt(address)
+                .options(ToolCallingChatOptions.builder().toolCallbacks(List.of(addressToolCallback)))
+                .advisors(toolCallingAdvisor)
                 .call()
                 .content();
     }

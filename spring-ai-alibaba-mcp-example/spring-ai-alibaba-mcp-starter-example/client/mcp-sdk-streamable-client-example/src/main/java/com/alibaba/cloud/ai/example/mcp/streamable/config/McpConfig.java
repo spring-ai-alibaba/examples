@@ -17,32 +17,34 @@
  */
 package com.alibaba.cloud.ai.example.mcp.streamable.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.client.McpAsyncClient;
 import io.modelcontextprotocol.client.McpClient;
-import io.modelcontextprotocol.client.transport.WebClientStreamableHttpTransport;
+import io.modelcontextprotocol.json.McpJsonDefaults;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ai.mcp.client.webflux.transport.WebClientStreamableHttpTransport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class McpConfig {
-    @Value("${spring.ai.mcp.client.streamable.connections.server1.url}")
+    @Value("${spring.ai.mcp.client.streamable-http.connections.server1.url}")
     private String mcpServerUrl;
+
+    @Value("${spring.ai.mcp.client.streamable-http.connections.server1.endpoint:/mcp}")
+    private String mcpEndpoint;
 
     /**
      * a streamable http transport
-     * @param objectMapper
      * @return
      */
     @Bean
-    public WebClientStreamableHttpTransport mcpTransport(ObjectMapper objectMapper) {
+    public WebClientStreamableHttpTransport mcpTransport() {
         return WebClientStreamableHttpTransport.builder(WebClient.builder())
-                .endpoint(mcpServerUrl)
+                .endpoint(mcpEndpointUrl())
                 .resumableStreams(true)
-                .objectMapper(objectMapper)
+                .jsonMapper(McpJsonDefaults.getMapper())
                 .openConnectionOnStartup(true)
                 .build();
     }
@@ -73,12 +75,14 @@ public class McpConfig {
         return McpSchema.Tool.builder()
                 .name("start-notification-stream")
                 .description("Sends a stream of notifications with configurable count and interval")
-                .inputSchema(inputSchema)
+                .inputSchema(McpJsonDefaults.getMapper(), inputSchema)
                 .build();
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    private String mcpEndpointUrl() {
+        String normalizedUrl = mcpServerUrl.endsWith("/") ? mcpServerUrl.substring(0, mcpServerUrl.length() - 1)
+                : mcpServerUrl;
+        String normalizedEndpoint = mcpEndpoint.startsWith("/") ? mcpEndpoint : "/" + mcpEndpoint;
+        return normalizedUrl + normalizedEndpoint;
     }
 }
