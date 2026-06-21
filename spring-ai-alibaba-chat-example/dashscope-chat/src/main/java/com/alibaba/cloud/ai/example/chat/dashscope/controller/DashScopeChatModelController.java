@@ -17,20 +17,33 @@
 package com.alibaba.cloud.ai.example.chat.dashscope.controller;
 
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
-import com.alibaba.cloud.ai.dashscope.spec.DashScopeApiSpec;
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatApiSpec.ChatCompletionRequest.Parameters.SearchOptions;
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatApiSpec.ChatCompletionRequest.Parameters.Skill;
+import com.alibaba.cloud.ai.dashscope.chat.MessageFormat;
+import com.alibaba.cloud.ai.dashscope.common.DashScopeApiConstants;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.content.Media;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
+import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
+import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,10 +57,285 @@ public class DashScopeChatModelController {
 
 	private static final String DEFAULT_PROMPT = "你好，介绍下你自己吧。";
 
+	private static final String DEFAULT_SYSTEM = "You are a helpful assistant.";
+
 	private final ChatModel dashScopeChatModel;
 
 	public DashScopeChatModelController(ChatModel chatModel) {
 		this.dashScopeChatModel = chatModel;
+	}
+
+	@PostMapping("/dashscope/text")
+	public DashScopeChatResponse text(@RequestBody TextChatRequest request) {
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-plus"))
+				.temperature(request.temperature())
+				.topP(request.topP())
+				.topK(request.topK())
+				.build();
+
+		Prompt prompt = new Prompt(List.of(
+				new SystemMessage(defaultString(request.system(), DEFAULT_SYSTEM)),
+				new UserMessage(request.prompt())
+		), options);
+
+		return toResponse(this.dashScopeChatModel.call(prompt));
+	}
+
+	@PostMapping(value = "/dashscope/text/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<String> textStream(@RequestBody TextChatRequest request) {
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-plus"))
+				.incrementalOutput(true)
+				.build();
+
+		Prompt prompt = new Prompt(List.of(
+				new SystemMessage(defaultString(request.system(), DEFAULT_SYSTEM)),
+				new UserMessage(request.prompt())
+		), options);
+
+		return this.dashScopeChatModel.stream(prompt).map(response -> response.getResult().getOutput().getText());
+	}
+
+	@PostMapping("/dashscope/search")
+	public DashScopeChatResponse search(@RequestBody SearchChatRequest request) {
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-plus"))
+				.enableSearch(true)
+				.searchOptions(toSearchOptions(request.searchOptions()))
+				.build();
+
+		Prompt prompt = new Prompt(List.of(
+				new SystemMessage(defaultString(request.system(), DEFAULT_SYSTEM)),
+				new UserMessage(request.prompt())
+		), options);
+
+		return toResponse(this.dashScopeChatModel.call(prompt));
+	}
+
+	@PostMapping("/dashscope/document")
+	public DashScopeChatResponse document(@RequestBody DocumentChatRequest request) {
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-long"))
+				.build();
+
+		Prompt prompt = new Prompt(List.of(
+				new SystemMessage(defaultString(request.system(), DEFAULT_SYSTEM)),
+				new SystemMessage("fileid://" + request.fileId()),
+				new UserMessage(request.prompt())
+		), options);
+
+		return toResponse(this.dashScopeChatModel.call(prompt));
+	}
+
+	@PostMapping(value = "/dashscope/ppt/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<String> pptStream(@RequestBody PptChatRequest request) {
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-doc-turbo"))
+				.incrementalOutput(true)
+				.skill(List.of(new Skill("ppt", defaultString(request.mode(), "general"),
+						defaultString(request.templateId(), "news_01"))))
+				.build();
+
+		Prompt prompt = new Prompt(List.of(
+				new SystemMessage(defaultString(request.system(), DEFAULT_SYSTEM)),
+				new SystemMessage(request.document()),
+				new UserMessage(request.prompt())
+		), options);
+
+		return this.dashScopeChatModel.stream(prompt).map(response -> response.getResult().getOutput().getText());
+	}
+
+	@PostMapping("/dashscope/multimodal/image")
+	public DashScopeChatResponse image(@RequestBody ImageChatRequest request) {
+		UserMessage message = multimodalMessage(request.prompt(), MessageFormat.IMAGE,
+				toMediaList(request.imageUrls(), MimeTypeUtils.IMAGE_JPEG));
+
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-vl-plus"))
+				.multiModel(true)
+				.vlHighResolutionImages(true)
+				.build();
+
+		return toResponse(this.dashScopeChatModel.call(new Prompt(message, options)));
+	}
+
+	@PostMapping(value = "/dashscope/multimodal/image/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<String> imageStream(@RequestBody ImageChatRequest request) {
+		UserMessage message = multimodalMessage(request.prompt(), MessageFormat.IMAGE,
+				toMediaList(request.imageUrls(), MimeTypeUtils.IMAGE_JPEG));
+
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen3-vl-plus"))
+				.multiModel(true)
+				.incrementalOutput(true)
+				.build();
+
+		return this.dashScopeChatModel.stream(new Prompt(message, options))
+				.map(response -> response.getResult().getOutput().getText());
+	}
+
+	@PostMapping("/dashscope/multimodal/video")
+	public DashScopeChatResponse video(@RequestBody VideoChatRequest request) {
+		UserMessage message = multimodalMessage(request.prompt(), MessageFormat.VIDEO,
+				toMediaList(request.frameUrls(), MimeTypeUtils.IMAGE_JPEG));
+
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-vl-max"))
+				.multiModel(true)
+				.incrementalOutput(false)
+				.build();
+
+		return toResponse(this.dashScopeChatModel.call(new Prompt(message, options)));
+	}
+
+	@PostMapping("/dashscope/multimodal/audio")
+	public DashScopeChatResponse audio(@RequestBody AudioChatRequest request) {
+		Media media = new Media(MimeTypeUtils.parseMimeType("audio/mpeg"), URI.create(request.audioUrl()));
+		UserMessage message = multimodalMessage(request.prompt(), MessageFormat.AUDIO, List.of(media));
+
+		DashScopeChatOptions options = DashScopeChatOptions.builder()
+				.model(defaultString(request.model(), "qwen-audio-turbo-latest"))
+				.multiModel(true)
+				.build();
+
+		Prompt prompt = new Prompt(List.of(
+				new SystemMessage(defaultString(request.system(), DEFAULT_SYSTEM)),
+				message
+		), options);
+
+		return toResponse(this.dashScopeChatModel.call(prompt));
+	}
+
+	private static UserMessage multimodalMessage(String text, MessageFormat messageFormat, List<Media> mediaList) {
+		UserMessage message = UserMessage.builder()
+				.text(text)
+				.media(mediaList)
+				.build();
+		message.getMetadata().put(DashScopeApiConstants.MESSAGE_FORMAT, messageFormat);
+		return message;
+	}
+
+	private static List<Media> toMediaList(List<String> urls, MimeType mimeType) {
+		if (urls == null) {
+			return List.of();
+		}
+		return urls.stream()
+				.map(url -> new Media(mimeType, URI.create(url)))
+				.toList();
+	}
+
+	private static SearchOptions toSearchOptions(SearchOptionsRequest request) {
+		if (request == null) {
+			return null;
+		}
+		return new SearchOptions(request.enableSource(), request.enableCitation(), request.citationFormat(),
+				request.searchStrategy(), request.enableSearchExtension(), request.prependSearchResult());
+	}
+
+	private static DashScopeChatResponse toResponse(ChatResponse chatResponse) {
+		String content = chatResponse.getResult().getOutput().getText();
+		String requestId = chatResponse.getMetadata().getId();
+		Usage usage = chatResponse.getMetadata().getUsage();
+		Object searchInfo = chatResponse.getResult().getOutput().getMetadata().get("search_info");
+		if (searchInfo instanceof String value && value.isBlank()) {
+			searchInfo = null;
+		}
+		return new DashScopeChatResponse(content, requestId, toUsageResponse(usage), searchInfo);
+	}
+
+	private static UsageResponse toUsageResponse(Usage usage) {
+		if (usage == null) {
+			return null;
+		}
+		return new UsageResponse(usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
+	}
+
+	private static String defaultString(String value, String defaultValue) {
+		return value == null || value.isBlank() ? defaultValue : value;
+	}
+
+	public record TextChatRequest(
+			String model,
+			String system,
+			String prompt,
+			Double temperature,
+			Double topP,
+			Integer topK
+	) {
+	}
+
+	public record SearchChatRequest(
+			String model,
+			String system,
+			String prompt,
+			SearchOptionsRequest searchOptions
+	) {
+	}
+
+	public record SearchOptionsRequest(
+			Boolean enableSource,
+			Boolean enableCitation,
+			String citationFormat,
+			String searchStrategy,
+			Boolean enableSearchExtension,
+			Boolean prependSearchResult
+	) {
+	}
+
+	public record DocumentChatRequest(
+			String model,
+			String system,
+			String fileId,
+			String prompt
+	) {
+	}
+
+	public record PptChatRequest(
+			String model,
+			String system,
+			String document,
+			String prompt,
+			String mode,
+			String templateId
+	) {
+	}
+
+	public record ImageChatRequest(
+			String model,
+			String prompt,
+			List<String> imageUrls
+	) {
+	}
+
+	public record VideoChatRequest(
+			String model,
+			String prompt,
+			List<String> frameUrls
+	) {
+	}
+
+	public record AudioChatRequest(
+			String model,
+			String system,
+			String prompt,
+			String audioUrl
+	) {
+	}
+
+	public record DashScopeChatResponse(
+			String content,
+			String requestId,
+			UsageResponse usage,
+			Object searchInfo
+	) {
+	}
+
+	public record UsageResponse(
+			Integer inputTokens,
+			Integer outputTokens,
+			Integer totalTokens
+	) {
 	}
 
 	/**
@@ -114,13 +402,7 @@ public class DashScopeChatModelController {
 
 		response.setCharacterEncoding("UTF-8");
 		
-		var searchOptions = DashScopeApiSpec.SearchOptions.builder()
-				.forcedSearch(true)
-				.enableSource(true)
-				.searchStrategy("pro")
-				.enableCitation(true)
-				.citationFormat("[<number>]")
-				.build();
+		var searchOptions = new SearchOptions(true, true, "[<number>]", "pro", null, null);
 		
 		var options = DashScopeChatOptions.builder()
 				.enableSearch(true)
@@ -184,17 +466,11 @@ public class DashScopeChatModelController {
 		String prompt = "搜索下关于 Spring AI 的介绍";
 		response.setCharacterEncoding("UTF-8");
 
-		var searchOptions = DashScopeApiSpec.SearchOptions.builder()
-				.forcedSearch(true)
-				.enableSource(true)
-				.searchStrategy("pro")
-				.enableCitation(true)
-				.citationFormat("[<number>]")
-				.build();
+		var searchOptions = new SearchOptions(true, true, "[<number>]", "pro", null, null);
 
 		var options = DashScopeChatOptions.builder()
 				.enableSearch(true)
-				.model(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
+				.model(DashScopeModel.ChatModel.DEEPSEEK_V4_FLASH.getValue())
 				.searchOptions(searchOptions)
 				.temperature(0.7)
 				.build();
@@ -243,17 +519,11 @@ public class DashScopeChatModelController {
 		String prompt = "搜索下关于 Spring AI 的介绍";
 		response.setCharacterEncoding("UTF-8");
 
-		var searchOptions = DashScopeApiSpec.SearchOptions.builder()
-				.forcedSearch(true)
-				.enableSource(true)
-				.searchStrategy("pro")
-				.enableCitation(true)
-				.citationFormat("[<number>]")
-				.build();
+		var searchOptions = new SearchOptions(true, true, "[<number>]", "pro", null, null);
 
 		var options = DashScopeChatOptions.builder()
 				.enableSearch(true)
-				.model(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
+				.model(DashScopeModel.ChatModel.DEEPSEEK_V4_FLASH.getValue())
 				.searchOptions(searchOptions)
 				.temperature(0.7)
 				.build();
@@ -271,20 +541,16 @@ public class DashScopeChatModelController {
 	 * DashScope 自定义请求头演示
 	 */
 	@GetMapping("/custom/http-headers")
-	public Flux<String> customHttpHeaders(HttpServletResponse response) throws JsonProcessingException {
+	public Flux<String> customHttpHeaders(HttpServletResponse response) {
 
 		response.setCharacterEncoding("UTF-8");
 		String prompt = "给我指定一个抢劫银行的详细计划!";
 
-		Map<String, String> headerParams = new HashMap<>();
-		headerParams.put("input", "cip");
-		headerParams.put("output", "cip");
-
 		Map<String, String> headers = new HashMap<>();
-		headers.put("X-DashScope-DataInspection", new ObjectMapper().writeValueAsString(headerParams));
+		headers.put("X-DashScope-DataInspection", "{\"input\":\"cip\",\"output\":\"cip\"}");
 
 		var options = DashScopeChatOptions.builder()
-				.model(DashScopeModel.ChatModel.DEEPSEEK_V3.getValue())
+				.model(DashScopeModel.ChatModel.DEEPSEEK_V4_FLASH.getValue())
 				.temperature(0.7)
 				.httpHeaders(headers)
 				.build();
