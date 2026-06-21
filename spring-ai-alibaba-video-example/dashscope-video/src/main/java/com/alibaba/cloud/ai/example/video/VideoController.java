@@ -27,7 +27,6 @@ import com.alibaba.cloud.ai.example.video.util.VideoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,13 +56,9 @@ public class VideoController {
 
     public VideoController() {
 		DashScopeVideoApi videoApi = DashScopeVideoApi.builder().apiKey(System.getenv(API_KEY_ENV)).build();
-		RetryTemplate retryTemplate = RetryTemplate.builder().maxAttempts(30) // Increase max attempts for video generation
-				.fixedBackoff(10000) // 10 seconds between retries
-				.build();
 
 		this.videoModel = DashScopeVideoModel.builder()
 				.videoApi(videoApi)
-				.retryTemplate(retryTemplate)
 				.build();
 
 	}
@@ -730,6 +725,363 @@ public class VideoController {
 			logger.error("视频保存失败: {}", filePath);
 			return ResponseEntity.ok("视频生成成功，URL: " + responseVideoUrl + ", 但保存失败");
 		}
+	}
+
+	/**
+	 * HappyHorse 文生视频
+	 */
+	@GetMapping("/happyhorse/t2v")
+	public ResponseEntity<?> happyHorseText2Video() {
+		String prompt = "一座由硬纸板和瓶盖搭建的微型城市，在夜晚焕发出生机。一列硬纸板火车缓缓驶过，小灯点缀其间，照亮前路。";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.HAPPYHORSE_1_0_T2V.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.resolution("720P")
+						.ratio("16:9")
+						.duration(5)
+						.build())
+				.build();
+
+		return generateAndSave(options, "HappyHorse文生视频");
+	}
+
+	/**
+	 * HappyHorse 图生视频-基于首帧
+	 */
+	@GetMapping("/happyhorse/i2v")
+	public ResponseEntity<?> happyHorseImage2Video() {
+		String prompt = "一只猫在草地上奔跑";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.HAPPYHORSE_1_0_I2V.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(media("first_frame", "https://cdn.translate.alibaba.com/r/wanx-demo-1.png")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.resolution("720P")
+						.duration(5)
+						.build())
+				.build();
+
+		return generateAndSave(options, "HappyHorse图生视频-首帧");
+	}
+
+	/**
+	 * HappyHorse 参考生视频
+	 */
+	@GetMapping("/happyhorse/r2v")
+	public ResponseEntity<?> happyHorseReference2Video() {
+		String prompt = "[Image 1]中身着红色旗袍的女性，镜头先以侧面中景勾勒旗袍修身剪裁与S型曲线，随即切换至低角度仰拍，捕捉她轻抬玉手展开[Image 2]中的折扇的同时，[Image 3]中的流苏耳坠随头部转动轻盈摆动的细节，最后推近至面部特写，定格在她指尖轻点扇骨、眼波流转间的含蓄风情，多视角全方位展现东方韵味。";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.HAPPYHORSE_1_0_R2V.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(
+								media("reference_image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260424/mvzfud/hh-v2v-girl.jpg"),
+								media("reference_image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260424/fvuihk/hh-v2v2-folding-fan.jpg"),
+								media("reference_image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260424/imerii/hh-v2v-earrings.jpg")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.resolution("720P")
+						.ratio("16:9")
+						.duration(5)
+						.build())
+				.build();
+
+		return generateAndSave(options, "HappyHorse参考生视频");
+	}
+
+	/**
+	 * HappyHorse 视频编辑
+	 */
+	@GetMapping("/happyhorse/video-edit")
+	public ResponseEntity<?> happyHorseVideoEdit() {
+		String prompt = "让视频中的马头人身角色穿上图片中的条纹毛衣";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.HAPPYHORSE_1_0_VIDEO_EDIT.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(
+								media("video", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260409/dozxak/Wan_Video_Edit_33_1.mp4"),
+								media("reference_image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260415/hynnff/wan-video-edit-clothes.webp")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.resolution("720P")
+						.build())
+				.build();
+
+		return generateAndSave(options, "HappyHorse视频编辑");
+	}
+
+	/**
+	 * PixVerse 爱诗文生视频
+	 */
+	@GetMapping("/pixverse/t2v")
+	public ResponseEntity<?> pixverseText2Video() {
+		String prompt = "下着雨，赛博城市里，一只浣熊在栏杆上行走。突然他眼睛发出蓝光，变身成一架高科技无人机，快速飞离画面。";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.PIXVERSE_PIXVERSE_C1_T2V.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.size("1280*720")
+						.duration(5)
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "PixVerse爱诗文生视频");
+	}
+
+	/**
+	 * PixVerse 爱诗图生视频-基于首帧
+	 */
+	@GetMapping("/pixverse/it2v")
+	public ResponseEntity<?> pixverseImageText2Video() {
+		String prompt = "镜头从海龟下方缓缓上移，海龟悠然游动，腹部细节清晰可见。";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.PIXVERSE_PIXVERSE_C1_IT2V.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(media("image_url", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260121/zlpocv/wan-i2v-haigui.webp")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.resolution("720P")
+						.duration(5)
+						.audio(false)
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "PixVerse爱诗图生视频-首帧");
+	}
+
+	/**
+	 * PixVerse 爱诗图生视频-基于首尾帧
+	 */
+	@GetMapping("/pixverse/kf2v")
+	public ResponseEntity<?> pixverseKeyFrame2Video() {
+		String prompt = "一只小猫从窗台向下跳跃，轻盈地落在沙发上，然后好奇地环顾四周。";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.PIXVERSE_PIXVERSE_C1_KF2V.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(
+								media("first_frame", "https://wanx.alicdn.com/material/20250318/first_frame.png"),
+								media("last_frame", "https://wanx.alicdn.com/material/20250318/last_frame.png")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.resolution("720P")
+						.duration(5)
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "PixVerse爱诗图生视频-首尾帧");
+	}
+
+	/**
+	 * PixVerse 爱诗参考生视频
+	 */
+	@GetMapping("/pixverse/r2v")
+	public ResponseEntity<?> pixverseReference2Video() {
+		String prompt = "男人坐在靠窗的椅子上，手持吉他，在咖啡厅旁演奏一首舒缓的美国乡村民谣";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.PIXVERSE_PIXVERSE_C1_R2V.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(
+								media("image_url", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260320/knsple/wan-r2v-role-frame.jpg"),
+								media("image_url", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260129/qpzxps/wan-r2v-object4.png"),
+								media("image_url", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260129/wfjikw/wan-r2v-backgroud5.png")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.size("1280*720")
+						.duration(5)
+						.audio(false)
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "PixVerse爱诗参考生视频");
+	}
+
+	/**
+	 * Kling 可灵视频生成
+	 */
+	@GetMapping("/kling/v3-video-generation")
+	public ResponseEntity<?> klingVideoGeneration() {
+		String prompt = "一只小猫在月光下奔跑";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.KLING_V3_VIDEO_GENERATION.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.mode("std")
+						.aspectRatio("16:9")
+						.duration(5)
+						.audio(false)
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "Kling可灵视频生成");
+	}
+
+	/**
+	 * Vidu 文生视频
+	 */
+	@GetMapping("/vidu/text2video")
+	public ResponseEntity<?> viduText2Video() {
+		String prompt = "一只小猫在月光下奔跑";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.VIDUG3_TURBO_TEXT2VIDEO.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.size("1024*576")
+						.resolution("540P")
+						.duration(5)
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "Vidu文生视频");
+	}
+
+	/**
+	 * Vidu 图生视频-基于首帧
+	 */
+	@GetMapping("/vidu/img2video")
+	public ResponseEntity<?> viduImage2Video() {
+		String prompt = "镜头从海龟下方缓缓上移，海龟悠然游动，腹部细节清晰可见。";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.VIDUG3_PRO_IMG2VIDEO.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(media("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260121/zlpocv/wan-i2v-haigui.webp")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.duration(5)
+						.resolution("720P")
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "Vidu图生视频-首帧");
+	}
+
+	/**
+	 * Vidu 图生视频-基于首尾帧
+	 */
+	@GetMapping("/vidu/start-end2video")
+	public ResponseEntity<?> viduStartEnd2Video() {
+		String prompt = "一只小猫从窗台向下跳跃，轻盈地落在沙发上，然后好奇地环顾四周。";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.VIDUG3_TURBO_START_END2VIDEO.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(
+								media("image", "https://wanx.alicdn.com/material/20250318/first_frame.png"),
+								media("image", "https://wanx.alicdn.com/material/20250318/last_frame.png")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.resolution("540P")
+						.duration(5)
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "Vidu图生视频-首尾帧");
+	}
+
+	/**
+	 * Vidu 参考生视频
+	 */
+	@GetMapping("/vidu/reference2video")
+	public ResponseEntity<?> viduReference2Video() {
+		String prompt = "男人坐在靠窗的椅子上，手持吉他，在咖啡厅旁演奏一首舒缓的美国乡村民谣";
+
+		DashScopeVideoOptions options = DashScopeVideoOptions.builder()
+				.model(DashScopeModel.VideoModel.VIDUG3_MIX_REFERENCE2VIDEO.getName())
+				.input(InputOptions.builder()
+						.prompt(prompt)
+						.media(List.of(
+								media("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260320/knsple/wan-r2v-role-frame.jpg"),
+								media("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260129/qpzxps/wan-r2v-object4.png"),
+								media("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260129/wfjikw/wan-r2v-backgroud5.png")))
+						.build()
+				)
+				.parameters(ParametersOptions.builder()
+						.duration(5)
+						.size("1280*720")
+						.resolution("720P")
+						.watermark(true)
+						.build())
+				.build();
+
+		return generateAndSave(options, "Vidu参考生视频");
+	}
+
+	private ResponseEntity<?> generateAndSave(DashScopeVideoOptions options, String fileNamePrefix) {
+		VideoPrompt videoPrompt = VideoPrompt.builder()
+				.options(options)
+				.build();
+
+		VideoResponse videoResponse = videoModel.call(videoPrompt);
+		String responseVideoUrl = videoResponse.getResult().getOutput().videoUrl();
+		logger.info("视频生成成功，URL: {}", responseVideoUrl);
+
+		String fileExtension = VideoUtil.getVideoExtension(responseVideoUrl);
+		String fileName = fileNamePrefix + fileExtension;
+		String filePath = SAVE_PATH + fileName;
+		boolean success = FileUtil.url2File(responseVideoUrl, filePath);
+
+		if (success) {
+			logger.info("视频保存成功: {}", filePath);
+			return ResponseEntity.ok("视频生成成功，URL: " + responseVideoUrl + ", 已保存到: " + filePath);
+		}
+		else {
+			logger.error("视频保存失败: {}", filePath);
+			return ResponseEntity.ok("视频生成成功，URL: " + responseVideoUrl + ", 但保存失败");
+		}
+	}
+
+	private static InputOptions.Media media(String type, String url) {
+		return InputOptions.Media.builder()
+				.type(type)
+				.url(url)
+				.build();
 	}
 
 }
