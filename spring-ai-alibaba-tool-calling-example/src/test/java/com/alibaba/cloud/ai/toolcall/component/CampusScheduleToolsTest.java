@@ -41,6 +41,18 @@ class CampusScheduleToolsTest {
     }
 
     @Test
+    void shouldKeepShortScheduleWithinRequestedDuration() {
+        String result = campusScheduleTools.createCampusSchedule("stretch", "14:00", 5);
+
+        assertAll(
+                () -> assertTrue(result.contains("durationMinutes=5")),
+                () -> assertTrue(result.contains("preparation=2 minutes")),
+                () -> assertTrue(result.contains("mainActivity=1 minutes")),
+                () -> assertTrue(result.contains("wrapUp=2 minutes"))
+        );
+    }
+
+    @Test
     void shouldRejectZeroDuration() {
         assertThrows(IllegalArgumentException.class,
                 () -> campusScheduleTools.createCampusSchedule("run", "14:00", 0));
@@ -91,6 +103,18 @@ class CampusScheduleToolsTest {
 
         assertAll(
                 () -> assertTrue(result.contains("riskLevel=MEDIUM")),
+                () -> assertTrue(result.contains("Long activity duration detected"))
+        );
+    }
+
+    @Test
+    void shouldPreserveWeatherAdviceForLongActivity() {
+        String result = campusScheduleTools.estimateCampusActivityRisk("light rain", "run", 180);
+
+        assertAll(
+                () -> assertTrue(result.contains("riskLevel=MEDIUM")),
+                () -> assertTrue(result.contains("prepare protection")),
+                () -> assertTrue(result.contains("indoor backup place")),
                 () -> assertTrue(result.contains("Long activity duration detected"))
         );
     }

@@ -34,9 +34,17 @@ public class CampusScheduleTools {
             throw new IllegalArgumentException("Duration must be greater than zero.");
         }
 
-        int preparationMinutes = Math.min(10, Math.max(5, durationMinutes / 6));
-        int wrapUpMinutes = Math.min(10, Math.max(5, durationMinutes / 8));
-        int mainActivityMinutes = Math.max(1, durationMinutes - preparationMinutes - wrapUpMinutes);
+        int desiredPreparationMinutes = Math.min(10, Math.max(5, durationMinutes / 6));
+        int desiredWrapUpMinutes = Math.min(10, Math.max(5, durationMinutes / 8));
+        int availableTransitionMinutes = durationMinutes - 1;
+        int preparationMinutes = desiredPreparationMinutes;
+        int wrapUpMinutes = desiredWrapUpMinutes;
+        if (desiredPreparationMinutes + desiredWrapUpMinutes > availableTransitionMinutes) {
+            preparationMinutes = availableTransitionMinutes * desiredPreparationMinutes
+                    / (desiredPreparationMinutes + desiredWrapUpMinutes);
+            wrapUpMinutes = availableTransitionMinutes - preparationMinutes;
+        }
+        int mainActivityMinutes = durationMinutes - preparationMinutes - wrapUpMinutes;
 
         return "Campus schedule plan: activity=" + activity + ", startTime=" + startTime
                 + ", durationMinutes=" + durationMinutes
@@ -71,8 +79,10 @@ public class CampusScheduleTools {
         }
 
         if (durationMinutes > 120 && !"HIGH".equals(riskLevel)) {
+            boolean hasWeatherRisk = !"LOW".equals(riskLevel);
             riskLevel = "MEDIUM";
-            suggestion = "Long activity duration detected. Add breaks and hydration reminders.";
+            String longActivitySuggestion = "Long activity duration detected. Add breaks and hydration reminders.";
+            suggestion = hasWeatherRisk ? suggestion + " " + longActivitySuggestion : longActivitySuggestion;
         }
 
         return "Campus activity risk: activity=" + activity + ", durationMinutes=" + durationMinutes
