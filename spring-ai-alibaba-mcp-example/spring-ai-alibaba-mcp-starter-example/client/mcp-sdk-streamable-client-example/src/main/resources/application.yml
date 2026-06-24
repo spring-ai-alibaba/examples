@@ -13,18 +13,16 @@ spring:
     web-application-type: reactive
   ai:
     dashscope:
-      api-key:
-      chat:
-        options:
-          model: qwen-max
+      api-key: ${DASHSCOPE_API_KEY:}
     mcp:
       client:
         toolcallback:
           enabled: true
-        streamable:
+        streamable-http:
           connections:
             server1:
-              url: http://localhost:3000/mcp/
+              url: http://localhost:3000
+              endpoint: /mcp/
   mandatory-file-encoding: UTF-8
 
 # 调试日志
@@ -34,4 +32,3 @@ logging:
       modelcontextprotocol:
         client: DEBUG
         spec: DEBUG
-

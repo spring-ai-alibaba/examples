@@ -15,8 +15,11 @@
     <packaging>pom</packaging>
     <modules>
         <module>client/mcp-auth-client</module>
+        <module>client/mcp-security-client</module>
 
         <module>server/mcp-auth-web-server</module>
+        <module>server/mcp-security-webmvc-server</module>
+        <module>server/mcp-oauth2-authorization-server</module>
     </modules>
 
 </project>

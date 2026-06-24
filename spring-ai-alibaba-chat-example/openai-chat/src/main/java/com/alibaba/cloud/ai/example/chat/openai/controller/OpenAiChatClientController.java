@@ -68,7 +68,6 @@ public class OpenAiChatClientController {
 				.defaultOptions(
 						OpenAiChatOptions.builder()
 								.topP(0.7)
-								.build()
 				)
 				.build();
 	}

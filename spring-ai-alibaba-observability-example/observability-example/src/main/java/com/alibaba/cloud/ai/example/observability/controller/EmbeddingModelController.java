@@ -18,7 +18,7 @@ package com.alibaba.cloud.ai.example.observability.controller;
 
 import java.util.List;
 
-import com.alibaba.cloud.ai.dashscope.embedding.DashScopeEmbeddingOptions;
+import com.alibaba.cloud.ai.dashscope.embedding.text.DashScopeEmbeddingOptions;
 
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -54,7 +54,7 @@ public class EmbeddingModelController {
 
 		var embeddings = embeddingModel.call(new EmbeddingRequest(
 				List.of("hello world."),
-				DashScopeEmbeddingOptions.builder().withModel(DashScopeModel.EmbeddingModel.EMBEDDING_V3.getValue()).build())
+				DashScopeEmbeddingOptions.builder().model(DashScopeModel.EmbeddingModel.EMBEDDING_V3.getValue()).build())
 		).getResult().getOutput();
 		return "embedding vector size:" + embeddings.length;
 	}

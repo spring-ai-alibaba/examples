@@ -17,6 +17,7 @@
 package com.alibaba.cloud.ai.mcp.samples.github;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -36,6 +37,12 @@ public class GithubMcpApplication {
 			ChatClient.Builder chatClientBuilder,
 			ToolCallbackProvider tools,
 			ConfigurableApplicationContext context) {
+		ToolCallback[] toolCallbacks = tools.getToolCallbacks();
+		System.out.println("Available Tools:");
+		for (ToolCallback toolCallback : toolCallbacks) {
+			System.out.println("Tool: " + toolCallback.getToolDefinition().name());
+		}
+
 		return args -> {
 			// 构建ChatClient并注入MCP工具
 			var chatClient = chatClientBuilder

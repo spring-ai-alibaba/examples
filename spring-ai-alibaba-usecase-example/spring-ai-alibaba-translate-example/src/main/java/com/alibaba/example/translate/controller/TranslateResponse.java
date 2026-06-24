@@ -16,16 +16,9 @@
 
 package com.alibaba.example.translate.controller;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * @author huangzhen
  * @author Makoto
  */
 public record TranslateResponse(String translatedText) {
-    @JsonCreator
-    public TranslateResponse(@JsonProperty("translatedText") String translatedText) {
-        this.translatedText = translatedText;
-    }
 }

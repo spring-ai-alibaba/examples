@@ -1,22 +1,52 @@
+server:
+  port: ${SERVER_PORT:8080}
+
 spring:
+  application:
+    name: tool-calling-example
+
   ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY:${DASHSCOPE_API_KEY:test}}
+
+    tool:
+      time:
+        enabled: ${TOOL_TIME_ENABLED:true}
+
     alibaba:
       toolcalling:
+        aliyunaisearch:
+          enabled: ${ALIYUN_AI_SEARCH_ENABLED:false}
+          baseUrl: ${ALIYUN_AI_SEARCH_BASE_URL:http://localhost}
+          apiKey: ${ALIYUN_AI_SEARCH_API_KEY:}
+
+        python:
+          enabled: ${PYTHON_TOOL_ENABLED:false}
+          engine:
+            warn-interpreter-only: false
+          context:
+            allow-all-access: false
+            allow-io: false
+            allow-native-access: false
+            allow-create-process: false
+            allow-host-access: true
+
+        githubtoolkit:
+          enabled: ${GITHUB_TOOLKIT_ENABLED:false}
+          token: ${GITHUB_TOKEN:}
+
         baidu:
           translate:
-            enabled: true
-            app-id: ${BAIDU_TRANSLATE_APP_ID}
-            secret-key: ${BAIDU_TRANSLATE_SECRET_KEY}
+            enabled: ${BAIDU_TRANSLATE_ENABLED:true}
+            app-id: ${BAIDU_TRANSLATE_APP_ID:}
+            secret-key: ${BAIDU_TRANSLATE_SECRET_KEY:}
           map:
-            enabled: true
-            apiKey: ${BAIDU_MAP_API_KEY}
+            enabled: ${BAIDU_MAP_ENABLED:true}
+            apiKey: ${BAIDU_MAP_API_KEY:}
 
         time:
-          enabled: true
+          enabled: ${ALIBABA_TIME_TOOL_ENABLED:true}
 
         weather:
-          enabled: true
-          api-key: ${WEATHER_API_KEY}
-
-    dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY}
+          enabled: ${WEATHER_ENABLED:true}
+          api-key: ${WEATHER_API_KEY:}

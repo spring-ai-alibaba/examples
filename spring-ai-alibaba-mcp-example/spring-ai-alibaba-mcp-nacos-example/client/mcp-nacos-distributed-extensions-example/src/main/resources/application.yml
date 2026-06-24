@@ -1,18 +1,18 @@
 spring:
   application:
-    name: mcp-distributed-client
+    name: nacos3-distributed-client
   main:
     web-application-type: none
   ai:
     dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY}
+      api-key: ${DASHSCOPE_API_KEY:${AI_DASHSCOPE_API_KEY:}}
     mcp:
       client:
         enabled: true
         name: my-mcp-client
         version: 1.0.0
         request-timeout: 30s
-        type: ASYNC  # or ASYNC for reactive applications
+        type: SYNC  # SYNC or ASYNC, default is SYNC
 
 
     alibaba:

@@ -73,7 +73,7 @@ public class CloudRagService implements RagService {
 
 	public CloudRagService(ChatClient.Builder builder, DashScopeApi dashscopeApi) {
 		DocumentRetriever retriever = new DashScopeDocumentRetriever(dashscopeApi,
-				DashScopeDocumentRetrieverOptions.builder().withIndexName(indexName).build());
+				DashScopeDocumentRetrieverOptions.builder().indexName(indexName).build());
 
 		this.dashscopeApi = dashscopeApi;
 		this.chatClient = builder

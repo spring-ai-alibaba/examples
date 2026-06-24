@@ -1,0 +1,18 @@
+server:
+  port: 18100
+
+spring:
+  application:
+    name: mcp-annotation-server
+  main:
+    web-application-type: reactive
+  ai:
+    mcp:
+      server:
+        enabled: true
+        name: annotation-server
+        version: 1.0.0
+        type: SYNC
+        protocol: STREAMABLE
+        streamable-http:
+          mcp-endpoint: /mcp

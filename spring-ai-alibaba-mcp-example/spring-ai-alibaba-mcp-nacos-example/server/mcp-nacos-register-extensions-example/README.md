@@ -1,56 +1,28 @@
-# Spring AI MCP + Nacos 示例项目
+# MCP nacos register extensions example
 
-本项目是一个基于 [spring-ai-alibaba-mcp-nacos](https://github.com/spring-projects/spring-ai-alibaba) 的简单示例，展示如何将 MCP Server 注册到 Nacos 中，并通过注解式工具（Tool）提供服务。
+## 模块定位
 
-本示例是MCP Server节点注册在Nacos中，建立稳定性连接，要求版本如下：
-1. Nacos版本在3.1.0及以上
-2. [spring ai extensions](https://github.com/spring-ai-alibaba/spring-ai-extensions)在1.1.0.0-M4版本及以上
+本模块演示 MCP server 向 Nacos 注册扩展信息，便于客户端或网关通过服务发现接入。
 
-支持如下MCP Server协议类型注册至Nacos中
-- SSE
-- Streamable
-- Stateless（Streamable的一种特殊类型）
+## 主要内容
 
-## 主要依赖
+- 启动入口：NacosRegisterMcpServerApplication
+- 工具类/注解工具：TimeService
+- 外部依赖：Nacos，默认本地服务地址通常为 `127.0.0.1:8848`。
 
-```xml
-<!-- MCP Nacos 注册 -->
-<dependency>
-    <groupId>com.alibaba.cloud.ai</groupId>
-    <artifactId>spring-ai-alibaba-starter-mcp-registry</artifactId>
-    <version>${spring-ai-alibaba.extensions.version}</version>
-</dependency>
+## 运行方式
+
+```bash
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-nacos-example/server/mcp-nacos-register-extensions-example/pom.xml test-compile -DskipTests
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-nacos-example/server/mcp-nacos-register-extensions-example/pom.xml spring-boot:run
 ```
 
-## 配置application.yml文件
-下面是关于Nacos注册的配置示例：
-```yml
-spring:
-  ai:
-    alibaba:
-      mcp:
-        nacos:
-          namespace: 4ad3108b-4d44-43d0-9634-3c1ac4850c8c
-          server-addr: 127.0.0.1:8848
-          username: nacos
-          password: nacos
-          register:
-            enabled: true
-            service-group: mcp-server
-            service-name: webflux-mcp-server
-```
+## 配置要点
 
-## 快速启动说明
-1. 引入上述pom文件依赖 + 配置文件信息
-2. 可将当前MCP Server（SSE、Streamable、Stateless）服务注册至Nacos中
+- Nacos：启动本地或远端 Nacos 后再运行注册、发现或网关示例。
+- MCP：client/server 示例通常需要先启动 server，再运行对应 client。
 
-## 运行效果验证
-当首次启动MCP Server服务时，MCP Server将注册至Nacos中，并生成相应的配置信息，如下图所示：
-![](mcp-register-nacos-config.jpg)
-![](mcp-register-nacos-manage.jpg)
+## 验证建议
 
-
-## 注意事项
-在以下情况下需要删除Nacos中的配置管理信息，否则将启动失败
-1. 当前mcp server服务的工具信息变更
-2. 当前mcp server服务的协议类型变更
+- README 中的运行命令用于本地 smoke 验证；需要模型或外部服务的场景，先确认对应环境变量和服务状态。
+- 修改代码后至少执行本模块 `test-compile`，涉及接口行为时再补充启动或 curl 验证。

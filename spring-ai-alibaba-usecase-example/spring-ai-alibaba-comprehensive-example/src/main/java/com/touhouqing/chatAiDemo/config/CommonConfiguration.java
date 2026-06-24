@@ -53,7 +53,7 @@ public class CommonConfiguration {
     public ChatClient chatClient(DashScopeChatModel model, ChatMemory chatMemory) {
         return ChatClient
                 .builder(model)
-                .defaultOptions(DashScopeChatOptions.builder().withModel("qwen-omni-turbo-latest").withMultiModel(true).build())
+                .defaultOptions(DashScopeChatOptions.builder().model("qwen-omni-turbo-latest").multiModel(true))
                 .defaultSystem("你是一个可爱的傻白甜萝莉，你会用可爱的语言和我聊天。")
                 .defaultAdvisors(
                         new SimpleLoggerAdvisor(),

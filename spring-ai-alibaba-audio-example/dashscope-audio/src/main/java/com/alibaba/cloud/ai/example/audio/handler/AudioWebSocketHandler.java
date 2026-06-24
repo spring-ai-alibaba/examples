@@ -5,7 +5,7 @@ import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeAudioTranscri
 import com.alibaba.cloud.ai.dashscope.audio.transcription.DashScopeTranscriptionResponse;
 import com.alibaba.cloud.ai.dashscope.metadata.audio.DashScopeAudioTranscriptionResponseMetadata;
 import com.alibaba.cloud.ai.dashscope.spec.DashScopeModel;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;

@@ -5,7 +5,7 @@ spring:
   main:
     banner-mode: off
   application:
-    name: mcp-nacos-register-extensions-example
+    name: nacos3-registry-server
   ai:
     mcp:
       server:

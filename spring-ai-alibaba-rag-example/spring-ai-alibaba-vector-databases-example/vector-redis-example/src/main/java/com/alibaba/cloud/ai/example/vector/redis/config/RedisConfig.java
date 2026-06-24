@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.RedisClient;
 
 @Configuration
 public class RedisConfig {
@@ -43,16 +43,16 @@ public class RedisConfig {
     private String indexName;
 
     @Bean
-    public JedisPooled jedisPooled() {
+    public RedisClient redisClient() {
         logger.info("Redis host: {}, port: {}", host, port);
-        return new JedisPooled(host, port);
+        return RedisClient.create(host, port);
     }
 
     @Bean
     @Qualifier("redisVectorStoreCustom")
-    public RedisVectorStore vectorStore(JedisPooled jedisPooled, EmbeddingModel embeddingModel) {
+    public RedisVectorStore vectorStore(RedisClient redisClient, EmbeddingModel embeddingModel) {
         logger.info("create redis vector store");
-        return RedisVectorStore.builder(jedisPooled, embeddingModel)
+        return RedisVectorStore.builder(redisClient, embeddingModel)
                 .indexName(indexName)                // Optional: defaults to "spring-ai-index"
                 .prefix(prefix)                  // Optional: defaults to "embedding:"
                 .metadataFields(                         // Optional: define metadata fields for filtering

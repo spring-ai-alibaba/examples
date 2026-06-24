@@ -55,7 +55,6 @@ public class HelloworldController {
                 .defaultOptions(
                         DashScopeChatOptions.builder()
                                 .topP(0.7)
-                                .build()
                 )
                 .build();
     }
@@ -119,7 +118,7 @@ public class HelloworldController {
 		response.setCharacterEncoding("UTF-8");
 
 		// 构建 ChatOptions
-		DashScopeChatOptions.DashScopeChatOptionsBuilder optionsBuilder = DashScopeChatOptions.builder();
+		DashScopeChatOptions.Builder optionsBuilder = DashScopeChatOptions.builder();
 
 		if (topP != null) {
 			optionsBuilder.topP(topP);
@@ -128,11 +127,11 @@ public class HelloworldController {
 			optionsBuilder.temperature(temperature);
 		}
 		if (maxToken != null) {
-			optionsBuilder.maxToken(maxToken);
+			optionsBuilder.maxTokens(maxToken);
 		}
 
 		return this.dashScopeChatClient.prompt(query)
-				.options(optionsBuilder.build())
+				.options(optionsBuilder)
 				.stream()
 				.content();
 	}

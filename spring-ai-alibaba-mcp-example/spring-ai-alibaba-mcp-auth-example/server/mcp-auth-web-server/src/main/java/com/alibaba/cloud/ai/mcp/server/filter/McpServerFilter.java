@@ -46,7 +46,7 @@ public class McpServerFilter implements WebFilter {
         // 获取请求头中的token值
         HttpHeaders headers = exchange.getRequest().getHeaders();
         // 打印所有请求头信息
-        for (String headerName : headers.keySet()) {
+        for (String headerName : headers.headerNames()) {
             logger.info("Header {}: {}", headerName, headers.getFirst(headerName));
         }
 

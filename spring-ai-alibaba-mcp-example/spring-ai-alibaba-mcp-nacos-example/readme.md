@@ -1,27 +1,27 @@
-# Spring AI Alibaba MCP Nacos 示例
+# Spring AI Alibaba Starter MCP Nacos Examples
 
-本项目演示了如何将 Spring AI Alibaba 与模型上下文协议（MCP）和 Nacos 进行集成，实现服务发现和注册。它通过 Nacos 展示了一个完整的 MCP 生态系统，包括服务器端工具注册和客户端工具发现
-- 注册：通过Nacos实现，MCP服务注册至Nacos中
-- 分布式：通过nacos实现mcp server服务分布式部署，mcp client负载均衡调用mcp server
-- 网关：通过nacos实现存量restful接口应用，转化为mcp server服务
-- 路由：通过nacos实现mcp client调用工具路由控制（待补充）
+## 模块定位
 
-依赖：[spring ai extensions](https://github.com/spring-ai-alibaba/spring-ai-extensions)在1.1.0.0-M4版本及以上
+这个聚合模块收拢 MCP client、server、认证、安全、Nacos 注册发现和手动 SDK 示例，便于按传输协议或安全模型选择子模块运行。
 
-## 前置条件
+## 主要内容
 
-- Java 17+
-- Maven 3.6+
-- nacos版本3.1.0+
-- 已设置 DASHSCOPE_API_KEY 环境变量
+- 子模块：server/mcp-nacos-gateway-example、server/mcp-nacos-register-extensions-example、client/mcp-nacos-distributed-extensions-example
+- 用途：作为同类示例的 Maven 聚合入口，便于统一编译和按需进入子模块运行。
 
-## 目录结构
-```angular2html
-- client
-    - mcp-nacos-distributed-extensions-example      # 基于spring-ai-extensions下的分布式客户端发现示例
-- server
-    - mcp-nacos-register-extensions-example         # 基于spring-ai-extensions下的注册至nacos示例
-    - mcp-nacos-gateway-example                     # 基于spring-ai-alibaba下的注册至nacos并使用nacos作为mcp的网关示例
+## 运行方式
+
+```bash
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-nacos-example/pom.xml test-compile -DskipTests
+# 进入需要运行的子模块后再执行 spring-boot:run
 ```
 
-本示例提供了使用 Spring AI Alibaba 和 Nacos 服务发现构建分布式 MCP 应用程序的完整参考。
+## 配置要点
+
+- Nacos：启动本地或远端 Nacos 后再运行注册、发现或网关示例。
+- MCP：client/server 示例通常需要先启动 server，再运行对应 client。
+
+## 验证建议
+
+- 先执行聚合模块 `test-compile`，再进入目标子模块做运行态验证。
+- 聚合模块不直接暴露业务接口，运行说明以子模块 README 为准。

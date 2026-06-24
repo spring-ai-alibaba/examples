@@ -16,7 +16,7 @@
 
 package com.alibaba.cloud.ai.example.outparser.controller;
 
-import com.alibaba.cloud.ai.dashscope.api.DashScopeResponseFormat;
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatApiSpec.ChatCompletionRequest.Parameters.ResponseFormat;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,12 +29,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class JsonController {
 
     private final ChatClient chatClient;
-    private final DashScopeResponseFormat responseFormat;
+    private final ResponseFormat responseFormat;
 
     public JsonController(ChatClient.Builder builder) {
         // AI模型内置支持JSON模式
-        DashScopeResponseFormat responseFormat = new DashScopeResponseFormat();
-        responseFormat.setType(DashScopeResponseFormat.Type.JSON_OBJECT);
+        ResponseFormat responseFormat = ResponseFormat.builder()
+                .type(ResponseFormat.Type.JSON_OBJECT)
+                .build();
 
         this.responseFormat = responseFormat;
         this.chatClient = builder
@@ -51,9 +52,8 @@ public class JsonController {
         return chatClient.prompt(query)
                 .options(
                         DashScopeChatOptions.builder()
-                                .withTopP(0.7)
-                                .withResponseFormat(responseFormat)
-                                .build()
+                                .topP(0.7)
+                                .responseFormat(responseFormat)
                 )
                 .call().content();
     }

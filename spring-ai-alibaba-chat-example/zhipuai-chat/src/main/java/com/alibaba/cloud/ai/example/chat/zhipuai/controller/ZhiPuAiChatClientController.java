@@ -18,7 +18,6 @@ package com.alibaba.cloud.ai.example.chat.zhipuai.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.zhipuai.ZhiPuAiChatOptions;
 import reactor.core.publisher.Flux;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -61,12 +60,6 @@ public class ZhiPuAiChatClientController {
 				// 实现 Logger 的 Advisor
 				.defaultAdvisors(
 						new SimpleLoggerAdvisor()
-				)
-				// 设置 ChatClient 中 ChatModel 的 Options 参数
-				.defaultOptions(
-						ZhiPuAiChatOptions.builder()
-								.topP(0.7)
-								.build()
 				)
 				.build();
 	}

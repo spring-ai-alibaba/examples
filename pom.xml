@@ -41,14 +41,18 @@
 		<maven.compiler.target>17</maven.compiler.target>
 
 		<!-- Spring AI -->
-		<spring-ai.version>1.1.0</spring-ai.version>
+		<spring-ai.version>2.0.0</spring-ai.version>
 		<!-- Spring Boot -->
-		<spring-boot.version>3.5.7</spring-boot.version>
+		<spring-boot.version>4.0.0</spring-boot.version>
 
 		<!-- Spring AI Alibaba -->
 		<!-- Install Spring AI Alibaba in your local. -->
 		<spring-ai-alibaba.version>1.1.0.0</spring-ai-alibaba.version>
-		<spring-ai-alibaba-extensions.version>1.1.2.1</spring-ai-alibaba-extensions.version>
+		<spring-ai-alibaba-extensions.version>2.0.0.1</spring-ai-alibaba-extensions.version>
+		<spring-ai-advisors-vector-store.version>2.0.0-M8</spring-ai-advisors-vector-store.version>
+		<spring-ai-legacy-model-starter.version>1.1.0</spring-ai-legacy-model-starter.version>
+		<spring-ai-alibaba-legacy-memory.version>1.1.2.1</spring-ai-alibaba-legacy-memory.version>
+		<spring-ai-alibaba-agent-framework.version>1.1.2.2</spring-ai-alibaba-agent-framework.version>
 
 		<!-- maven plugin -->
 		<maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -112,6 +116,51 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-advisors-vector-store</artifactId>
+				<version>${spring-ai-advisors-vector-store.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-starter-model-azure-openai</artifactId>
+				<version>${spring-ai-legacy-model-starter.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-starter-model-minimax</artifactId>
+				<version>${spring-ai-legacy-model-starter.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-starter-model-zhipuai</artifactId>
+				<version>${spring-ai-legacy-model-starter.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-starter-memory</artifactId>
+				<version>${spring-ai-alibaba-legacy-memory.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-starter-memory-jdbc</artifactId>
+				<version>${spring-ai-alibaba-legacy-memory.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-starter-memory-redis</artifactId>
+				<version>${spring-ai-alibaba-legacy-memory.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-starter-memory-mem0</artifactId>
+				<version>${spring-ai-alibaba-legacy-memory.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud.ai</groupId>
+				<artifactId>spring-ai-alibaba-agent-framework</artifactId>
+				<version>${spring-ai-alibaba-agent-framework.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

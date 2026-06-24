@@ -21,6 +21,7 @@ import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -53,7 +54,7 @@ public class GenerateQueryNode implements NodeAction {
                 .inputType(KnowledgeRequest.class)
                 .build();
         this.chatClient = chatClientBuilder.build().mutate()
-                .defaultToolCallbacks(knowledgeToolCallback)
+                .defaultTools(knowledgeToolCallback)
                 .build();
     }
 
@@ -63,11 +64,10 @@ public class GenerateQueryNode implements NodeAction {
 
         logger.info("node :" + NAME + " 发起请求:" + query);
 
-        // internalToolExecutionEnabled 设置 false 如果调用工具，则让AI只产出call参数
+        // 关闭 ToolCallingAdvisor 自动执行，如果调用工具，则让 AI 只产出 call 参数。
         ChatClient.CallResponseSpec callResponseSpec = chatClient.prompt(query)
-                .options(ToolCallingChatOptions.builder()
-                        .internalToolExecutionEnabled(false)
-                        .build())
+                .advisors(AdvisorParams.toolCallingAdvisorAutoRegister(false))
+                .options(ToolCallingChatOptions.builder())
                 .call();
         ChatResponse response = callResponseSpec.chatResponse();
         Generation result = response.getResult();

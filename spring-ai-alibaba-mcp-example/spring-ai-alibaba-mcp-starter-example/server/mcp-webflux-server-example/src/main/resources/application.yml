@@ -20,18 +20,20 @@
 # to allow the STDIO transport to work !!!
 # Config reference: https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html#_webflux_server_configuration
 server:
-  port: 8080
+  port: 19000
 spring:
+  application:
+    name: mcp-webflux-server-example
   main:
     banner-mode: off
+    web-application-type: reactive
   ai:
     mcp:
       server:
+        enabled: true
         name: my-weather-server
-        type: ASYNC  # Recommended for reactive applications
-        # 配置 sse 的根路径，默认值为 /sse
-        # 下面的最终路径为 ip:port/sse/mcp
-        protocol: sse
-        sse-endpoint: /sse
-        sse-message-endpoint: /mcp
-
+        type: SYNC
+        version: 1.0.0
+        protocol: STREAMABLE
+        streamable-http:
+          mcp-endpoint: /mcp

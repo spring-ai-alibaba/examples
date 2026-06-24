@@ -1,46 +1,29 @@
-# Spring AI MCP + Nacos 示例项目
-本项目配套[mcp-nacos-register-extensions-examlple](https://github.com/spring-ai-alibaba/examples/tree/main/spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-nacos-example/server/mcp-nacos-register-extensions-example)模块一起使用。实现MCP Server服务的分布式调用
+# MCP nacos distributed extensions example
 
-本示例是MCP Server多实例节点注册在Nacos后，MCP Client分布式连接多节点，负载均衡触发工具请求，要求版本如下：
-1. Nacos版本在3.1.0及以上
-2. [spring ai extensions](https://github.com/spring-ai-alibaba/spring-ai-extensions)在1.1.0.0-M4版本及以上
+## 模块定位
 
-## mcp-nacos-register-extensions-examlple模块前提概述
-借助该模块，可将MCP Server服务注册至Nacos中，支持SSE、Streamable、Stateless三种协议类型，可以同时部署多个节点
+本模块演示基于 Nacos 的分布式 MCP client，自动发现已注册的 MCP server 并调用工具。
 
-确保已有MCP Server服务实例已经注册至Nacos中，才能走接下来的分布式连接流程
+## 主要内容
 
+- 启动入口：NacosDistributedMcpClientApplication
+- 模型依赖：DashScope，通常需要配置 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
+- 外部依赖：Nacos，默认本地服务地址通常为 `127.0.0.1:8848`。
 
-## 主要依赖
-```xml
-        <dependency>
-            <groupId>com.alibaba.cloud.ai</groupId>
-            <artifactId>spring-ai-alibaba-starter-mcp-distributed</artifactId>
-            <version>${spring-ai-alibaba-extensions.version}</version>
-        </dependency>
+## 运行方式
+
+```bash
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-nacos-example/client/mcp-nacos-distributed-extensions-example/pom.xml test-compile -DskipTests
+mvn -f spring-ai-alibaba-mcp-example/spring-ai-alibaba-mcp-nacos-example/client/mcp-nacos-distributed-extensions-example/pom.xml spring-boot:run
 ```
 
-## 配置application.yml文件
-```yml
-spring:
-    alibaba:
-      mcp:
-        nacos:
-          client:
-            enabled: true
-            streamable:
-              connections:
-                server1:
-                  service-name: webflux-mcp-server
-                  version: 1.0.0
-            configs:
-              server1:
-                namespace: 4ad3108b-4d44-43d0-9634-3c1ac4850c8c
-                server-addr: 127.0.0.1:8848
-                username: nacos
-                password: nacos
-```
+## 配置要点
 
-1. 支持同时配置sse、streamable、stateless三种协议类型的分布式连接
-2. 支持配置不同命名空间下的MCP Server服务
-3. MCP Server服务的实例节点数动态增加、删除 -> MCP Client的分布式连接会动态感知，增加、删除对应的连接实例，无需重启MCP Client服务
+- DashScope key：优先使用环境变量 `DASHSCOPE_API_KEY` 或 `AI_DASHSCOPE_API_KEY`。
+- Nacos：启动本地或远端 Nacos 后再运行注册、发现或网关示例。
+- MCP：client/server 示例通常需要先启动 server，再运行对应 client。
+
+## 验证建议
+
+- README 中的运行命令用于本地 smoke 验证；需要模型或外部服务的场景，先确认对应环境变量和服务状态。
+- 修改代码后至少执行本模块 `test-compile`，涉及接口行为时再补充启动或 curl 验证。

@@ -80,10 +80,10 @@ public class MarkdownTranslationService {
 
     private DashScopeChatOptions buildTranslationOptions() {
         return DashScopeChatOptions.builder()
-                .withModel(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
-                .withTopP(0.7)
-                .withTopK(50)
-                .withTemperature(0.3)
+                .model(DashScopeModel.ChatModel.QWEN_PLUS.getValue())
+                .topP(0.7)
+                .topK(50)
+                .temperature(0.3)
                 .build();
     }
 

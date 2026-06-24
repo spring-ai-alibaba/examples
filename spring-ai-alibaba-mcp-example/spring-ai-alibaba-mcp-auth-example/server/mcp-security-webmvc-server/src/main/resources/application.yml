@@ -1,0 +1,22 @@
+server:
+  port: 18200
+
+spring:
+  application:
+    name: mcp-security-webmvc-server
+  ai:
+    mcp:
+      server:
+        enabled: true
+        name: security-webmvc-server
+        version: 1.0.0
+        type: SYNC
+        protocol: STREAMABLE
+        streamable-http:
+          mcp-endpoint: /mcp
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000

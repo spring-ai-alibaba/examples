@@ -7,24 +7,19 @@ spring:
   main:
     web-application-type: none
   ai:
-    openai:
-      api-key: ${DASHSCOPE_API_KEY}
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
-      chat:
-        options:
-          model: qwen-max
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
     mcp:
       client:
         enabled: true
-        name: my-mcp-client
+        name: annotation-client
         version: 1.0.0
         request-timeout: 600s
-        type: SYNC  # or ASYNC for reactive applications
-        sse:
+        type: SYNC
+        streamable-http:
           connections:
-            server1:
-              url: http://localhost:8080 # 本地
+            annotation-server:
+              url: http://localhost:18100
+              endpoint: /mcp
         annotation-scanner:
           enabled: true
-#            server2:
-#              url: https://mcp.amap.com?key=xxx # 远程高德MCP服务

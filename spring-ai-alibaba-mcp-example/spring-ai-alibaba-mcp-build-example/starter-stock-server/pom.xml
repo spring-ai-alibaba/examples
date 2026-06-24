@@ -31,7 +31,7 @@
     <description>Sample Spring Boot application demonstrating MCP stock server usage</description>
 
     <properties>
-        <main.class>com.alibaba.spring.ai.example.stock.StockServerApplication</main.class>
+        <main.class>com.alibaba.cloud.ai.example.stock.StockServerApplication</main.class>
     </properties>
 
     <dependencies>
