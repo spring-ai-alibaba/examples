@@ -32,3 +32,11 @@ GET http://localhost:8080/weather/chat-tool-function-name?query=请告诉我北�
 ###
 # CampusAssistantController类的chatWithCampusTools方法
 GET http://localhost:8080/campus/chat-tools?query=请查询上海当前时间和天气，并为我安排一小时的校园跑步计划
+
+###
+# CampusAssistantController类的多工具风险评估示例
+GET http://localhost:8080/campus/chat-tools?query=请查询杭州今天下午的天气，判断是否适合进行两小时校园社团招新活动，并给出时间安排
+
+###
+# CampusAssistantController类的室内备选方案示例
+GET http://localhost:8080/campus/chat-tools?query=如果上海今晚下雨，请帮我安排一个室内自习和运动结合的校园计划

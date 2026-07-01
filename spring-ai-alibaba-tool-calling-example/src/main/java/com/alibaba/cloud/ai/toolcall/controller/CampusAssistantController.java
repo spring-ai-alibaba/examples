@@ -51,7 +51,7 @@ public class CampusAssistantController {
      */
     @GetMapping("/chat-tools")
     public String chatWithCampusTools(@RequestParam(value = "query",
-            defaultValue = "请查询上海当前时间和天气，并为我安排一小时的校园跑步计划") String query) {
+            defaultValue = "请查询上海当前时间和天气，评估户外活动风险，并为我安排一小时的校园跑步计划") String query) {
 
         return dashScopeChatClient.prompt(query)
                 .tools(timeTools, campusScheduleTools)
