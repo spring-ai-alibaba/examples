@@ -45,6 +45,7 @@
 		<module>azure-openai-chat</module>
 		<module>vllm-chat</module>
 		<module>minimax-chat</module>
+		<module>orcarouter-chat</module>
 	</modules>
 
 	<build>

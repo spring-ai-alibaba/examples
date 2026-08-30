@@ -1,0 +1,18 @@
+server:
+  port: 10016
+
+spring:
+  application:
+    name: spring-ai-alibaba-orcarouter-chat-model-example
+
+  ai:
+    openai:
+      # OrcaRouter is an OpenAI-compatible AI gateway. Point the OpenAI starter at
+      # its base URL and use an OrcaRouter API key. The Spring AI OpenAI starter
+      # appends "/v1/chat/completions" itself, so no "/v1" suffix is needed here.
+      # Model names use the "provider/model" format, e.g. "anthropic/claude-sonnet-4.5".
+      api-key: ${ORCAROUTER_API_KEY}
+      base-url: https://api.orcarouter.ai
+      chat:
+        options:
+          model: orcarouter/auto

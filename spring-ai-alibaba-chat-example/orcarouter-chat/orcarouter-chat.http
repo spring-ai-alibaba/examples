@@ -1,0 +1,12 @@
+# OrcaRouterChatModelController类的simpleChat方法
+GET http://localhost:10016/orcarouter/chat-model/simple/chat
+
+###
+# OrcaRouterChatModelController类的streamChat方法
+GET http://localhost:10016/orcarouter/chat-model/stream/chat
+
+###
+# OrcaRouterChatModelController类的customChat方法
+GET http://localhost:10016/orcarouter/chat-model/custom/chat?model=anthropic/claude-sonnet-4.5
+
+###
