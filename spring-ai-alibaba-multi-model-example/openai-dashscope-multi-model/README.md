@@ -18,7 +18,7 @@
 - **框架**：Spring Boot 3.x + Spring AI OpenAI Starter
 - **多模态模型**：阿里云 DashScope 的 `qwen-vl-max-latest`
 - **核心类**：
-  - [OpenAiChatClientController](file://D:\\mxy\\qisheng\\workspace\\mxy-git-workspace\\spring-ai-alibaba-examples\\spring-ai-alibaba-multi-model-example\\openai-dashscope-multi-model\\src\\main\\java\\com\\alibaba\\cloud\\ai\\example\\multi\\controller\\OpenAiChatClientController.java#L35-L139)：提供 REST API 接口
+  - [OpenAiChatClientController](src/main/java/com/alibaba/cloud/ai/example/multi/controller/OpenAiChatClientController.java#L35-L139)：提供 REST API 接口
   - `ChatClient`：封装 DashScope 兼容模式的调用逻辑
 
 ---
