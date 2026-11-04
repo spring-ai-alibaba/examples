@@ -45,14 +45,12 @@ spring:
 
 ### 2. 自定义知识源（可选）
 
-在 `application.yml` 中配置知识源 URL：
+在 `application.yml` 中配置知识源 URL（多个 URL 用英文逗号分隔，请勿写成 YAML 列表——`@Value` 无法解析列表形式的占位符，会导致启动失败）：
 
 ```yaml
 rag:
   knowledge:
-    sources:
-      - https://your-docs-url-1
-      - https://your-docs-url-2
+    sources: https://your-docs-url-1,https://your-docs-url-2
 ```
 
 ### 3. 启动应用
