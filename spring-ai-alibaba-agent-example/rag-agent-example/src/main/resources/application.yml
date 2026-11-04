@@ -18,6 +18,4 @@ logging:
 # RAG Agent Configuration
 rag:
   knowledge:
-    sources:
-      - https://java2ai.com/docs/quick-start
-      - https://java2ai.com/docs/basics/chat-model
+    sources: https://java2ai.com/docs/quick-start,https://java2ai.com/docs/basics/chat-model
