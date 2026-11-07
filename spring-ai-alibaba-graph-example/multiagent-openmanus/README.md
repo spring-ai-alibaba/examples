@@ -121,6 +121,14 @@ GET http://localhost:8080/manus/human/resume-to-next-step
 - 默认端口：8080
 - 默认上下文路径：/basic
 ## 测试指导
+
+### 文本与脚本编码离线测试
+
+在本模块目录运行 `mvn -Dtest=FilePersistenceTest test`。
+测试分别以 US-ASCII、ISO-8859-1 和 UTF-8 作为 JVM 默认编码，验证 `FileSaver` 新建/追加文本
+及 `CodeUtils` 生成脚本时均保留 UTF-8 字节。脚本用例在 Linux/macOS 使用 `sh` 执行，
+无需 Python、模型 API key 或外部服务。
+
 ### 使用 HTTP 文件测试
 模块根目录下提供了 **[multiagent-openmanus.http](./multiagent-openmanus.http)** 文件，包含所有接口的测试用例：
 - 可在 IDE 中直接执行

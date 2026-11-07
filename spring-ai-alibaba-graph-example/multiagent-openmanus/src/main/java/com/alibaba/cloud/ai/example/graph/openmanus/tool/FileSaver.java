@@ -25,6 +25,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -88,7 +89,7 @@ public class FileSaver implements Function<String, ToolExecuteResult> {
 				directory.mkdirs();
 			}
 
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8, true))) {
 				writer.write(content);
 			}
 			catch (IOException e) {
