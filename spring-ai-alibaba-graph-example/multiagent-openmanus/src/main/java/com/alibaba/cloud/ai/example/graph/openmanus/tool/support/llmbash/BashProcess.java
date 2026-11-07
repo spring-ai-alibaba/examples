@@ -39,6 +39,8 @@ public class BashProcess {
 		return commandList.stream().map(commandLine -> {
 			try {
 				ProcessBuilder pb = new ProcessBuilder("bash", "-c", commandLine);
+				// Consume stderr with stdout so a full error pipe cannot block the command.
+				pb.redirectErrorStream(true);
 				if (!StringUtils.isEmpty(workingDirectoryPath)) {
 					pb.directory(new File(workingDirectoryPath));
 				}
@@ -47,13 +49,14 @@ public class BashProcess {
 				Process process = pb.start();
 
 				// 获取命令输出
-				BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				StringBuilder builder = new StringBuilder();
-				String line;
-				while ((line = reader.readLine()) != null) {
-					log.warn(line);
-					builder.append(line);
-					builder.append("\n");
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+					String line;
+					while ((line = reader.readLine()) != null) {
+						log.warn(line);
+						builder.append(line);
+						builder.append("\n");
+					}
 				}
 
 				// 等待命令执行完成

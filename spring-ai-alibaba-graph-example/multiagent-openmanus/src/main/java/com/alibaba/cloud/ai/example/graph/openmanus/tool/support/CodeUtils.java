@@ -18,22 +18,23 @@ package com.alibaba.cloud.ai.example.graph.openmanus.tool.support;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class CodeUtils {
 
@@ -166,53 +167,58 @@ public class CodeUtils {
 	}
 
 	public static ExecuteCommandResult executeCommand(String... command) {
+		Process process = null;
+		ExecutorService readers = Executors.newFixedThreadPool(2);
 		try {
-			Process process = new ProcessBuilder(command).start();
-
-			BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			String errorResult = read(errorReader);
-			log.info("read python error={}", errorResult);
-
+			process = new ProcessBuilder(command).start();
+			Process runningProcess = process;
+			// Both pipes must be drained while the command is running, regardless of its exit code.
+			Future<String> output = readers.submit(() -> read(runningProcess.getInputStream()));
+			Future<String> error = readers.submit(() -> read(runningProcess.getErrorStream()));
+			String successResult = output.get();
+			String errorResult = error.get();
 			int exitCode = process.waitFor();
-
+			log.info("read python error={}", errorResult);
 			if (exitCode == 0) {
-				BufferedReader inputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				String successResult = read(inputReader);
 				log.info("read python success={}", successResult);
-
-				exitCode = process.waitFor();
-
-				ExecuteCommandResult executeCommandResult = new ExecuteCommandResult();
-				executeCommandResult.setExitCode(exitCode);
-				executeCommandResult.setOutput(successResult);
-				return executeCommandResult;
 			}
-
-			ExecuteCommandResult executeCommandResult = new ExecuteCommandResult();
-			executeCommandResult.setExitCode(exitCode);
-			executeCommandResult.setOutput(errorResult);
-			return executeCommandResult;
+			ExecuteCommandResult result = new ExecuteCommandResult();
+			result.setExitCode(exitCode);
+			result.setOutput(exitCode == 0 ? successResult : errorResult);
+			return result;
+		}
+		catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			log.error("executePythonCode interrupted", e);
+			return null;
 		}
 		catch (Exception e) {
 			log.error("executePythonCode error", e);
 			return null;
 		}
-	}
-
-	private static String read(BufferedReader reader) {
-		List<String> resultList = new ArrayList<>();
-		String response = EMPTY;
-		while (true) {
-			try {
-				if (!((response = reader.readLine()) != null)) {
-					break;
+		finally {
+			if (process != null) {
+				process.destroyForcibly();
+				try {
+					process.getOutputStream().close();
+				}
+				catch (IOException e) {
+					log.debug("Could not close command input", e);
 				}
 			}
-			catch (IOException e) {
-			}
-			resultList.add(response);
+			readers.shutdownNow();
 		}
-		return resultList.stream().collect(Collectors.joining("\n"));
+	}
+
+	private static String read(InputStream stream) throws IOException {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+			List<String> lines = new ArrayList<>();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				lines.add(line);
+			}
+			return String.join("\n", lines);
+		}
 	}
 
 }

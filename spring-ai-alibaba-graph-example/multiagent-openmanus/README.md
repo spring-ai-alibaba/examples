@@ -334,3 +334,15 @@ ASSISTANT
 *此 README.md 由自动化工具融合更新于 2025-12-11 00:51:02*
 
 *融合策略：保留了原有的技术文档内容，并添加了自动生成的 API 文档部分*
+
+### 命令执行离线回归测试
+
+在本模块目录运行 `mvn -Dtest=CodeUtilsTest test`，无需模型 API key、Python 或外部服务。
+测试使用当前 JDK 启动子进程，验证大量 stdout/stderr 不会阻塞、退出码与输出选择、换行格式，
+以及调用线程中断后子进程的清理。每个场景有独立的超时与进程清理保护。
+
+
+Bash 工具的管道回归测试可运行 `mvn -Dtest=CodeUtilsTest,BashProcessTest test`。
+`BashProcessTest` 在 Linux/macOS 上使用 Bash 内置 `printf`，覆盖大量错误输出、混合输出、
+非零退出及工作目录/多命令顺序。Bash 工具返回合并的 stdout/stderr，以便调用方看到错误诊断；
+`CodeUtils` 仍按退出码分别返回 stdout 或 stderr。
