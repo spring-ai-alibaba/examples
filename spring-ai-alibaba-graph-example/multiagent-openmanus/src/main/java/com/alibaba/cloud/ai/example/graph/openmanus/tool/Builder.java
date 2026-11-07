@@ -28,7 +28,8 @@ public class Builder {
 
 	public static List<ToolCallback> getManusAgentToolCalls() {
 		return List.of(GoogleSearch.getFunctionToolCallback(), BrowserUseTool.getFunctionToolCallback(),
-				FileSaver.getFunctionToolCallback(), PythonExecute.getFunctionToolCallback());
+				FileSaver.getFunctionToolCallback(), PythonExecute.getFunctionToolCallback(),
+				DocLoaderTool.getFunctionToolCallback());
 	}
 
 	public static List<ToolCallback> getFunctionCallbackList() {
@@ -37,7 +38,8 @@ public class Builder {
 
 	public static List<ToolCallback> getManusAgentFunctionCallbacks() {
 		return List.of(GoogleSearch.getFunctionToolCallback(), BrowserUseTool.getFunctionToolCallback(),
-				FileSaver.getFunctionToolCallback(), PythonExecute.getFunctionToolCallback());
+				FileSaver.getFunctionToolCallback(), PythonExecute.getFunctionToolCallback(),
+				DocLoaderTool.getFunctionToolCallback());
 	}
 
 }

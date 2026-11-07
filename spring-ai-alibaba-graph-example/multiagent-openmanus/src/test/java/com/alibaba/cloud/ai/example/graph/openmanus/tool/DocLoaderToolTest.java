@@ -18,6 +18,7 @@ package com.alibaba.cloud.ai.example.graph.openmanus.tool;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -27,10 +28,13 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedConstruction;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import org.springframework.ai.tool.function.FunctionToolCallback;
+import org.springframework.ai.tool.ToolCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockConstruction;
@@ -59,6 +63,24 @@ class DocLoaderToolTest {
 			String response = call(document);
 			assertThat(response).startsWith("Related information: ").contains(content);
 			assertThat(drivers.constructed()).isEmpty();
+		}
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	void stepAgentRegistriesExposeWorkingDocumentCallback(boolean functionCallbacks) throws Exception {
+		Path document = directory.resolve("registered.txt");
+		String content = "Registered document callback fixture";
+		Files.writeString(document, content);
+		try (MockedConstruction<ChromeDriver> drivers = mockConstruction(ChromeDriver.class)) {
+			List<ToolCallback> callbacks = functionCallbacks ? Builder.getManusAgentFunctionCallbacks()
+					: Builder.getManusAgentToolCalls();
+			ToolCallback callback = callbacks.stream()
+				.filter(tool -> tool.getToolDefinition().name().equals("doc_loader"))
+				.findFirst().orElseThrow();
+			String arguments = JSON.toJSONString(Map.of("file_type", "txt", "file_path", document.toString()));
+			String output = JSON.parseObject(callback.call(arguments)).getString("output");
+			assertThat(output).startsWith("Related information: ").contains(content);
 		}
 	}
 
