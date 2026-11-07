@@ -75,7 +75,9 @@ class CodeUtilsTest {
 		String scenario = args[1];
 		if (args[0].equals("emit")) {
 			if (scenario.equals("interrupt")) {
-				Files.writeString(Path.of(args[2], "pid"), Long.toString(ProcessHandle.current().pid()));
+				Path pidFile = Path.of(args[2], "pid.tmp");
+				Files.writeString(pidFile, Long.toString(ProcessHandle.current().pid()));
+				Files.move(pidFile, Path.of(args[2], "pid"));
 				Thread.sleep(60000);
 			}
 			else if (scenario.equals("lines")) {
