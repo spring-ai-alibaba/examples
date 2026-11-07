@@ -86,8 +86,8 @@ public class LocalPdfFileRepository implements FileRepository {
 
     @PreDestroy
     private void persistent() {
-        try {
-            chatFiles.store(new FileWriter("chat-pdf.properties"), LocalDateTime.now().toString());
+        try (Writer writer = new FileWriter("chat-pdf.properties", StandardCharsets.UTF_8)) {
+            chatFiles.store(writer, LocalDateTime.now().toString());
             // 只有当使用SimpleVectorStore时才保存本地向量数据
             if (vectorStore instanceof SimpleVectorStore simpleVectorStore) {
                 simpleVectorStore.save(new File("chat-pdf.json"));

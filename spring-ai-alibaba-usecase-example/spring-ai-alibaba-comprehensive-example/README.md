@@ -114,3 +114,15 @@ chatAiDemo/
 **⭐ 如果这个项目对您有帮助，请给个 Star！**
 
 </div>
+
+## 离线文件映射编码回归
+
+PDF 会话文件映射 `chat-pdf.properties` 使用 UTF-8 保存和读取，确保中文及 emoji 文件名在重启后保持不变。
+
+在本模块目录执行：
+
+```bash
+mvn -Dtest=LocalPdfFileRepositoryTests test
+```
+
+该测试在隔离工作目录的子 JVM 中覆盖 ASCII、ISO-8859-1 和 UTF-8 默认字符集，不启动 Spring 应用，也不连接模型或向量数据库。
