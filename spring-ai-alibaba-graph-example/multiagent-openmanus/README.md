@@ -139,7 +139,7 @@ curl "http://localhost:8080/manus/human/init"
 ```
 ### 文档工具离线回归测试
 
-在本模块目录运行 `mvn -Dtest=DocLoaderToolTest test`，验证 `doc_loader` 回调读取本地文本文件、
+在本模块目录运行 `mvn -Dtest=DocLoaderToolTest test`，验证 `doc_loader` 回调读取本地文本/PDF/Word 文件、
 返回文件读取错误，并且不启动浏览器。测试不需要 Chrome、模型 API key 或外部服务。
 本模块显式选择 Tika 2.9.4 所需的 Commons IO 2.19.0，避免被 graph-core/docker-java 的传递版本 2.6 覆盖。
 

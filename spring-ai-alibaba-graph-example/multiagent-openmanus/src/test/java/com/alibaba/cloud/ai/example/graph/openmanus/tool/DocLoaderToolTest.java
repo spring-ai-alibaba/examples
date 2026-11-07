@@ -20,6 +20,11 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedConstruction;
@@ -58,6 +63,43 @@ class DocLoaderToolTest {
 	}
 
 	@Test
+	void exportedCallbackReadsPdfDocument() throws Exception {
+		Path document = directory.resolve("document.pdf");
+		String content = "PDF callback regression fixture";
+		try (PDDocument pdf = new PDDocument()) {
+			PDPage page = new PDPage();
+			pdf.addPage(page);
+			try (PDPageContentStream stream = new PDPageContentStream(pdf, page)) {
+				stream.beginText();
+				stream.setFont(PDType1Font.HELVETICA, 12);
+				stream.newLineAtOffset(50, 700);
+				stream.showText(content);
+				stream.endText();
+			}
+			pdf.save(document.toFile());
+		}
+		assertCallbackReads(document, content);
+	}
+
+	@Test
+	void exportedCallbackReadsWordDocument() throws Exception {
+		Path document = directory.resolve("document.docx");
+		String content = "Word callback regression fixture";
+		try (XWPFDocument word = new XWPFDocument(); var output = Files.newOutputStream(document)) {
+			word.createParagraph().createRun().setText(content);
+			word.write(output);
+		}
+		assertCallbackReads(document, content);
+	}
+
+	private void assertCallbackReads(Path document, String content) {
+		try (MockedConstruction<ChromeDriver> drivers = mockConstruction(ChromeDriver.class)) {
+			assertThat(call(document)).startsWith("Related information: ").contains(content);
+			assertThat(drivers.constructed()).isEmpty();
+		}
+	}
+
+	@Test
 	void exportedCallbackReportsDocumentReadFailure() {
 		try (MockedConstruction<ChromeDriver> drivers = mockConstruction(ChromeDriver.class)) {
 			String response = call(directory.resolve("missing.txt"));
@@ -67,7 +109,8 @@ class DocLoaderToolTest {
 	}
 
 	private String call(Path file) {
-		String arguments = JSON.toJSONString(Map.of("file_type", "txt", "file_path", file.toString()));
+		String arguments = JSON.toJSONString(Map.of("file_type", file.getFileName().toString().split("\\.")[1],
+				"file_path", file.toString()));
 		String response = DocLoaderTool.getFunctionToolCallback().call(arguments);
 		return JSON.parseObject(response).getString("output");
 	}
