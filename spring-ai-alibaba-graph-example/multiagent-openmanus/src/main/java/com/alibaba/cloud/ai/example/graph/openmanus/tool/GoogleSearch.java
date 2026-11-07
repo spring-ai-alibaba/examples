@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -32,6 +33,7 @@ import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.ai.tool.function.FunctionToolCallback;
+import org.springframework.util.CollectionUtils;
 
 public class GoogleSearch implements BiFunction<String, ToolContext, ToolExecuteResult> {
 
@@ -98,51 +100,57 @@ public class GoogleSearch implements BiFunction<String, ToolContext, ToolExecute
 		}
 		SerpApiService.Request request = new SerpApiService.Request(query);
 		Map<String, Object> response = service.apply(request);
-
-		if (response.containsKey("answer_box") && response.get("answer_box") instanceof List) {
-			response.put("answer_box", ((List) response.get("answer_box")).get(0));
+		if (response == null) {
+			return new ToolExecuteResult("No good search result found");
 		}
+
+		Object answerBoxValue = response.get("answer_box");
+		if (answerBoxValue instanceof List<?> answers) {
+			answerBoxValue = answers.isEmpty() ? null : answers.get(0);
+		}
+		Map<String, Object> answerBox = answerBoxValue instanceof Map
+				? (Map<String, Object>) answerBoxValue : Collections.emptyMap();
 
 		String toret = "";
-		if (response.containsKey("answer_box")
-				&& ((Map<String, Object>) response.get("answer_box")).containsKey("answer")) {
-			toret = ((Map<String, Object>) response.get("answer_box")).get("answer").toString();
+		if (answerBox.containsKey("answer")) {
+			toret = answerBox.get("answer").toString();
 		}
-		else if (response.containsKey("answer_box")
-				&& ((Map<String, Object>) response.get("answer_box")).containsKey("snippet")) {
-			toret = ((Map<String, Object>) response.get("answer_box")).get("snippet").toString();
+		else if (answerBox.containsKey("snippet")) {
+			toret = answerBox.get("snippet").toString();
 		}
-		else if (response.containsKey("answer_box")
-				&& ((Map<String, Object>) response.get("answer_box")).containsKey("snippet_highlighted_words")) {
-			toret = ((List<String>) ((Map<String, Object>) response.get("answer_box")).get("snippet_highlighted_words"))
+		else if (answerBox.containsKey("snippet_highlighted_words")
+				&& !CollectionUtils.isEmpty((List<?>) answerBox.get("snippet_highlighted_words"))) {
+			toret = ((List<String>) answerBox.get("snippet_highlighted_words"))
 				.get(0);
 		}
-		else if (response.containsKey("sports_results")
+		else if (response.get("sports_results") instanceof Map
 				&& ((Map<String, Object>) response.get("sports_results")).containsKey("game_spotlight")) {
 			toret = ((Map<String, Object>) response.get("sports_results")).get("game_spotlight").toString();
 		}
-		else if (response.containsKey("shopping_results")
+		else if (!CollectionUtils.isEmpty((List<?>) response.get("shopping_results"))
 				&& ((List<Map<String, Object>>) response.get("shopping_results")).get(0).containsKey("title")) {
 			List<Map<String, Object>> shoppingResults = (List<Map<String, Object>>) response.get("shopping_results");
-			List<Map<String, Object>> subList = shoppingResults.subList(0, 3);
+			List<Map<String, Object>> subList = shoppingResults.subList(0, Math.min(3, shoppingResults.size()));
 			toret = subList.toString();
 		}
-		else if (response.containsKey("knowledge_graph")
+		else if (response.get("knowledge_graph") instanceof Map
 				&& ((Map<String, Object>) response.get("knowledge_graph")).containsKey("description")) {
 			toret = ((Map<String, Object>) response.get("knowledge_graph")).get("description").toString();
 		}
-		else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("snippet")) {
+		else if (!CollectionUtils.isEmpty((List<?>) response.get("organic_results"))
+				&& (((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("snippet")) {
 			toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("snippet").toString();
 		}
-		else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("link")) {
+		else if (!CollectionUtils.isEmpty((List<?>) response.get("organic_results"))
+				&& (((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("link")) {
 			toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("link").toString();
 		}
-		else if (response.containsKey("images_results")
+		else if (!CollectionUtils.isEmpty((List<?>) response.get("images_results"))
 				&& ((Map<String, Object>) ((List<Map<String, Object>>) response.get("images_results")).get(0))
 					.containsKey("thumbnail")) {
 			List<String> thumbnails = new ArrayList<>();
 			List<Map<String, Object>> imageResults = (List<Map<String, Object>>) response.get("images_results");
-			for (Map<String, Object> item : imageResults.subList(0, 10)) {
+			for (Map<String, Object> item : imageResults.subList(0, Math.min(10, imageResults.size()))) {
 				thumbnails.add(item.get("thumbnail").toString());
 			}
 			toret = thumbnails.toString();
