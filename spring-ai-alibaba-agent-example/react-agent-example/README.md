@@ -48,6 +48,18 @@ GET http://localhost:8080/feedback
 
 ## 测试指导
 
+### 离线文件工具回归
+
+`file_write` 使用 UTF-8 写入文件，与 `file_read` 的读取编码一致，不受 JVM 默认字符集影响。
+
+在本模块目录执行：
+
+```bash
+mvn -Dtest=FileWriteToolTests test
+```
+
+测试在独立 JVM 中覆盖 ASCII、ISO-8859-1 和 UTF-8 默认字符集，检查中文及 emoji 的文件内容和读写往返。该测试不启动 Spring 应用，也不调用模型服务。
+
 ### 使用 HTTP 文件测试
 模块根目录下提供了 **[react-agent-example.http](./react-agent-example.http)** 文件，包含所有接口的测试用例：
 - 可在 IDE 中直接执行

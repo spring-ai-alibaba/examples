@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -127,10 +128,8 @@ public class CodeUtils {
 		}
 
 		if (code != null) {
-			try {
-				FileWriter fout = new FileWriter(filepath);
+			try (FileWriter fout = new FileWriter(filepath, StandardCharsets.UTF_8)) {
 				fout.write(code);
-				fout.close();
 			}
 			catch (IOException e) {
 				e.printStackTrace();
