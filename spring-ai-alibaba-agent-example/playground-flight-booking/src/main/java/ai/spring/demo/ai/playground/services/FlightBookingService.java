@@ -57,8 +57,14 @@ public class FlightBookingService {
 
 		for (int i = 0; i < 5; i++) {
 			String name = names.get(i);
-			String from = airportCodes.get(random.nextInt(airportCodes.size()));
-			String to = airportCodes.get(random.nextInt(airportCodes.size()));
+			int fromIndex = random.nextInt(airportCodes.size());
+			// Choose uniformly from the remaining airports without retrying.
+			int toIndex = random.nextInt(airportCodes.size() - 1);
+			if (toIndex >= fromIndex) {
+				toIndex++;
+			}
+			String from = airportCodes.get(fromIndex);
+			String to = airportCodes.get(toIndex);
 			BookingClass bookingClass = BookingClass.values()[random.nextInt(BookingClass.values().length)];
 			Customer customer = new Customer();
 			customer.setName(name);

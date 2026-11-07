@@ -53,3 +53,13 @@ mvn clean compile -Pbuild-frontend
 ```
 
 Then explore in [localhost:9000](http://localhost:9000)
+
+## Offline service tests
+
+Demo bookings use different origin and destination cities. To check this invariant with controlled random choices, run from this module directory:
+
+```shell
+mvn -Dtest=FlightBookingServiceTests test
+```
+
+These service tests do not start the application or call a model, so they do not require an API key.
