@@ -70,7 +70,7 @@ public class DocLoaderTool implements Function<String, ToolExecuteResult> {
 	}
 
 	public static FunctionToolCallback getFunctionToolCallback() {
-		return FunctionToolCallback.builder(name, new BrowserUseTool())
+		return FunctionToolCallback.builder(name, new DocLoaderTool())
 			.description(description)
 			.inputSchema(PARAMETERS)
 			.inputType(String.class)
@@ -88,7 +88,10 @@ public class DocLoaderTool implements Function<String, ToolExecuteResult> {
 			String fileType = (String) toolInputMap.get("file_type");
 			String filePath = (String) toolInputMap.get("file_path");
 			TikaDocumentParser parser = new TikaDocumentParser();
-			List<Document> documentList = parser.parse(new FileInputStream(filePath));
+			List<Document> documentList;
+			try (FileInputStream input = new FileInputStream(filePath)) {
+				documentList = parser.parse(input);
+			}
 			List<String> documentContents = documentList.stream()
 				.map(document -> document.getFormattedContent())
 				.collect(Collectors.toList());

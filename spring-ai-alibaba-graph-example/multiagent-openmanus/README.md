@@ -137,6 +137,12 @@ curl "http://localhost:8080/manus/chat"
 # initGraph 接口测试
 curl "http://localhost:8080/manus/human/init"
 ```
+### 文档工具离线回归测试
+
+在本模块目录运行 `mvn -Dtest=DocLoaderToolTest test`，验证 `doc_loader` 回调读取本地文本/PDF/Word 文件、
+返回文件读取错误，并通过步骤 Agent 的两个工具注册入口验证文档读取。文档回调不启动浏览器。测试不需要 Chrome、模型 API key 或外部服务。
+本模块显式选择 Tika 2.9.4 所需的 Commons IO 2.19.0，避免被 graph-core/docker-java 的传递版本 2.6 覆盖。
+
 ## 注意事项
 1. **环境变量**: 确保 `AI_DASHSCOPE_API_KEY` 已正确设置
 2. **网络连接**: 需要能够访问阿里云 DashScope 服务
