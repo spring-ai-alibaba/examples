@@ -15,12 +15,17 @@
  */
 package com.alibaba.cloud.ai.example.graph.openmanus.tool;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.cloud.ai.parser.tika.TikaDocumentParser;
+import org.springframework.ai.document.Document;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -37,6 +42,9 @@ import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.ai.tool.ToolCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mockConstruction;
 
 class DocLoaderToolTest {
@@ -81,6 +89,31 @@ class DocLoaderToolTest {
 			String arguments = JSON.toJSONString(Map.of("file_type", "txt", "file_path", document.toString()));
 			String output = JSON.parseObject(callback.call(arguments)).getString("output");
 			assertThat(output).startsWith("Related information: ").contains(content);
+		}
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	void closesOwnedInputAfterParsing(boolean failParsing) throws Exception {
+		Path document = directory.resolve("stream.txt");
+		Files.writeString(document, "Stream lifecycle fixture");
+		AtomicReference<InputStream> captured = new AtomicReference<>();
+		try (MockedConstruction<TikaDocumentParser> parsers = mockConstruction(TikaDocumentParser.class,
+				(parser, context) -> when(parser.parse(any(InputStream.class))).thenAnswer(invocation -> {
+					captured.set(invocation.getArgument(0));
+					if (failParsing) {
+						throw new IllegalStateException("parser fixture failure");
+					}
+					return List.of(new Document("parsed fixture"));
+				}))) {
+			String result = call(document);
+			assertThat(result).startsWith(failParsing ? "Error get Related information: " : "Related information: ");
+			try {
+				assertThatExceptionOfType(IOException.class).isThrownBy(() -> captured.get().read());
+			}
+			finally {
+				captured.get().close();
+			}
 		}
 	}
 
