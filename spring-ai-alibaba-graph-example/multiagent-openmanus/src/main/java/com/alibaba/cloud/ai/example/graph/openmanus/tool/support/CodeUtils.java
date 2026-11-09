@@ -24,6 +24,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,6 +46,8 @@ public class CodeUtils {
 	private static final String UNKNOWN = "unknown";
 
 	private static final int DEFAULT_TIMEOUT = 600;
+
+	private static final int PIPE_DRAIN_TIMEOUT = 5;
 
 	public static final String WORKING_DIR = Paths.get(System.getProperty("user.dir"), "extensions").toString();
 
@@ -166,34 +170,43 @@ public class CodeUtils {
 	}
 
 	public static ExecuteCommandResult executeCommand(String... command) {
+		Process process = null;
 		try {
-			Process process = new ProcessBuilder(command).start();
+			process = new ProcessBuilder(command).start();
+			final Process running = process;
 
-			BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			String errorResult = read(errorReader);
-			log.info("read python error={}", errorResult);
+			// Drain stdout and stderr concurrently. Reading one pipe to EOF first deadlocks
+			// any child that fills the other one: the child blocks on write, and its stderr
+			// only reaches EOF once it exits.
+			CompletableFuture<String> stdoutFuture = CompletableFuture
+				.supplyAsync(() -> read(new BufferedReader(new InputStreamReader(running.getInputStream()))));
+			CompletableFuture<String> stderrFuture = CompletableFuture
+				.supplyAsync(() -> read(new BufferedReader(new InputStreamReader(running.getErrorStream()))));
 
-			int exitCode = process.waitFor();
-
-			if (exitCode == 0) {
-				BufferedReader inputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				String successResult = read(inputReader);
-				log.info("read python success={}", successResult);
-
-				exitCode = process.waitFor();
-
-				ExecuteCommandResult executeCommandResult = new ExecuteCommandResult();
-				executeCommandResult.setExitCode(exitCode);
-				executeCommandResult.setOutput(successResult);
-				return executeCommandResult;
+			if (!process.waitFor(DEFAULT_TIMEOUT, TimeUnit.SECONDS)) {
+				process.destroyForcibly();
+				log.warn("command timed out after {}s: {}", DEFAULT_TIMEOUT, String.join(" ", command));
+				ExecuteCommandResult timeoutResult = new ExecuteCommandResult();
+				timeoutResult.setExitCode(-1);
+				timeoutResult.setOutput("command timed out after " + DEFAULT_TIMEOUT + "s");
+				return timeoutResult;
 			}
+
+			int exitCode = process.exitValue();
+			String successResult = stdoutFuture.get(PIPE_DRAIN_TIMEOUT, TimeUnit.SECONDS);
+			String errorResult = stderrFuture.get(PIPE_DRAIN_TIMEOUT, TimeUnit.SECONDS);
+			log.info("read python error={}", errorResult);
+			log.info("read python success={}", successResult);
 
 			ExecuteCommandResult executeCommandResult = new ExecuteCommandResult();
 			executeCommandResult.setExitCode(exitCode);
-			executeCommandResult.setOutput(errorResult);
+			executeCommandResult.setOutput(exitCode == 0 ? successResult : errorResult);
 			return executeCommandResult;
 		}
 		catch (Exception e) {
+			if (process != null) {
+				process.destroyForcibly();
+			}
 			log.error("executePythonCode error", e);
 			return null;
 		}
