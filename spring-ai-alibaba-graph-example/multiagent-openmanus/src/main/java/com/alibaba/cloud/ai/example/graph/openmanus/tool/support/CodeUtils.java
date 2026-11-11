@@ -18,12 +18,15 @@ package com.alibaba.cloud.ai.example.graph.openmanus.tool.support;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,6 +47,8 @@ public class CodeUtils {
 	private static final String UNKNOWN = "unknown";
 
 	private static final int DEFAULT_TIMEOUT = 600;
+
+	private static final int PIPE_DRAIN_TIMEOUT = 5;
 
 	public static final String WORKING_DIR = Paths.get(System.getProperty("user.dir"), "extensions").toString();
 
@@ -165,37 +170,88 @@ public class CodeUtils {
 		return DigestUtils.md5Hex(input);
 	}
 
+	/**
+	 * Runs the command with the {@link #DEFAULT_TIMEOUT default timeout}.
+	 * @param command the command line to run
+	 * @return the result, or {@code null} if the command could not be started or drained
+	 * @see #executeCommand(long, String...)
+	 */
 	public static ExecuteCommandResult executeCommand(String... command) {
+		return executeCommand(DEFAULT_TIMEOUT, command);
+	}
+
+	/**
+	 * Runs the command, draining stdout and stderr concurrently, and returns the pipe the
+	 * command wrote to: stdout when it exits with {@code 0}, stderr otherwise.
+	 * @param timeoutSeconds how long to wait for the command before killing its process tree
+	 * @param command the command line to run
+	 * @return the result, or {@code null} if the command could not be started or drained
+	 */
+	static ExecuteCommandResult executeCommand(long timeoutSeconds, String... command) {
+		Process process = null;
 		try {
-			Process process = new ProcessBuilder(command).start();
+			process = new ProcessBuilder(command).start();
+			final Process running = process;
 
-			BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			String errorResult = read(errorReader);
-			log.info("read python error={}", errorResult);
+			// Drain both pipes on dedicated threads. Reading one pipe to EOF first deadlocks
+			// any child that fills the other one: the child blocks on write and its stderr
+			// only reaches EOF once it exits. The common pool is not an option here, because
+			// unrelated async work can occupy every worker and leave these readers queued.
+			FutureTask<String> stdoutTask = drain(running.getInputStream(), "stdout");
+			FutureTask<String> stderrTask = drain(running.getErrorStream(), "stderr");
 
-			int exitCode = process.waitFor();
-
-			if (exitCode == 0) {
-				BufferedReader inputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				String successResult = read(inputReader);
-				log.info("read python success={}", successResult);
-
-				exitCode = process.waitFor();
-
-				ExecuteCommandResult executeCommandResult = new ExecuteCommandResult();
-				executeCommandResult.setExitCode(exitCode);
-				executeCommandResult.setOutput(successResult);
-				return executeCommandResult;
+			if (!process.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
+				destroyTree(process);
+				log.warn("command timed out after {}s: {}", timeoutSeconds, String.join(" ", command));
+				ExecuteCommandResult timeoutResult = new ExecuteCommandResult();
+				timeoutResult.setExitCode(-1);
+				timeoutResult.setOutput("command timed out after " + timeoutSeconds + "s");
+				return timeoutResult;
 			}
+
+			int exitCode = process.exitValue();
+			String successResult = stdoutTask.get(PIPE_DRAIN_TIMEOUT, TimeUnit.SECONDS);
+			String errorResult = stderrTask.get(PIPE_DRAIN_TIMEOUT, TimeUnit.SECONDS);
+			log.info("read python error={}", errorResult);
+			log.info("read python success={}", successResult);
 
 			ExecuteCommandResult executeCommandResult = new ExecuteCommandResult();
 			executeCommandResult.setExitCode(exitCode);
-			executeCommandResult.setOutput(errorResult);
+			executeCommandResult.setOutput(exitCode == 0 ? successResult : errorResult);
 			return executeCommandResult;
 		}
 		catch (Exception e) {
+			if (process != null) {
+				destroyTree(process);
+			}
 			log.error("executePythonCode error", e);
 			return null;
+		}
+	}
+
+	/** Starts a daemon thread that drains one pipe of the command into a future. */
+	private static FutureTask<String> drain(InputStream stream, String name) {
+		FutureTask<String> task = new FutureTask<>(
+				() -> read(new BufferedReader(new InputStreamReader(stream))));
+		Thread thread = new Thread(task, "code-utils-" + name);
+		thread.setDaemon(true);
+		thread.start();
+		return task;
+	}
+
+	/**
+	 * Kills the command together with every descendant. Killing only the direct child leaves
+	 * grandchildren (a script that starts a worker, for example) holding the pipes open, so
+	 * the drain threads never see EOF.
+	 */
+	private static void destroyTree(Process process) {
+		process.descendants().forEach(ProcessHandle::destroyForcibly);
+		process.destroyForcibly();
+		try {
+			process.waitFor(PIPE_DRAIN_TIMEOUT, TimeUnit.SECONDS);
+		}
+		catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
 		}
 	}
 
